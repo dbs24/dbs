@@ -2,7 +2,7 @@
 clear
 # validate gradle version
 #=======================================================================================================================
-SEARCH_STR=chess24
+SEARCH_STR=dbs
 ROOT_PROJECT_FOLDER=${PWD%%$SEARCH_STR*}$SEARCH_STR
 BASH_PROPERTIES_FILE="/sh/bash.properties"
 BASH_PROPERTIES_PATH="$ROOT_PROJECT_FOLDER$BASH_PROPERTIES_FILE"
@@ -19,9 +19,6 @@ fi
 #=======================================================================================================================
 # validate docker version
 #=======================================================================================================================
-SEARCH_STR=chess24
-ROOT_PROJECT_FOLDER=${PWD%%$SEARCH_STR*}$SEARCH_STR
-BASH_PROPERTIES_PATH="$ROOT_PROJECT_FOLDER$BASH_PROPERTIES_FILE"
 source <(sed 's@\(.*\)\.\(.*\)=@\1_\2=@' $BASH_PROPERTIES_PATH)
 DOCKER_VALIDATOR_SCRIPT_PATH=$ROOT_PROJECT_FOLDER$DOCKER_VALIDATOR_PATH
 source "${DOCKER_VALIDATOR_SCRIPT_PATH}"

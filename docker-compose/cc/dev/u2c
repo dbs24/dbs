@@ -1,2 +1,2 @@
-cd ~/Projects/chess24/docker-compose/cc/dev
+cd ~/Projects/dbs/docker-compose/cc/dev
 ./dc-cc-restart-dev
