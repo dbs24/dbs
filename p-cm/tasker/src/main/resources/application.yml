@@ -1,0 +1,174 @@
+---
+debug: true
+trace: true
+server:
+  port: 9443
+  ssl:
+    enabled: true
+    key-store: classpath:k11dev.tech.jks
+    key-store-password: 123123
+    key-store-type: jks
+  servlet:
+    context-path: /
+spring:
+  profiles:
+    active: default
+  main:
+    lazy-initialization: true
+    web-application-type: none
+  jmx:
+    enabled: false
+  web:
+    locale: en_CA
+    locale-resolver: fixed
+  security:
+    user:
+      name: user
+      password: 123123
+  application:
+    name: cm-tasker
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+  data:
+    redis:
+      repositories:
+        enabled: true
+      host: 127.0.0.1
+      port: 6379
+      timeout: 2000
+  cache:
+    redis:
+      time-to-live: 86400
+  messages:
+    basename: messages
+    encoding: UTF-8
+    cache-duration: 3600
+    use-code-as-default-message: true
+    fallback-to-system-locale: true
+  codec:
+    max-in-memory-size: 20MB
+  kafka:
+    bootstrap-servers: 127.0.0.1:9092,127.0.0.1:9093
+    listener:
+      type: batch
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      auto-offset-reset: earliest
+      group-id: ${spring.application.name}
+      properties:
+        isolation.level: read_committed
+logging:
+  register-shutdown-hook: false
+  level:
+    root: DEBUG
+    org.springframework: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.boot.autoconfigure: DEBUG
+    org.springframework.r2dbc: DEBUG
+  #        org.springframework.data.r2dbc.connectionfactory: DEBUG
+  config: classpath:log4j2.xml
+network:
+  cors:
+    allowed-path: localhost
+    allowed-origins:
+      additional: localhost
+    allowed-headers: "*"
+    allowed-methods: "*"
+    allowed-credentials: false
+    max-age: 1
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    enabled-by-default: true
+    web:
+      exposure:
+        include: "*"
+        #include: "metrics, health, prometheus"
+        #exclude: "beans"
+  health:
+    redis:
+      enabled: false
+  metrics:
+    distribution:
+      percentiles-histogram:
+        "[http.server.requests]": true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+springdoc:
+  version: '@springdoc.version@'
+  api-docs:
+    enabled: true
+  swagger-ui:
+    use-root-path: true
+    enabled: true
+    operationsSorter: method
+    disable-swagger-default-url: true
+  cache:
+    disabled: true
+config:
+  liveness:
+    hosts: { #'media-dev.k11dev.tech':9000,
+      #                'admin.k11dev.tech':443,
+      'k11dev.tech': 443,
+      'uonmap.com': 443 }
+  restful:
+    return-error-2-response: true
+    profile:
+      name: ${spring.application.name}
+    security:
+  entity:
+    core:
+      action:
+        execution:
+          async-alg-store:
+            enabled: false
+            delay: 50
+  cache:
+    jedis:
+      enabled: true
+  references:
+    auto-synchronize: true
+    privilege-group: false
+    privilege: false
+---
+spring:
+  config:
+    activate:
+      on-profile: k9-test
+debug: false
+trace: off
+server:
+  ssl:
+    enabled: false
+---
+spring:
+  config:
+    activate:
+      on-profile: k11-dev-ssl-on
+  kafka:
+    bootstrap-servers: 127.0.0.1:9092,127.0.0.1:9093
+grpc:
+  server:
+    port: 18443
+config:
+  references:
+    auto-synchronize: false
+---
+spring:
+  config:
+    activate:
+      on-profile: h25-dev-ssl-on
+  kafka:
+    bootstrap-servers: 127.0.0.1:9092,127.0.0.1:9093
+grpc:
+  server:
+    port: 18443
+config:
+  references:
+    auto-synchronize: false

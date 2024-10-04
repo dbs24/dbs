@@ -1,0 +1,8 @@
+#!/bin/sh
+
+#redis-cli flushall
+
+#cd ./snap/bin/redis.cli
+#flushall
+
+docker exec -i dev-redis redis-cli -a eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81 FLUSHALL

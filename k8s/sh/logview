@@ -1,0 +1,73 @@
+#!/bin/bash
+
+##################################################################
+# keywords
+KEYWORD1="#ERROR"
+KEYWORD2="#WARN"
+KEYWORD3="#Mono.error"
+KEYWORD4="Postman"
+
+
+# exclusions
+Excl1="PROCESSING"
+Excl2="too slow"
+Excl3="Logging level"
+Excl4="MailAppender"
+
+##################################################################
+# scheme
+SCHEME="store"
+
+# servers
+SERVER1="auth-server"
+SERVER2="warehouse-server"
+SERVER3="store-server"
+SERVER4="pmt-server"
+SERVER5="media-server"
+SERVER6="product-catalog"
+SERVER7="mail-server"
+
+
+readarray PODS_LIST < <(\
+kubectl get pods -n "${SCHEME}" | grep -e "Running" | grep -e "${SERVER1}" -e "${SERVER2}" -e "${SERVER3}" -e "${SERVER4}" -e "${SERVER5}" -e "${SERVER6}" -e "${SERVER7}" \
+  | awk '{print $1}')
+
+DELIMITER="#################################################################################################################################"
+
+
+clear
+#pods list
+#for pod in "${PODS_LIST[@]}"
+#do
+#  echo "${pod}"
+#done
+
+USEDKEYS="used keywords: ['${KEYWORD1}', '${KEYWORD2}', '${KEYWORD3}', '${KEYWORD4}'], EXCLUSIONS=['${Excl1}', '${Excl2}', '${Excl3}', '${Excl4}']"
+echo "${DELIMITER}"
+echo "${USEDKEYS}"
+POD_MATCHES=0
+echo "Searching ..."
+
+
+for pod in "${PODS_LIST[@]}"
+do
+  logs=$(kubectl logs ${pod} -n "${SCHEME}" | grep -e "${KEYWORD1}" -e "${KEYWORD2}" -e "${KEYWORD3}" -e "${KEYWORD4}" | grep -v "${Excl1}" | grep -v "${Excl2}" | grep -v "${Excl3}" | grep -v "${Excl4}")
+
+  if  [[ ${#logs} > 0 ]];  then
+    echo "${DELIMITER}"
+    echo "pod: ${SCHEME}/$pod${DELIMITER}"
+    echo "${logs}"
+    ((POD_MATCHES+=1))
+  fi
+done
+
+if [[  ${POD_MATCHES}> 0 ]]
+then
+  echo "${DELIMITER}"
+  echo "${USEDKEYS}"
+  echo "${DELIMITER}"
+else
+  echo "${DELIMITER}"
+  echo "no matches founds"
+fi
+echo "#Bye"

@@ -1,0 +1,236 @@
+---
+debug: true
+trace: true
+server:
+  port: 1446
+  ssl:
+    enabled: true
+    key-store: classpath:k11dev.tech.jks
+    key-store-password: 123123-minsk
+    key-store-type: jks
+  servlet:
+    context-path: /
+    session:
+      timeout: 60
+grpc:
+  server:
+    port: 19443
+    security:
+      enabled: true
+      certificateChain: classpath:k11dev.tech.pem
+      privateKey: classpath:k11dev.tech.key
+spring:
+  profiles:
+    active: default
+  main:
+    lazy-initialization: true
+    web-application-type: reactive
+    banner-mode: console
+  jmx:
+    enabled: false
+  web:
+    locale: en_CA
+    locale-resolver: fixed
+  security:
+    user:
+      name: user
+      password: 123123
+  application:
+    name: out-of-service
+  r2dbc:
+    username: dev_oos_admin
+    password: 7a5db147356645749ddfdd461
+    url: r2dbc:postgresql://dev01.k11dev.tech:5432/dev_oos_db
+    pool:
+      enabled: true
+      initial-size: 2
+      max-size: 10
+      validation-query: SELECT 1
+      max-life-time: 7200000
+      max-idle-time: 12000000
+  cloud:
+    loadbalancer:
+      cache:
+        enabled: false
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+  messages:
+    basename: messages
+    encoding: UTF-8
+    cache-duration: 3600
+    use-code-as-default-message: true
+    fallback-to-system-locale: true
+  codec:
+    max-in-memory-size: 20MB
+logging:
+  register-shutdown-hook: false
+  level:
+    root: WARN
+    org.dbs: DEBUG
+    org.springframework: WARN
+  config: classpath:log4j2.xml
+network:
+  cors:
+    allowed-path: localhost
+    allowed-origins:
+      additional: localhost
+    allowed-headers: "*"
+    allowed-methods: "*"
+    allowed-credentials: false
+    max-age: 1
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    enabled-by-default: true
+    web:
+      exposure:
+        include: "*"
+        #include: "metrics, health, prometheus"
+        #exclude: "beans"
+  health:
+    redis:
+      enabled: false
+  metrics:
+    distribution:
+      percentiles-histogram:
+        "[http.server.requests]": true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+springdoc:
+  version: '@springdoc.version@'
+  api-docs:
+    enabled: true
+  swagger-ui:
+    use-root-path: true
+    enabled: true
+    operationsSorter: method
+    disable-swagger-default-url: true
+config:
+  grpc:
+    reflection:
+      enabled: false
+    moodle-service:
+      server:
+        host: ulia-dev.smartsafeschool.com
+        port: 11446
+  liveness:
+    hosts: {
+      'smartsafeschool.com': 443,
+      'uonmap.com': 443 }
+  restful:
+    return-error-2-response: true
+    profile:
+      name: ${spring.application.name}
+  references:
+    auto-synchronize: true
+  security:
+    security-routes:
+      enabled: false
+    profile:
+      name: advanced
+      advanced-white-uri-list: /info,/health
+    jwt:
+      name: standard
+      secret-key: ThisIsSecretForJWTHS512ThisIsSecretForJWTHS512
+    bucket4j:
+      enabled: false
+      trusted-ips: localhost
+---
+spring:
+  config:
+    activate:
+      on-profile: k8s-test
+debug: false
+trace: off
+server:
+  k8sMode: true
+  ssl:
+    enabled: false
+grpc:
+  server:
+    port: 11446
+network:
+  cors:
+    config:
+      enabled: true
+config:
+  security:
+    bucket4j:
+      enabled: true
+  restful:
+    message:
+      print-entity-id: false
+  entity:
+    core:
+      action:
+        execution:
+          async-alg-store:
+            enabled: true
+            delay: 50
+---
+spring:
+  config:
+    activate:
+      on-profile: k8s-dev
+server:
+  k8sMode: true
+  ssl:
+    enabled: false
+grpc:
+  server:
+    port: 11446
+network:
+  cors:
+    config:
+      enabled: true
+config:
+  security:
+    bucket4j:
+      enabled: true
+  restful:
+    message:
+      print-entity-id: false
+  entity:
+    core:
+      action:
+        execution:
+          async-alg-store:
+            enabled: true
+            delay: 50
+---
+spring:
+  config:
+    activate:
+      on-profile: k8s-prod
+debug: false
+trace: off
+server:
+  k8sMode: true
+  ssl:
+    enabled: false
+grpc:
+  server:
+    port: 11446
+network:
+  cors:
+    config:
+      enabled: true
+config:
+  security:
+    bucket4j:
+      enabled: true
+  restful:
+    message:
+      print-entity-id: false
+  entity:
+    core:
+      action:
+        execution:
+          async-alg-store:
+            enabled: true
+            delay: 50

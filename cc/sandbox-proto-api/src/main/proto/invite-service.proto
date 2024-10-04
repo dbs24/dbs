@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package inviteClient;
+import "protobuf-response.proto";
+import "google/protobuf/wrappers.proto";
+import "invites-dto.proto";
+
+option java_package = "org.dbs.sandbox.invite.client";
+option java_multiple_files = true;
+
+service InviteService {
+  // Invite
+  rpc createOrUpdateInvite (CreateOrUpdateInviteRequest) returns (org.dbs.protobuf.core.MainResponse) {}
+  rpc updateInviteStatus (UpdateInviteStatusRequest) returns (org.dbs.protobuf.core.MainResponse) {}
+  rpc subscribe2Invites (InviteSubscribeRequest) returns (stream org.dbs.protobuf.core.MainResponse) {}
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package org.dbs.protobuf.core;
+
+option java_package = "org.dbs.protobuf.core";
+option java_multiple_files = true;
+
+message Jwts {
+    string accessJwt = 1;
+    string refreshJwt = 2;
+}
+
+message JwtsExp {
+    string jwt = 1;
+    uint64 expiryAt = 2;
+}
+
+message JwtsExpiry {
+    JwtsExp accessJwt = 1;
+    JwtsExp refreshJwt = 2;
+}

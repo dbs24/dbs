@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package outOfService;
+import "protobuf-response.proto";
+import "google/protobuf/wrappers.proto";
+import "outOfService-dto.proto";
+
+option java_package = "org.dbs.protobuf.outOfService";
+option java_multiple_files = true;
+
+service OutOfServiceClientService {
+  // CORE OUT OF SERVICE
+  rpc createOrUpdateCoreOutOfService (CreateOrUpdateCoreOutOfServiceRequest) returns (org.dbs.protobuf.core.MainResponse) {}
+  rpc getCoreOutOfService (GetCoreOutOfServiceRequest) returns (org.dbs.protobuf.core.MainResponse) {}
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

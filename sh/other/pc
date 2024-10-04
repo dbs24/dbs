@@ -1,0 +1,12 @@
+#!/bin/sh
+
+start=$(date +%s.%N)
+
+rm -rf $GRADLE_USER_HOME/caches/build-cache-*
+
+end=$(date +%s.%N)
+runtime=$(echo "$end - $start" | bc -l)
+
+echo "########################################################"
+echo "#### finished in $runtime second(s)."
+echo "########################################################"

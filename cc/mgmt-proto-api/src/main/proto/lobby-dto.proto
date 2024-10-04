@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package lobbyClient;
+import "protobuf-response.proto";
+import "google/protobuf/wrappers.proto";
+
+option java_package = "org.dbs.mgmt.client";
+option java_multiple_files = true;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// createOrUpdate
+//======================================================================================================================
+
+message CreateOrUpdateLobbyRequest {
+  reserved                      1 ;
+  reserved                      "lobbyId"; // 1
+  optional string oldLobbyCode = 2;
+  string          lobbyCode = 3;
+  optional string lobbyName = 7;
+  optional string lobbyKind = 8;
+}
+
+// responseEntity
+message  CreatedLobbyDto {
+  string          lobbyCode = 3;
+  string          status = 16;
+}
+
+// updateStatus
+//======================================================================================================================
+message UpdateLobbyStatusRequest {
+  string modifiedCode = 3;
+  string status = 16;
+}
+
+// responseEntity
+message CreatedLobbyStatus {
+  string modifiedCode = 3;
+  string newStatus = 16;
+}

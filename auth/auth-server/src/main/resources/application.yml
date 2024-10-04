@@ -1,0 +1,237 @@
+---
+debug: false
+trace: off
+server:
+  port: 1443
+  servlet:
+    context-path: /
+    session:
+      timeout: 60
+  ssl:
+    enabled: true
+    key-store: classpath:k11dev.tech.jks
+    key-store-password: 123123
+    key-store-type: jks
+grpc:
+  server:
+    port: 11443
+    security:
+      enabled: true
+      certificateChain: classpath:k11dev.tech.pem
+      privateKey: classpath:k11dev.tech.key
+spring:
+  profiles:
+    active: default
+  main:
+    lazy-initialization: true
+    web-application-type: reactive
+    banner-mode: console
+  jmx:
+    enabled: false
+  security:
+    user:
+      name: user
+      password: 123123
+  r2dbc:
+    username: dev_auth_admin
+    password: 61ab33da324c4f23900c137d8
+    url: r2dbc:postgresql://dev01.k11dev.tech:5432/dev_auth_db
+    pool:
+      enabled: true
+      initial-size: 2
+      max-size: 10
+      validation-query: SELECT 1
+      max-life-time: 7200000
+      max-idle-time: 12000000
+  data:
+    redis:
+      repositories:
+        enabled: true
+      host: 127.0.0.1
+      port: 6379
+      timeout: 2000
+      password: eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+  application:
+    name: cm-auth-server
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+  codec:
+    max-in-memory-size: 20MB
+  kafka:
+    enabled: true
+    bootstrap-servers: 127.0.0.1:9092,127.0.0.1:9093
+    listener:
+      type: batch
+    producer:
+      group-id: http-request
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      auto-offset-reset: earliest
+      group-id: auth-server
+      properties:
+        isolation.level: read_committed
+springdoc:
+  version: '@springdoc.version@'
+  api-docs:
+    enabled: false
+  swagger-ui:
+    use-root-path: true
+    enabled: false
+    operationsSorter: method
+    disable-swagger-default-url: true
+  cache:
+    disabled: true
+logging:
+  register-shutdown-hook: false
+  level:
+    root: DEBUG
+    org.springframework: DEBUG
+network:
+  cors:
+    allowed-path: localhost
+    allowed-origins:
+      additional: localhost
+    allowed-headers: "*"
+    allowed-methods: "*"
+    allowed-credentials: false
+    max-age: 1
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    enabled-by-default: true
+    web:
+      exposure:
+        include: "*"
+        #include: "metrics, health, prometheus"
+        #exclude: "beans"
+  health:
+    redis:
+      enabled: true
+  metrics:
+    distribution:
+      percentiles-histogram:
+        "[http.server.requests]": true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+# new custom
+config:
+  references:
+    auto-synchronize: false
+  entity:
+    core:
+      enabled: false
+  grpc:
+    reflection:
+      enabled: false
+    cc-mgmt:
+      server:
+        host: dev01.k11dev.tech
+        port: 18443
+  security:
+    h1:
+      white-headers: X-Real-IP, X-Forwarded-For
+    #white-headers: all
+    security-routes:
+      enabled: true
+    secured-params: username, password
+    profile:
+      name: advanced
+      webfilter:
+      #chain: development
+      advanced-white-uri-list: /api/player/v1/login
+    jwt:
+      token:
+        enabled: true
+      name: standard
+      secret-key: ThisIsSecretForJWTHS512ThisIsSecretForJWTHS512
+      delete-deprecated:
+        enabled: true
+        expiryDays: 60 # days
+        period: 300 # seconds
+  restful:
+    return-error-2-response: true
+    security:
+      cc-mgmt:
+        enabled: true
+        jwt:
+          secret-key: ThisIsSecretForJWTHS512ThisIsSecretForJWTHS512
+          expiration-time: 500
+        refresh-jwt:
+          expiration-time: 3600
+---
+spring:
+  config:
+    activate:
+      on-profile: k11-dev-ssl-on
+  kafka:
+    bootstrap-servers: 127.0.0.1:9092,127.0.0.1:9093
+grpc:
+  server:
+    port: 11443
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+config:
+  grpc:
+    reflection:
+      enabled: true
+  references:
+    auto-synchronize: false
+---
+spring:
+  config:
+    activate:
+      on-profile: h25-dev-ssl-on
+  kafka:
+    bootstrap-servers: 127.0.0.1:9092,127.0.0.1:9093
+  data:
+    redis:
+      repositories:
+        enabled: true
+      host: media-dev.smartsafeschool.com
+      port: 6379
+      timeout: 2000
+config:
+  grpc:
+    reflection:
+      enabled: true
+  references:
+    auto-synchronize: false
+server:
+  ssl:
+    enabled: false
+grpc:
+  server:
+    security:
+      enabled: false
+---
+spring:
+  config:
+    activate:
+      on-profile: ilona-k11-dev-ssl-on
+  r2dbc:
+    username: dev_auth_admin
+    password: 4fa4c68e2a04458db2e0b748b
+    url: r2dbc:postgresql://localhost:5432/dev_auth_db
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+config:
+  grpc:
+    reflection:
+      enabled: true
+    cc-mgmt:
+      server:
+        host: ilona.k11dev.tech
+        port: 18443
+  references:
+    auto-synchronize: false

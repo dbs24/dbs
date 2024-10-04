@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package authServerClient;
+import "protobuf-response.proto";
+import "auth-player-dto.proto";
+import "auth-verify-dto.proto";
+
+option java_package = "org.dbs.protobuf.auth";
+option java_multiple_files = true;
+
+service AuthServerClientService {
+  // players
+  rpc playerLogin (PlayerLoginRequest) returns (org.dbs.protobuf.core.MainResponse) {}
+  rpc refreshPlayerJwt (RefreshPlayerJwtRequest) returns (org.dbs.protobuf.core.MainResponse) {}
+  // jwt
+  rpc findJwt (FindJwtRequest) returns (org.dbs.protobuf.core.MainResponse) {}
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//======================================================================================================================

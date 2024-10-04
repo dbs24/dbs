@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package org.dbs.protobuf.core;
+
+//import "google/protobuf/any.proto";
+option java_package = "org.dbs.protobuf.core";
+option java_multiple_files = true;
+
+enum QueryParamEnum {
+    QPG_RESERVED = 0x0; // first enum value should be 0
+    //------------------------------------------------------------------------------------------------------------------
+    // common
+    QPG_COUNTRY_ISO = 0x100;
+    QPG_CURRENCY_CODE = 0x101;
+    //------------------------------------------------------------------------------------------------------------------
+    // pagination
+    QPG_PAGE_SIZE = 0x100000;
+    QPG_PAGE_NUM = 0x1000001;
+    QPG_SORT_FIELD = 0x1000002;
+    QPG_SORT_ORDER = 0x1000003;
+    QPG_DATE_FROM = 0x1000004;
+    QPG_DATE_TO = 0x1000005;
+    //------------------------------------------------------------------------------------------------------------------
+    // moodle
+    QPG_USER_ID = 0x2000000;
+    QPG_USER_IDs_LIST = 0x2000001;
+    QPG_QUIZ_ID = 0x2000002;
+    QPG_QUIZ_IDs_LIST = 0x2000003;
+    QPG_REQUEST_CODE = 0x2000004;
+    QPG_QUIZ_NAME = 0x2000005;
+    QPG_FILTER_NAME = 0x2000006;
+    QPG_FILTER_STATUS = 0x2000007;
+    //------------------------------------------------------------------------------------------------------------------
+    // quiz
+    QPG_QUIZ_CODE_MASK = 0x3000000;
+    QPG_QUIZ_NAME_MASK = 0x3000001;
+    //------------------------------------------------------------------------------------------------------------------
+    // school customer
+    QPG_SCHOOL_CUSTOMER_LOGINS = 0x4000000;
+
+}
+
+message QueryParam {
+    QueryParamEnum queryParamEnum = 1;
+    string queryParamValue = 2;
+}
+
+message QueryParamsList {
+    repeated QueryParam queryParamsList  = 1;
+}

@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package inviteClient;
+import "protobuf-response.proto";
+import "google/protobuf/wrappers.proto";
+
+option java_package = "org.dbs.sandbox.invite.client";
+option java_multiple_files = true;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//======================================================================================================================
+// Invites credentials
+//======================================================================================================================
+message InviteCredentials {
+  string inviteCode = 3;
+  string inviteStatus = 16;
+}
+
+message InviteCredentialsRequest {
+  string inviteCode = 3;
+}
+
+// createOrUpdate
+//======================================================================================================================
+
+message CreateOrUpdateInviteRequest {
+  reserved                      1 ;
+  reserved                      "inviteId"; // 1
+  optional string               inviteCode = 3;
+  string                        playerLogin = 4;
+  uint32                        gameType = 5;
+  uint64                        validDate = 6;
+  optional uint32               requiredRating = 7;
+  optional bool                 whiteSide = 8;
+  //optional string status       016;
+}
+
+// responseEntity
+message  CreatedInviteDto {
+  string          inviteCode = 3;
+  string          playerLogin = 4;
+  string          status = 16;
+}
+
+// updateStatus
+//======================================================================================================================
+message UpdateInviteStatusRequest {
+  string inviteCode = 3;
+  string status = 16;
+}
+
+message CreatedInviteStatus {
+  string inviteCode = 3;
+  string newStatus = 16;
+}
+
+// subscribe 2 invite
+//======================================================================================================================
+message InviteSubscribeRequest {
+  optional uint32 rating = 1;
+  optional bool white = 2;
+}
+
+// responseEntity
+message  SubscribeResult {
+  bool    result = 1;
+}

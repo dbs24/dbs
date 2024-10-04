@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package org.dbs.protobuf.core;
+
+import "google/protobuf/struct.proto";
+import "google/type/money.proto";
+option java_package = "org.dbs.protobuf.core";
+option java_multiple_files = true;
+
+message StringNullable {
+    oneof kind {
+        google.protobuf.NullValue null = 1;
+        string data = 2;
+    }
+}
+
+message BoolNullable {
+    oneof kind {
+        google.protobuf.NullValue null = 1;
+        bool data = 2;
+    }
+}
+
+message Int64Nullable {
+    oneof kind {
+        google.protobuf.NullValue null = 1;
+        int64 data = 2;
+    }
+}
+
+message Int32Nullable {
+    oneof kind {
+        google.protobuf.NullValue null = 1;
+        int32 data = 2;
+    }
+}
+
+message DoubleNullable {
+    oneof kind {
+        google.protobuf.NullValue null = 1;
+        double data = 2;
+    }
+}
+
+message GrpcFile {
+    bytes content = 1;
+    string name = 2;
+}

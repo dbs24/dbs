@@ -1,0 +1,4 @@
+#!/bin/bash
+
+sudo sudo mkdir /etc/docker/certs.d/git2.uonmap.com:5555
+sudo cp ca.crt /etc/docker/certs.d/git2.uonmap.com:5555

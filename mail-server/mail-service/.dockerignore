@@ -1,0 +1,11 @@
+/out
+/tmp
+/doc
+/dc
+/build
+/.gradle/
+/.idea/
+/.git/
+/Dockerfile
+/docker-compose*
+!/build/libs/mail-service.jar

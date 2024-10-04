@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package org.dbs.protobuf.core;
+
+import "google/protobuf/any.proto";
+option java_package = "org.dbs.protobuf.core";
+option java_multiple_files = true;
+
+enum ResponseCode {
+    RC_OK = 0x0;
+    RC_INVALID_REQUEST_DATA = 0x101;
+    RC_INVALID_RESPONSE_DATA = 0x102;
+    RC_INVALID_JWT = 0x110;
+    RC_UNAUTHORIZED = 0x401;
+    RC_FORBIDDEN = 0x403;
+    RC_INTERNAL_ERROR = 0x500;
+    RC_BAD_GATEWAY = 0x502;
+    RC_SERVICE_UNAVAILABLE = 0x503;
+}
+
+message ErrorMessage {
+    uint32 code = 100;
+    string message = 200;
+}
+
+message ResponseAnswer {
+    ResponseCode responseCode = 1;
+    google.protobuf.Any responseEntity = 100;
+    repeated ErrorMessage errorMessages = 200;
+    optional string errorMessage = 300;
+}
+
+message MainResponse {
+    ResponseAnswer responseAnswer = 1;
+}

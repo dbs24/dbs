@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package userClient;
+import "protobuf-response.proto";
+import "google/protobuf/wrappers.proto";
+
+option java_package = "org.dbs.mgmt.client";
+option java_multiple_files = true;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//======================================================================================================================
+// Users credentials
+//======================================================================================================================
+message UserCredentials {
+  string userLogin = 3;
+  string userPassword = 10;
+  string userStatus = 16;
+}
+
+message UserCredentialsRequest {
+  string userLogin = 3;
+}
+
+message  UserCredentialsDto {
+  string userLogin = 3;
+  string userPassword = 10;
+}
+
+// createOrUpdate
+//======================================================================================================================
+
+message CreateOrUpdateUserRequest {
+  reserved                      1 ;
+  reserved                      "userId"; // 1
+  optional string oldLogin = 2;
+  string          login = 3;
+  optional string oldEmail = 4;
+  optional string email = 5;
+  optional string phone = 6;
+  optional string firstName = 7;
+  optional string middleName = 8;
+  optional string lastName = 9;
+  optional string password = 10;
+  optional uint32 birthDate = 11;
+  optional string country = 12;
+  optional string gender = 13;
+  optional string avatar = 14;
+  optional string smallAvatar = 15;
+  //optional string status       016;
+}
+
+// responseEntity
+message  CreatedUserDto {
+  string          userLogin = 3;
+  string          status = 16;
+  string          email = 5;
+}
+
+// updateStatus
+//======================================================================================================================
+message UpdateUserStatusRequest {
+  string modifiedLogin = 3;
+  string status = 16;
+}
+
+// responseEntity
+message CreatedUserStatus {
+  string modifiedLogin = 3;
+  string newStatus = 16;
+}
+
+// updatePassword
+//======================================================================================================================
+message UpdateUserPasswordRequest {
+  string modifiedLogin = 10;
+  string newPassword = 30;
+}
+
+// responseEntity
+message CreatedUserPassword {
+  string modifiedLogin = 10;
+}

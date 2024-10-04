@@ -1,0 +1,71 @@
+
+ █████╗ ██╗   ██╗████████╗██╗  ██╗    ███████╗███████╗██████╗ ██╗   ██╗██╗ ██████╗███████╗
+██╔══██╗██║   ██║╚══██╔══╝██║  ██║    ██╔════╝██╔════╝██╔══██╗██║   ██║██║██╔════╝██╔════╝
+███████║██║   ██║   ██║   ███████║    ███████╗█████╗  ██████╔╝██║   ██║██║██║     █████╗
+██╔══██║██║   ██║   ██║   ██╔══██║    ╚════██║██╔══╝  ██╔══██╗╚██╗ ██╔╝██║██║     ██╔══╝
+██║  ██║╚██████╔╝   ██║   ██║  ██║    ███████║███████╗██║  ██║ ╚████╔╝ ██║╚██████╗███████╗
+╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚═╝  ╚═╝    ╚══════╝╚══════╝╚═╝  ╚═╝  ╚═══╝  ╚═╝ ╚═════╝╚══════╝
+
+------------------------------------------------------------
+SpringBoot Version                       : ${spring-boot.version}
+Application name                         : ${spring.application.name}
+SpringBoot active profile                : ${spring.profiles.active}
+Web Application Type                     : ${spring.main.web-application-type}
+Lazy initialization                      : ${spring.main.lazy-initialization}
+------------------------------------------------------------
+Logging level root                       : ${logging.level.root}
+Default locale                           : ${spring.web.locale}
+------------------------------------------------------------
+Session timeout                          : ${server.servlet.session.timeout}
+------------------------------------------------------------
+SpringDoc API                            : ${springdoc.api-docs.enabled}
+SpringDoc Swagger UI                     : ${springdoc.swagger-ui.enabled}
+------------------------------------------------------------
+Server port                              : ${server.port}
+SSL enabled                              : ${server.ssl.enabled}
+White uri list                           : ${config.security.profile.advanced-white-uri-list}
+Jmx enabled                              : ${spring.jmx.enabled}
+SSL key store                            : ${server.ssl.key-store:n/a}
+SSL key store type                       : ${server.ssl.key-store-type:n/a}
+White Headers List                       : ${config.security.h1.white-headers:all}
+Break illegal header                     : ${config.security.h1.break-illegal-header:false}
+White Hosts List                         : ${config.security.h1.white-hosts:all}
+Break hosts header                       : ${config.security.h1.break-illegal-host:false}
+Abused query params values               : ${config.security.h1.abused.query-params-values}
+------------------------------------------------------------
+Bucket4j filter enabled                  : ${config.security.bucket4j.enabled:false}
+Bucket4j trusted ips                     : ${config.security.bucket4j.trusted-ips:locahost}
+Bucket4j only allowed ips                : ${config.security.bucket4j.allowed-only-ips:all}
+Bucket4j black list ips                  : ${config.security.bucket4j.black-list-ips:locahost}
+Bucket4j X-REAL-IP                       : ${config.security.bucket4j.use-x-real-ip:false}
+------------------------------------------------------------
+Database                                 : ${spring.r2dbc.url}
+Pool enabled                             : ${spring.r2dbc.pool.enabled}
+Initial pool size                        : ${spring.r2dbc.pool.initial-size}
+Max pool size                            : ${spring.r2dbc.pool.max-size}
+Max life time                            : ${spring.r2dbc.pool.max-life-time}
+Auto synchronize                         : ${config.references.auto-synchronize}
+------------------------------------------------------------
+Kafka                                    : ${spring.kafka.bootstrap-servers}
+------------------------------------------------------------
+Redis host                               : ${spring.data.redis.host}
+Redis port                               : ${spring.data.redis.port}
+------------------------------------------------------------
+Access jwt expiration (chess community)  : ${config.restful.security.cc-mgmt.jwt.expiration-time}
+Refresh jwt expiration (chess community) : ${config.restful.security.cc-mgmt.refresh-jwt.expiration-time}
+------------------------------------------------------------
+GRPC CC client host                      : ${config.grpc.cc-mgmt.server.host}
+GRPC CC client port                      : ${config.grpc.cc-mgmt.server.port}
+CORS allowed path                        : ${network.cors.allowed-path}
+CORS allowed additional path             : ${network.cors.allowed-origins.additional}
+CORS allowed headers                     : ${network.cors.allowed-headers}
+CORS allowed methods                     : ${network.cors.allowed-methods}
+CORS allowed credentials                 : ${network.cors.allowed-credentials}
+CORS max age                             : ${network.cors.max-age}
+------------------------------------------------------------
+GRPC server port                         : ${grpc.server.port}
+GRPC server reflection                   : ${config.grpc.reflection.enabled}
+GRPC SSL enabled                         : ${grpc.server.security.enabled}
+GRPC cert                                : ${grpc.server.security.certificateChain:n/a}
+GRPC cert key                            : ${grpc.server.security.privateKey:n/a}
+------------------------------------------------------------

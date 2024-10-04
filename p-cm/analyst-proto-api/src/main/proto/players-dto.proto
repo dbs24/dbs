@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+package analystClient;
+import "protobuf-response.proto";
+import "google/protobuf/wrappers.proto";
+
+option java_package = "org.dbs.cm.client";
+option java_multiple_files = true;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//======================================================================================================================
+// Players credentials
+//======================================================================================================================
+message PlayerCredentials {
+  string playerLogin = 10;
+  string playerPassword = 20;
+  string playerStatus = 30;
+}
+
+message PlayerCredentialsRequest {
+  string playerLogin = 10;
+}
+
+message PlayerCredentialsResponse {
+  org.dbs.protobuf.core.ResponseAnswer responseAnswer = 1;
+}
+
+message  PlayerCredentialsDto {
+  string playerLogin = 10;
+  string playerPassword = 20;
+}
+
+// createOrUpdate
+//======================================================================================================================
+
+message CreateOrUpdatePlayerRequest {
+  optional string oldLogin = 10;
+  string login = 20;
+  //string token = 30;
+  optional string  oldEmail = 40;
+  string email = 50;
+  optional string phone = 60;
+  string firstName = 70;
+  optional string  lastName = 80;
+  string password = 90;
+}
+
+message  CreatedPlayerDto {
+  string playerLogin = 10;
+  string email = 20;
+}
+
+message CreatePlayerResponse {
+  org.dbs.protobuf.core.ResponseAnswer responseAnswer = 10;
+}
+
+// updateStatus
+//======================================================================================================================
+message UpdatePlayerStatusRequest {
+  string modifiedLogin = 10;
+  string newStatus = 20;
+}
+
+message CreatedPlayerStatus {
+  string modifiedLogin = 10;
+  string newStatus = 20;
+}
+
+message UpdatePlayerStatusResponse {
+  org.dbs.protobuf.core.ResponseAnswer responseAnswer = 10;
+}

@@ -1,0 +1,22 @@
+mongosh -c "use dev_sss_pmt"
+mongosh --port 27017  --authenticationDatabase "dev_sss_pmt" -u "dev_pmt_admin" -p "dev_pmt_admin"
+mongosh --port 27017  --authenticationDatabase "dev_sss_pmt" -u "root" -p "321321"
+
+mongosh --host localhost.k11dev.tech --authenticationDatabase admin -u "admin-user" -p "K17n02*i01" --tls
+
+docker exec -it dev-mongo /bin/sh
+
+use admin
+
+db.auth("root", "321321")
+
+db.system.users.find()
+
+db.createUser(
+{
+ user: "dev_pmt_admin",
+ pwd:  "dev_pmt_admin",
+ roles:
+ [
+ { role:"readWrite",db:"dev_sss_pmt"}
+ ] } );

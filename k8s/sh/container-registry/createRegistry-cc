@@ -1,0 +1,77 @@
+#!/bin/bash
+clear
+
+# tag
+#=======================================================================================================================
+export IMAGE_PREFIX=dev
+#export IMAGE_PREFIX=test
+#export IMAGE_PREFIX=prod
+
+# modules
+#=======================================================================================================================
+declare -a PROJECT_MODULES=(
+"auth/auth-server"
+#"cc/mgmt"
+#"mail-server/mail-service"
+#"3s-media/media-service"
+)
+
+# validate gradle version
+#=======================================================================================================================
+SEARCH_STR=chess24
+ROOT_PROJECT_FOLDER=${PWD%%$SEARCH_STR*}$SEARCH_STR
+BASH_PROPERTIES_PATH="$ROOT_PROJECT_FOLDER/sh/bash.properties"
+source <(sed 's@\(.*\)\.\(.*\)=@\1_\2=@' $BASH_PROPERTIES_PATH)
+GRADLE_VALIDATOR_PATH_SCRIPT_PATHSCRIPT_PATH=$ROOT_PROJECT_FOLDER$GRADLE_VALIDATOR_PATH
+source "${GRADLE_VALIDATOR_PATH_SCRIPT_PATHSCRIPT_PATH}"
+#=======================================================================================================================
+#  if JWT is empty"
+if [[ ${GRADLE_VERSION_IS_VALID} == 0 ]]; then
+  exit
+fi
+#=======================================================================================================================
+# path to "createImage" module
+source <(sed 's@\(.*\)\.\(.*\)=@\1_\2=@' $BASH_PROPERTIES_PATH)
+PUSH_SCRIPT_PATH=$ROOT_PROJECT_FOLDER$CREATE_IMAGE_PATH
+#=======================================================================================================================
+# local context
+#docker context use default || exit 1
+# clear all images
+#docker kill $(docker ps -q)
+#docker rm $(docker ps -a -q)
+#docker rmi $(docker images -q)
+
+#=======================================================================================================================
+# rebuild all projects
+
+cd $ROOT_PROJECT_FOLDER
+echo "ROOT_PROJECT_FOLDER='$ROOT_PROJECT_FOLDER'"
+
+gradle clean build --build-cache -x test -x distTar -x bootDistTar -x distZip -x bootDistZip -x detekt -x checkBestPractices || exit 1
+
+export TAG_PREFIX=latest
+export GIT_REPO_NAME=github.com:5555
+
+echo "================================================================================================================="
+echo "try 2 login '$GIT_REPO_NAME'"
+echo "================================================================================================================="
+sudo docker login $GIT_REPO_NAME || exit 1
+
+#=================================================================
+# process projects
+
+for gradleApp in "${PROJECT_MODULES[@]}"
+do
+  export PROJECT_NAME=$gradleApp
+  echo "PROJECT_NAME=$PROJECT_NAME; TAG=$IMAGE_PREFIX"
+  source "${PUSH_SCRIPT_PATH}" || exit 1
+done
+
+#-----------------------------------------------------------------
+#////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+# list images
+echo "##################################################################################################################"
+echo "##################################################################################################################"
+echo "##################################################################################################################"
+docker image ls
+sudo docker logout $GIT_REPO_NAME || exit 1

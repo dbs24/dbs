@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package analystClient;
+import "protobuf-response.proto";
+import "google/protobuf/wrappers.proto";
+import "players-dto.proto";
+import "solutions-dto.proto";
+
+option java_package = "org.dbs.cm.client";
+option java_multiple_files = true;
+
+service AnalystClientService {
+  // Player
+  rpc createOrUpdatePlayer (CreateOrUpdatePlayerRequest) returns (CreatePlayerResponse) {}
+  rpc getPlayerCredentials (PlayerCredentialsRequest) returns (PlayerCredentialsResponse) {}
+  rpc updatePlayerStatus (UpdatePlayerStatusRequest) returns (UpdatePlayerStatusResponse) {}
+  rpc getFenSolution (GetSolutionRequest) returns (CreatedSolution) {}
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -1,0 +1,278 @@
+<!DOCTYPE html
+        PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      lang="ru">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- <meta name="color-scheme" content="light dark" />
+    <meta name="supported-color-schemes" content="light dark" /> -->
+    <title>Registration</title>
+    <style type="text/css">
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap');
+
+        table {
+            border-spacing: 0;
+            mso-cellspacing: 0;
+            mso-padding-alt: 0;
+        }
+
+        td {
+            padding: 0;
+        }
+
+        #outlook a {
+            padding: 0;
+        }
+
+        a {
+            text-decoration: none;
+            color: #e8fbfa;
+            font-size: 16px;
+        }
+
+        @media screen and (max-width: 599.98px) {}
+
+        @media screen and (max-width: 399.98px) {
+            .mobile-padding {
+                padding-right: 10px !important;
+                padding-left: 10px !important;
+            }
+
+            .mobile-col-padding {
+                padding-right: 0 !important;
+                padding-left: 0 !important;
+            }
+
+            .two-columns .column {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            .two-columns .column img {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            .three-columns .column {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            .three-columns .column img {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+        }
+
+        /* Custom Dark Mode Colors */
+        /* :root {
+          color-scheme: light dark;
+          supported-color-schemes: light dark;
+        }
+
+        @media (prefers-color-scheme: dark) {
+
+          table,
+          td {
+            background-color: #06080B !important;
+          }
+
+          h1,
+          h2,
+          h3,
+          p {
+            color: #ffffff !important;
+          }
+        } */
+    </style>
+
+    <!--[if (gte mso 9)|(IE)]>
+    <style type="text/css">
+        table {border-collapse: collapse !important;}
+    </style>
+    <![endif]-->
+
+    <!--[if (gte mso 9)|(IE)]>
+    <xml>
+        <o:OfficeDocumentSettings>
+            <o:AllowPNG/>
+            <o:PixelsPerInch>96</o:PixelsPerInch>
+        </o:OfficeDocumentSettings>
+    </xml>
+    <![endif]-->
+</head>
+
+<body style="Margin:0;padding:0;min-width:100%;background-color:#dde0e1;">
+
+<!--[if (gte mso 9)|(IE)]>
+<style type="text/css">
+    body {background-color: #dde0e1!important;}
+    body, table, td, p, a {font-family: sans-serif, Arial, Helvetica!important;}
+</style>
+<![endif]-->
+
+<div align="center" style="width: 100%;table-layout:fixed;background-color: #dde0e1;padding-top: 40px;padding-bottom: 40px;">
+    <div style="max-width: 600px;background-color: #fafdfe;box-shadow: 0 0 10px rgba(0, 0, 0, .2);">
+
+        <!-- Preheader (remove comment) -->
+<!--        <div-->
+<!--                style="font-size: 0px;color: #fafdfe;line-height: 1px;mso-line-height-rule:exactly;display: none;max-width: 0px;max-height: 0px;opacity: 0;overflow: hidden;mso-hide:all;">-->
+<!--            Стартовое описание-->
+<!--        </div>-->
+        <!-- End Preheader (remove comment) -->
+
+        <!--[if (gte mso 9)|(IE)]>
+        <table width="600" align="center" border="0" cellspacing="0" cellpadding="0" role="presentation"
+               style="color:#1C1E23;">
+            <tr>
+                <td>
+        <![endif]-->
+
+        <table border="0" cellspacing="0" cellpadding="0" role="presentation"
+               style="color:#1C1E23;font-family: 'Montserrat',sans-serif, Arial, Helvetica;background-color: #fafdfe;Margin:0;padding:0;width: 100%;max-width: 600px;"
+        >
+            <!-- Logo -->
+            <tr>
+                <td>
+                    <table align="center" border="0" cellspacing="0" cellpadding="0" role="presentation"
+                           style= "background-color: #43784E; width: 600px;"
+                    >
+                        <tr>
+                            <td style="padding: 22px 0 0px 0; text-align: center;">
+                                <a href="https://k11dev.tech/brain" target="_blank">
+<!--                                    <img src="logo.png" alt="SSS logo" border="0" width="502" style="max-width: 502;">-->
+                                    <b style="font-size: 40px;">Smart Safe School</b>
+                                </a>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <!-- End Logo -->
+
+            <!-- User_Login -->
+            <tr>
+                <td style="background-color: #43784E;">
+                    <table align="center" border="0" cellspacing="0" cellpadding="0" role="presentation display: flex;"
+                           style= "padding: 0px 0 20px 0; background-color: #43784E; width: 190px; margin-left: auto; margin-right: auto;"
+                    >
+                        <tr>
+<!--                            <td style="padding: 22px 8px 0px 0; text-align: center; display: inline;">-->
+<!--                                <img src="user_logo.png" alt="User" border="0" width="36" style="max-width: 502;">-->
+<!--                            </td>-->
+
+<!--                            <td style=" display: inline;-->
+                            <td style=" text-align: center;
+                  color: #FFFFFF;
+                  font-size: 18px;
+                  font-style: normal;
+                  font-weight: 700;
+                  line-height: normal;">
+                                <span th:text="${login}"></span>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <!-- End User_Login -->
+
+            <!-- Body -->
+            <tr>
+                <td style="display: inline-block;">
+                    <table align="center" border="0" cellspacing="0" cellpadding="0" role="presentation"
+                           style="color: #43784E;font-family: 'Montserrat',sans-serif, Arial, Helvetica;background-color: #fafdfe;Margin:0;padding:0; "
+                    >
+                        <tr>
+                            <td style="padding: 88px 0 0px 0;
+                display: inline-block;">
+                                <p th:text="#{msg.welcome.user(${username})}" style="margin: 0 0px 0 30px;
+                  color: #43784E;
+                  font-size: 36px;
+                  font-style: normal;
+                  font-weight: 700;
+                  line-height: normal;"
+                                >
+                                    Welcome User,
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <tr>
+                <td style="padding: 20px 0 50px 0;">
+                    <div style="margin: 0 0 0 30px;
+                  width: 506px;
+                  color: #151C13;
+                  font-size: 20px;
+                  font-style: normal;
+                  font-weight: 400;
+                  line-height: normal;"
+                    >
+                        <span th:utext="#{msg.school.registration}">
+                            We are thrilled to have you on SmartSafeSchool. To activate your account, click below!
+                        </span>
+                        <span th:utext="#{msg.school.expiration(${expiration})}"></span>
+                        <br/><br/>
+                        <span th:text="#{msg.school.registration.generated_password}">
+                            Your temporary password has been automatically generated:
+                        </span>
+                        <br/>
+                        <div align="center"><b th:text="${password}"></b></div>
+                        <br/>
+                        <span th:text="#{msg.school.registration.footer}">
+                            We recommend that after activating your account, change the password (temporary) to your permanent.
+                        </span>
+                    </div>
+                </td>
+            </tr>
+
+        <tr>
+            <td>
+                <table border="0" cellspacing="0" cellpadding="0" role="presentation" align="left" style="margin: 0 0 0 30px;">
+                    <tr>
+                        <td style="padding-left; background-color: #43784E;border-radius: 10px;">
+                            <a th:href="@{${link}}" href="http://default" th:text="#{msg.button.activate.name}" target="_blank"
+                               style="font-family: Montserrat; background-color: #43784E;font-weight: 700;font-size: 18px;line-height: 20px;color: #FFFFFF;text-decoration: none;padding: 13px 47px 13px 47px;display: inline-block;border-radius: 10px;">
+                                &nbsp;&nbsp;&nbsp;Activate&nbsp;&nbsp;&nbsp;
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <table align="center" border="0" cellspacing="0" cellpadding="0" role="presentation"
+                       style="color:#1C1E23;font-family: 'Montserrat',sans-serif, Arial, Helvetica;background-color: #fafdfe;Margin:0;padding:0;width: 100%;max-width: 600px;"
+                >
+                    <tr>
+                        <td style="padding: 0px 0 50px 0; width: 420px;">
+                            <p style="margin: 0 0 0 30px;">
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+
+        <!-- End Body -->
+
+        <!--[if (gte mso 9)|(IE)]>
+        </td>
+        </tr>
+        </table>
+        <![endif]-->
+        </table>
+    </div>
+</div>
+
+</body>
+
+</html>

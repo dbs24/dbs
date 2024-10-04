@@ -1,0 +1,50 @@
+#!/bin/bash
+clear
+echo "path=$PWD"
+TESTS_START=$(date +%s.%N)
+
+./gradlew clean assemble --build-cache compileKotlin compileTestKotlin -x test -x detekt -x checkstyleMain -x distZip -x distTar -x bootDistZip -x bootDistTar -x checkStyleMain --warning-mode none || exit 1
+#================================================================
+LINE="################################################################################################################"
+S1="\x1B[32m"
+S2="\x1B[0m"
+NC="\033[0m"
+
+declare -a TESTS_LIST=(
+":cc:mgmt:test;org.dbs.chess24.*"
+":cc:sandbox:test;org.dbs.chess24.*"
+)
+
+for TEST in "${TESTS_LIST[@]}"
+do
+  TEST_TASK=${TEST%;*}
+  TEST_PACKAGE=${TEST#*;}
+echo -e "$LINE"
+git status
+echo -e "$S1$LINE$2"
+echo -e "execute task $TEST_TASK[$TEST_PACKAGE] "
+echo -e "$LINE"
+echo -e "$NC "
+START=$(date +%s.%N)
+gradle $TEST_TASK --tests $TEST_PACKAGE --warning-mode all || exit 1
+EXEC_TIME=$(echo "$(date +%s.%N) - $START" | bc -l)
+echo -e "$S1$LINE$2"
+echo -e "$S1 finish task $TEST_TASK[$TEST_PACKAGE] finished in $EXEC_TIME second(s) at $(date) $S2"
+echo -e "$S1$LINE$2"
+echo -e "$NC "
+
+done
+
+TESTS_EXEC_TIME=$(echo "$(date +%s.%N) - $TESTS_START" | bc -l)
+
+echo -e "$S1$LINE$2"
+git status
+echo -e "$S1$LINE$2"
+echo -e "$S1$LINE$2"
+echo -e "$(date): $S1 test execute finished in $TESTS_EXEC_TIME second(s) at $(date) $S2"
+echo -e "$S1$LINE$2"
+echo -e "$S1$LINE$2"
+echo -e "$NC "
+
+#echo "test execute finished in $TESTS_EXEC_TIME second(s)"
+#echo "########################################################"

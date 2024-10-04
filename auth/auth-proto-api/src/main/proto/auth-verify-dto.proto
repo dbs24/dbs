@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package authServerClient;
+import "protobuf-response.proto";
+import "google/protobuf/wrappers.proto";
+
+option java_package = "org.dbs.protobuf.auth";
+option java_multiple_files = true;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+message FindJwtRequest {
+  string jwt = 1;
+}
+
+message JwtIntrospect {
+  bool active = 1;
+  string jwt = 2;
+  //  "client_id": "l238j323ds-23ij4",
+  optional string username = 10;
+  //      "scope": "read write dolphin",
+  //      "sub": "Z5O3upPC88QrAjx00dis",
+  //      "aud": "https://protected.example.net/resource",
+  //  "iss": "https://server.example.com/",
+  optional int64 exp = 11;
+  optional int64 iat = 12;
+}
+
+//----------------------------------------------------------------
+
+message VerifyJwtRequest {
+  string jwt = 1;
+}
+
+message JwtVerifyResult {
+  bool verified = 1;
+}

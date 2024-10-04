@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package userClient;
+import "protobuf-response.proto";
+import "google/protobuf/wrappers.proto";
+import "customers-dto.proto";
+
+option java_package = "org.dbs.mgmt.client";
+option java_multiple_files = true;
+
+service UserService {
+  // User
+  rpc createOrUpdateUser (CreateOrUpdateUserRequest) returns (org.dbs.protobuf.core.MainResponse) {}
+  rpc getUserCredentials (UserCredentialsRequest) returns (org.dbs.protobuf.core.MainResponse) {}
+  rpc updateUserStatus (UpdateUserStatusRequest) returns (org.dbs.protobuf.core.MainResponse) {}
+  rpc updateUserPassword (UpdateUserPasswordRequest) returns (org.dbs.protobuf.core.MainResponse) {}
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

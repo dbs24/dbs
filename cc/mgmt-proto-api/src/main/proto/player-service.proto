@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package playerClient;
+import "protobuf-response.proto";
+import "google/protobuf/wrappers.proto";
+import "players-dto.proto";
+
+option java_package = "org.dbs.mgmt.client";
+option java_multiple_files = true;
+
+service PlayerService {
+  // Player
+  rpc createOrUpdatePlayer (CreateOrUpdatePlayerRequest) returns (org.dbs.protobuf.core.MainResponse) {}
+  rpc getPlayerCredentials (PlayerCredentialsRequest) returns (org.dbs.protobuf.core.MainResponse) {}
+  rpc updatePlayerStatus (UpdatePlayerStatusRequest) returns (org.dbs.protobuf.core.MainResponse) {}
+  rpc updatePlayerPassword (UpdatePlayerPasswordRequest) returns (org.dbs.protobuf.core.MainResponse) {}
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

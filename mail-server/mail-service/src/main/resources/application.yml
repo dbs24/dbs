@@ -1,0 +1,142 @@
+debug: true
+server:
+  port: 2443
+  ssl:
+    enabled: true
+    key-store: classpath:k11dev.tech.jks
+    key-store-password: 123123
+    key-store-type: jks
+  servlet:
+    context-path: /
+    session:
+      timeout: 60
+spring:
+  profiles:
+    active: default
+  main:
+    lazy-initialization: false
+    web-application-type: reactive
+    banner-mode: console
+  web:
+    locale: en_CA
+  jmx:
+    enabled: false
+  security:
+    user:
+      name: user
+      password: 123123
+    repositories:
+      enabled: true
+  application:
+    name: smart-safe-school-mail
+    web-application-type: none
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+  data:
+    redis:
+      repositories:
+        enabled: true
+      host: caches-dev.k11dev.tech
+      port: 6379
+      timeout: 2000
+  mail:
+    #Web-UI: https://mail.k11dev.tech/SOGo/
+    protocol: smtps
+    host: mail.k11dev.tech
+    port: 465
+    username: dev-notif-store@k11dev.tech
+    password: 123Minsk-Notif-dev
+    from: dev-notif-store@k11dev.tech
+    retry-attempt-limit: 3
+    process-batch-limit: 10
+    process-batch-interval-seconds: 10
+  thymeleaf:
+    check-template-location: false
+  kafka:
+    bootstrap-servers: 127.0.0.1:9092,127.0.0.1:9093
+    listener:
+      type: batch
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      auto-offset-reset: earliest
+      group-id: ${spring.application.name}
+      properties:
+        isolation.level: read_committed
+logging:
+  level:
+    org.springframework: DEBUG
+    org.springframework.web: TRACE
+    org.springframework.boot.autoconfigure: DEBUG
+    org.springframework.r2dbc: DEBUG
+  config: classpath:log4j2.xml
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    enabled-by-default: true
+    web:
+      exposure:
+        include: "*"
+        #include: "metrics, health, prometheus"
+        #exclude: "beans"
+  health:
+    redis:
+      enabled: false
+  metrics:
+    distribution:
+      percentiles-histogram:
+        "[http.server.requests]": true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+springdoc:
+  version: '@springdoc.version@'
+  api-docs:
+    enabled: true
+  swagger-ui:
+    use-root-path: true
+    enabled: true
+    operationsSorter: method
+    disable-swagger-default-url: true
+  cache:
+    disabled: true
+config:
+  restful:
+    return-error-2-response: true
+    profile:
+      name: ${spring.application.name}
+---
+spring:
+  config:
+    activate:
+      on-profile: k9-test
+debug: false
+trace: off
+server:
+  k9sMode: true
+  ssl:
+    enabled: false
+---
+spring:
+  config:
+    activate:
+      on-profile: k9-dev
+server:
+  k9sMode: true
+  ssl:
+    enabled: false
+---
+spring:
+  config:
+    activate:
+      on-profile: k9-kz
+debug: false
+trace: off
+server:
+  k9sMode: true
+  ssl:
+    enabled: false

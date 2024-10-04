@@ -1,0 +1,13 @@
+#shared_preload_libraries = 'pg_stat_statements'
+#pg_stat_statements.track = all
+в postgresql.conf
+
+Позже скачать (если нужно)
+yum install postgresql14-contrib
+
+1. psql -d db_name
+2. create extension pg_stat_statements
+3. GRANT SELECT ON pg_stat_statements TO admin_name;
+
+SELECT pg_catalog.set_config('search_path', 'public', false);
+если no schema has been selected to create

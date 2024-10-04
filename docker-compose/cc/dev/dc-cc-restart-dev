@@ -1,0 +1,64 @@
+#!/bin/bash
+clear
+# validate gradle version
+#=======================================================================================================================
+SEARCH_STR=chess24
+ROOT_PROJECT_FOLDER=${PWD%%$SEARCH_STR*}$SEARCH_STR
+BASH_PROPERTIES_FILE="/sh/bash.properties"
+BASH_PROPERTIES_PATH="$ROOT_PROJECT_FOLDER$BASH_PROPERTIES_FILE"
+
+source <(sed 's@\(.*\)\.\(.*\)=@\1_\2=@' $BASH_PROPERTIES_PATH)
+GRADLE_VALIDATOR_SCRIPT_PATH=$ROOT_PROJECT_FOLDER$GRADLE_VALIDATOR_PATH
+
+source "${GRADLE_VALIDATOR_SCRIPT_PATH}"
+#=======================================================================================================================
+if [[ ${GRADLE_VERSION_IS_VALID} == 0 ]]; then
+  exit
+fi
+
+#=======================================================================================================================
+# validate docker version
+#=======================================================================================================================
+SEARCH_STR=chess24
+ROOT_PROJECT_FOLDER=${PWD%%$SEARCH_STR*}$SEARCH_STR
+BASH_PROPERTIES_PATH="$ROOT_PROJECT_FOLDER$BASH_PROPERTIES_FILE"
+source <(sed 's@\(.*\)\.\(.*\)=@\1_\2=@' $BASH_PROPERTIES_PATH)
+DOCKER_VALIDATOR_SCRIPT_PATH=$ROOT_PROJECT_FOLDER$DOCKER_VALIDATOR_PATH
+source "${DOCKER_VALIDATOR_SCRIPT_PATH}"
+#=======================================================================================================================
+if [[ ${DOCKER_VERSION_IS_VALID} == 0 ]]; then
+  exit
+fi
+#=======================================================================================================================
+
+PROJECT_FLD=$PWD
+echo "PROJECT_FLD = $PROJECT_FLD"
+cd ../../../
+
+gradle clean build -x test -x distTar -x bootDistTar -x distZip -x bootDistZip -x detekt -x checkstyleMain || exit 1
+
+cd $PROJECT_FLD
+
+YML_FLD="dc-cc-dev.yml"
+ENV_FLD=".env-dev"
+CONTEXT_NAME="clouds-dev"
+
+docker context use $CONTEXT_NAME
+
+docker compose \
+  --file $PROJECT_FLD/$YML_FLD \
+  --env-file $PROJECT_FLD/$ENV_FLD \
+  down
+
+docker compose \
+  --file $PROJECT_FLD/$YML_FLD \
+  --env-file $PROJECT_FLD/$ENV_FLD \
+  build
+
+docker compose \
+  --file $PROJECT_FLD/$YML_FLD \
+  --env-file $PROJECT_FLD/$ENV_FLD \
+  up \
+  -d
+
+#docker context use default

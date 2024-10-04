@@ -1,0 +1,14 @@
+/.idea
+.gradle
+*.iml
+*.pdb
+**out/
+**build/
+*/target/
+*.log
+*.class
+*.tmp
+~*.*
+stockfish-ubuntu-x86-64-modern
+*.jar
+!gradle/wrapper/gradle-wrapper.jar

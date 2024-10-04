@@ -1,0 +1,9 @@
+/out
+/tmp
+/build
+/.gradle/
+/.idea/
+/.git/
+/Dockerfile
+/docker-compose*
+!/build/libs/auth-server.jar

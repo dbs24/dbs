@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package analystClient;
+import "protobuf-response.proto";
+import "google/protobuf/wrappers.proto";
+
+option java_package = "org.dbs.cm.client";
+option java_multiple_files = true;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//======================================================================================================================
+// Get solution request
+//======================================================================================================================
+
+message GetSolutionRequest {
+  string fen = 10;
+  int32 depth = 20;
+  int32 timeout = 30;
+}
+
+message CreatedSolution {
+  string fen = 10;
+  string status = 20;
+  int32 depth = 30;
+  int32 timeout = 40;
+}
+
+message GetSolutionResponse {
+  org.dbs.protobuf.core.ResponseAnswer responseAnswer = 10;
+}

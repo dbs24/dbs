@@ -1,0 +1,55 @@
+#!/bin/bash
+clear
+TASK_START=$(date +%s.%N)
+
+REGEX_TEMPLATE_IGNORE_VERSIONS="((rc-|-rc|rc.|alpha|beta)[0-9]\])|((-rc)\])"
+REGEX_TEMPLATE_SKIP_LIBRARIES="(javax.servlet-api|javax.ws.rs-api|spring-boot-devtools|commons-lang3)"
+REGEX_TEMPLATE_IGNORE_DEFECTIVE_UPDATES="((1.66.0 -> 1.68.0)|(2.17.2 -> 2.18.0)|5.9.1 -> 6.0.0.M1)"
+LINE="#######################################################"
+S1="\x1B[32m"
+S2="\x1B[0m"
+NC="\033[0m"
+OPERATION_NAME="dependency updates"
+
+echo -e "$S1$LINE$2"
+
+# Функция для отображения индикатора прогресса
+progress_indicator() {
+    while true; do
+        for i in / - \\ \|; do
+            echo -ne "\r checking for $OPERATION_NAME  $i"  # \r возвращает курсор в начало строки
+            sleep 0.08  # Задержка между символами
+        done
+    done
+}
+
+# Запуск индикатора прогресса в фоновом режиме
+progress_indicator &
+
+# Сохранение PID индикатора
+indicator_pid=$!
+
+# Здесь запускается ваш длительный процесс
+RESULT=$(gradle dependencyUpdates | \
+  grep ' -> '  | \
+  grep -E -i -v "$REGEX_TEMPLATE_IGNORE_VERSIONS|$REGEX_TEMPLATE_SKIP_LIBRARIES|$REGEX_TEMPLATE_IGNORE_DEFECTIVE_UPDATES" | \
+  sort -u)
+
+# После завершения длительного процесса убираем индикатор прогресса
+kill $indicator_pid
+
+wait $indicator_pid 2>/dev/null  # Ждем завершения процесса индикатора
+
+TASK_EXEC_TIME=$(echo "$(date +%s.%N) - $TASK_START" | bc -l)
+clear
+
+if [ ${#RESULT} == 0 ]; then
+  echo -e "There are no updates available"
+else
+  echo -e "$RESULT"
+fi
+
+echo -e "$S1$LINE$2"
+echo -e "$S1 $OPERATION_NAME: successfully finished in $TASK_EXEC_TIME second(s) at $(date) $S2"
+echo -e "$S1$LINE$2"
+echo -e "$NC "

@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package outOfService;
+import "protobuf-response.proto";
+import "query-param.proto";
+
+option java_package = "org.dbs.protobuf.outOfService";
+option java_multiple_files = true;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//========================================Create or update core out of service==========================================
+message CreatedCoreOutOfServiceRespDto {
+  optional int64 serviceDateStart = 1;
+  optional int64 serviceDateFinish = 2;
+}
+
+message CreateOrUpdateCoreOutOfServiceRequest {
+  optional int64 serviceDateStart = 1;
+  optional int64 serviceDateFinish = 2;
+  optional string note = 3;
+}
+//==============================================Get core out of service=================================================
+message GetCoreOutOfServiceDto{
+  int64 updateDate = 1;
+  optional int64 startDate = 2;
+  optional int64 finishDate = 3;
+  optional string note = 4;
+}
+
+
+message GetCoreOutOfServiceRequest {
+  org.dbs.protobuf.core.QueryParamsList queryParamsList = 1;
+}

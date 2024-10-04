@@ -1,0 +1,41 @@
+package org.dbs.consts
+
+object EntityConsts {
+
+    object EntityStatuses {
+        const val ACCEPTED = "ACCEPTED"
+        const val ACTUAL = "ACTUAL"
+        const val ANONYMOUS = "ANONYMOUS"
+        const val APPROVED = "APPROVED"
+        const val AWAITING_PAYMENT = "AWAITING_PAYMENT"
+        const val BANNED = "BANNED"
+        const val CANCELLED = "CANCELLED"
+        const val CLOSED = "CLOSED"
+        const val COMPLETED = "COMPLETED"
+        const val CONFIRMED = "CONFIRMED"
+        const val CREATED = "CREATED"
+        const val DELETED = "DELETED"
+        const val DELIVERED = "DELIVERED"
+        const val DENIED = "DENIED"
+        const val DISPUTE_OPEN = "DISPUTE_OPEN"
+        const val DRAFT = "DRAFT"
+        const val EXPIRED = "EXPIRED"
+        const val FINISHED = "FINISHED"
+        const val INVALID = "INVALID"
+        const val IN_DELIVERY = "IN_DELIVERY"
+        const val IN_MODERATION = "IN_MODERATION"
+        const val IN_PROGRESS = "IN_PROGRESS"
+        const val MODERATED = "MODERATED"
+        const val MODIFIED = "MODIFIED"
+        const val NEED_UPDATE_PASSWORD = "NEED_UPDATE_PASSWORD"
+        const val OPENED = "OPENED"
+        const val OVERDUE = "OVERDUE"
+        const val PAID = "PAID"
+        const val PARTIALLY_PAID = "PARTIALLY_PAID"
+        const val PLAY = "PLAY"
+        const val REJECTED = "REJECTED"
+        const val REJECTED_BY_TIMEOUT = "REJECTED_BY_TIMEOUT"
+        const val RETURN = "RETURN"
+        const val SENT = "SENT"
+    }
+}

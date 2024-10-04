@@ -1,0 +1,7 @@
+#!/bin/sh
+
+assets_dir="assets/vector"
+
+for svg_file in $(find "$assets_dir" -type f -name "*.svg"); do
+    dart run vector_graphics_compiler -i "$svg_file" -o "$svg_file.vec"
+done

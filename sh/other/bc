@@ -1,0 +1,17 @@
+#!/bin/bash
+
+TASK_START=$(date +%s.%N)
+
+./gradlew clean assemble --build-cache compileTestKotlin -x test -x detekt -x checkstyleMain -x distZip -x distTar -x bootDistZip -x bootDistTar -x checkStyleMain --warning-mode none || exit 1
+
+LINE="################################################################################################################"
+S1="\x1B[32m"
+S2="\x1B[0m"
+NC="\033[0m"
+
+TASK_EXEC_TIME=$(echo "$(date +%s.%N) - $TASK_START" | bc -l)
+
+echo -e "$S1$LINE$2"
+echo -e "$S1 build successfully finished in $TASK_EXEC_TIME second(s) at $(date) $S2"
+echo -e "$S1$LINE$2"
+echo -e "$NC "
