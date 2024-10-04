@@ -16,7 +16,7 @@ export PLAYER_LOGIN
 export PLAYER_PASSWORD
 export URI
 #=======================================================================================================================
-SEARCH_STR=chess24
+SEARCH_STR=dbs
 ROOT_PROJECT_FOLDER=${PWD%%$SEARCH_STR*}$SEARCH_STR
 BASH_PROPERTIES_PATH="$ROOT_PROJECT_FOLDER/sh/bash.properties"
 
