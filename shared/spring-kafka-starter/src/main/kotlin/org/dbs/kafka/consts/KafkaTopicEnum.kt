@@ -16,6 +16,7 @@ import org.dbs.kafka.consts.KafkaConsts.Topics.KAFKA_PAYMENT_ORDER_UPDATE
 import org.dbs.kafka.consts.KafkaConsts.Topics.KAFKA_PRODUCT_PRICE_SEND
 import org.dbs.kafka.consts.KafkaConsts.Topics.KAFKA_PRODUCT_SEND
 import org.dbs.kafka.consts.KafkaConsts.Topics.KAFKA_PRODUCT_TO_STORE_SEND
+import org.dbs.kafka.consts.KafkaConsts.Topics.KAFKA_REVOKE_JWT_TOPIC
 import org.dbs.kafka.consts.KafkaConsts.Topics.KAFKA_UCI_SOLUTION
 import org.dbs.kafka.consts.KafkaConsts.Topics.KAFKA_UCI_TASKER
 import org.dbs.kafka.consts.KafkaConsts.Topics.KAFKA_VENDOR_SEND
@@ -34,6 +35,7 @@ enum class KafkaTopicEnum(val topic: KafkaTopicName) {
     OFFER_SEND(KAFKA_OFFER_SEND), // OfferPCDto
     VENDOR_SEND(KAFKA_VENDOR_SEND), // VendorPCDto
     REVOKED_MANAGER_LOGIN_SEND(KAFKA_MANAGER_LOGIN), // Revoked Manager
+    REVOKED_JWT(KAFKA_REVOKE_JWT_TOPIC), // Revoked Jwt
 
     // LMS Moodle
     ACTOR_USER_SEND(KAFKA_ACTOR_USER_TOPIC),

@@ -1,7 +1,5 @@
 package org.dbs.auth.server.service
 
-import org.dbs.ext.CoroutineFuncs.isReadyToReceive
-import org.dbs.spring.core.api.ScheduledAbstractApplicationService
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
 import kotlinx.coroutines.coroutineScope
@@ -10,8 +8,10 @@ import kotlinx.coroutines.runBlocking
 import org.dbs.application.core.service.funcs.LocalDateTimeFuncs.toString2
 import org.dbs.auth.server.api.ApplicationLogin4RevokeDto
 import org.dbs.auth.server.service.impl.JwtStorageServiceImpl
+import org.dbs.ext.CoroutineFuncs.isReadyToReceive
 import org.dbs.kafka.consts.KafkaConsts.Groups.MANAGER_GROUP_ID
 import org.dbs.kafka.consts.KafkaConsts.Topics.KAFKA_MANAGER_LOGIN
+import org.dbs.spring.core.api.ScheduledAbstractApplicationService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Lazy
 import org.springframework.kafka.annotation.KafkaListener
@@ -42,7 +42,7 @@ class JwtScheduledService(
 
     @Scheduled(
         initialDelayString = "5",
-        fixedRateString = "\${config.security.jwt.process-revoked.period:5}",
+        fixedRateString = "\${config.security.jwt.process-revoked.period:1}",
         timeUnit = SECONDS
     )
     fun getLoginsFromChannel(): Unit =

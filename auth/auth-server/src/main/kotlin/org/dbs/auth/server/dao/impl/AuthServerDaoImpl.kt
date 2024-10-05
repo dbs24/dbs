@@ -16,6 +16,7 @@ import org.dbs.service.api.RefSyncFuncs.synchronizeReference
 import org.dbs.spring.core.api.DaoAbstractApplicationService
 import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Flux.fromIterable
 import reactor.core.publisher.Mono
 import java.time.LocalDateTime
@@ -96,6 +97,7 @@ class AuthServerDaoImpl(
     override fun deleteDeprecatedJwt(deprecateDate: OperDate) = issuedJwtRepo.deleteDeprecatedJwt(deprecateDate)
     override fun arcDeprecatedJwt(deprecateDate: OperDate) = issuedJwtRepo.arcDeprecatedJwt(deprecateDate)
     override fun revokeExistsJwt(jwtOwner: String, application: ApplicationEnum) = issuedJwtRepo.revokeJwt(jwtOwner, application)
+    override fun findRevokedTokens(jwtOwner: String, application: ApplicationEnum): Flux<Jwt>  = issuedJwtRepo.findRevokedJwt(jwtOwner, application)
 
     override fun initialize() = super.initialize().also { synchronizeRefs() }
 }

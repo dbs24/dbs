@@ -49,11 +49,10 @@ spring:
     max-in-memory-size: 20MB
   kafka:
     enabled: true
-    bootstrap-servers: 127.0.0.1:9092,127.0.0.1:9093
+    bootstrap-servers: kafka-1.k11dev.tech:9092,kafka-2.k11dev.tech:9093
     listener:
       type: batch
     producer:
-      group-id: http-request
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
     consumer:
       auto-offset-reset: earliest

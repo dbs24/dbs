@@ -59,5 +59,3 @@ GRPC SSL enabled                         : ${grpc.server.security.enabled}
 GRPC cert                                : ${grpc.server.security.certificateChain:n/a}
 GRPC cert key                            : ${grpc.server.security.privateKey:n/a}
 ------------------------------------------------------------
-Enabled A1 cache                         : ${config.cache.a1.enabled}
-------------------------------------------------------------

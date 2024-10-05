@@ -1,6 +1,7 @@
 package org.dbs.safe.school.mail.config
 
 import org.dbs.consts.SpringCoreConst.Beans.DEFAULT_PROXY_BEANS_VAL
+import org.dbs.kafka.consts.KafkaConsts.PARTITIONS_DEF
 import org.dbs.kafka.consts.KafkaTopicEnum.EMAIL
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -13,7 +14,7 @@ class KafkaMailConfig {
     @Bean
     fun emailServerTopicBuilder(): NewTopics = NewTopics(
         TopicBuilder.name(EMAIL.topic)
-            .partitions(5)
+            .partitions(PARTITIONS_DEF)
             .build()
     )
 }

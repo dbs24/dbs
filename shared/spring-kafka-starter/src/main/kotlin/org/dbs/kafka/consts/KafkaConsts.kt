@@ -3,6 +3,7 @@ package org.dbs.kafka.consts
 typealias KafkaTopicName = String
 
 object KafkaConsts {
+    const val PARTITIONS_DEF = 2
     const val TP_FAKED = "topic_faked"
     const val KAFKA_BEAN_NAME = "kafkaService"
 
@@ -29,10 +30,11 @@ object KafkaConsts {
         const val KAFKA_EARTHQUAKE = "kt_earthquake_receive_message_dev01"
         const val KAFKA_ACTORS_DEVICES_TOPIC = "kt_actors_devices_dev01"
         const val KAFKA_NOTIFICATIONS_TOPIC = "kt_notifications_dev01"
-        const val KAFKA_REVOKE_JWT = "kt_jwt_revoke_dev01"
+        const val KAFKA_REVOKE_JWT_TOPIC = "kt_jwt_revoke_dev01"
     }
 
     object Groups {
+        const val AUTH_SERVICE_GROUP_ID = "auth_service_groups"
         const val WAREHOUSE_GROUP_ID = "warehouses_groups"
         const val PAYMENT_GROUP_ID = "payments_groups"
         const val PRODUCT_GROUP_ID = "products_groups"

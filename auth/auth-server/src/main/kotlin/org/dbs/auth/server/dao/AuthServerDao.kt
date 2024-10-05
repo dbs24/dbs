@@ -8,6 +8,7 @@ import org.dbs.auth.server.model.RefreshJwtArc
 import org.dbs.consts.Jwt
 import org.dbs.consts.JwtId
 import org.dbs.consts.OperDate
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 interface AuthServerDao {
@@ -27,4 +28,5 @@ interface AuthServerDao {
     fun deleteDeprecatedJwt(deprecateDate: OperDate): Mono<Void>
     fun arcDeprecatedJwt(deprecateDate: OperDate): Mono<Void>
     fun revokeExistsJwt(jwtOwner: String, application: ApplicationEnum): Mono<Void>
+    fun findRevokedTokens(jwtOwner: String, application: ApplicationEnum): Flux<Jwt>
 }

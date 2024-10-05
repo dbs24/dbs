@@ -4,12 +4,14 @@ import org.dbs.auth.server.enums.ApplicationEnum
 import org.dbs.auth.server.model.IssuedJwt
 import org.dbs.auth.server.repo.sql.SQL_SELECT_ACCESS_JWT
 import org.dbs.auth.server.repo.sql.SQL_SELECT_ACTUAL_ACCESS_JWT
+import org.dbs.auth.server.repo.sql.SQL_SELECT_REVOKED_ACCESS_JWT
 import org.dbs.consts.Jwt
 import org.dbs.consts.JwtId
 import org.dbs.consts.OperDate
 import org.springframework.data.r2dbc.repository.Query
 import org.springframework.data.r2dbc.repository.R2dbcRepository
 import org.springframework.data.repository.query.Param
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 interface IssuedJwtRepo : R2dbcRepository<IssuedJwt, JwtId> {
@@ -28,4 +30,8 @@ interface IssuedJwtRepo : R2dbcRepository<IssuedJwt, JwtId> {
 
     @Query("CALL sp_revoke_jwt(:JWT_OWNER, :APP_ID)")
     fun revokeJwt(@Param("JWT_OWNER") jwtOwner: String, @Param("APP_ID") application: ApplicationEnum): Mono<Void>
+
+    @Query(SQL_SELECT_REVOKED_ACCESS_JWT)
+    fun findRevokedJwt(@Param("OWNER") jwt: Jwt, @Param("APP_ID") application: ApplicationEnum): Flux<Jwt>
+
 }

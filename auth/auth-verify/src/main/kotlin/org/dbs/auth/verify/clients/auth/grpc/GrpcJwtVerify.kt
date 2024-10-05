@@ -70,11 +70,9 @@ object GrpcJwtVerify {
                 }
 
                 //------------------------------------------------------------------------------------------------------------------
-                fun verifyJwt() {
+                suspend fun verifyJwt() {
 
-                    (if ((env as YmlService).cacheA1) jwts[jwtLast15.value].also {
-                        logger.debug("jwts: $jwts")
-                    } else null)
+                    cachedJwtList.findJwt(jwtLast15.value)
                         ?.apply {
                             // found in cache
                             val now = now()
@@ -83,12 +81,7 @@ object GrpcJwtVerify {
                             if (validUntil > now) {
                                 isVerified = true
                             } else {
-                                //logger.debug {"remove from cache: $jwtLast15 ($validUntil)"}
-                                val key4remove = jwts.filter { it.value.validUntil < now }.map { it.key }
-                                logger.debug { "remove from cache: $key4remove" }
-                                key4remove.forEach { jwts.remove(it) }
-                                logger.debug { "after remove from cache: $jwts" }
-
+                                cachedJwtList.removeObsoletedJwt()
                             }
                         } ?: apply {
                         // call authServerClientService
@@ -101,7 +94,7 @@ object GrpcJwtVerify {
 
                             if (isVerified) {
                                 logger.debug { "put to cache: $jwtLast15" }
-                                jwts[jwtLast15.value] = JwtAttrs(exp.toLocalDateTime())
+                                cachedJwtList.addJwt(jwtLast15.value, JwtAttrs(exp.toLocalDateTime()))
                             }
                         }
                     }

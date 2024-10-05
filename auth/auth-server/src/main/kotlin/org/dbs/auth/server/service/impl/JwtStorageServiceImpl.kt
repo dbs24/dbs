@@ -1,15 +1,18 @@
 package org.dbs.auth.server.service.impl
 
 import org.dbs.application.core.service.funcs.StringFuncs.last15
+import org.dbs.auth.server.api.RevokedJwtDto
 import org.dbs.auth.server.dao.AuthServerDao
 import org.dbs.spring.core.api.AbstractApplicationService
 import org.dbs.auth.server.enums.ApplicationEnum
 import org.dbs.auth.server.model.AbstractJwt
 import org.dbs.auth.server.model.IssuedJwt
 import org.dbs.auth.server.model.RefreshJwt
+import org.dbs.auth.server.service.AuthServiceLayer.Companion.kafkaService
 import org.dbs.auth.server.service.JwtStorageService
 import org.dbs.consts.*
 import org.dbs.consts.SysConst.LOCALDATETIME_NULL
+import org.dbs.kafka.consts.KafkaTopicEnum.REVOKED_JWT
 import org.dbs.protobuf.core.ResponseCode.RC_INVALID_REQUEST_DATA
 import org.dbs.service.RAB
 import org.dbs.service.validator.GrpcValidators.addErrorInfo
@@ -20,6 +23,7 @@ import org.dbs.validator.Field.FLD_ACCESS_JWT
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.publisher.Mono.empty
 import reactor.kotlin.core.publisher.switchIfEmpty
@@ -159,6 +163,21 @@ class JwtStorageServiceImpl(
 
     override fun revokeExistsJwt(jwtOwner: String, application: ApplicationEnum) =
         authServerDao.revokeExistsJwt(jwtOwner, application)
+            .map { listOf<String>() } // faked map that change return type
+            .switchIfEmpty {
+                // notify auth verify service about revoked jwt
+                logger.info("findRevokedJwt 4 $jwtOwner")
+                findRevokedJwt(jwtOwner, application).collectList()
+            }.map {
+                it.forEach {
+                    kafkaService.send(REVOKED_JWT, RevokedJwtDto(it.last15().substring(4)))
+                }
+            }
+            .then()
+
+
+    override fun findRevokedJwt(jwtOwner: String, application: ApplicationEnum): Flux<Jwt> =
+        authServerDao.findRevokedTokens(jwtOwner, application)
 
     override fun deleteDeprecatedJwt(deprecateDate: OperDate) = authServerDao.deleteDeprecatedJwt(deprecateDate)
     override fun arcDeprecatedJwt(deprecateDate: OperDate) = authServerDao.arcDeprecatedJwt(deprecateDate)

@@ -9,6 +9,7 @@ import org.dbs.consts.*
 import org.dbs.service.RAB
 import org.dbs.spring.core.api.ServiceBean
 import org.dbs.validator.Field
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.LocalDateTime
 import kotlin.reflect.KClass
@@ -56,6 +57,8 @@ interface JwtStorageService : ServiceBean {
     ): Mono<RefreshJwt>
 
     fun revokeExistsJwt(jwtOwner: String, application: ApplicationEnum): Mono<Void>
+
+    fun findRevokedJwt(jwtOwner: String, application: ApplicationEnum): Flux<Jwt>
 
     fun deleteDeprecatedJwt(deprecateDate: OperDate): Mono<Void>
     fun arcDeprecatedJwt(deprecateDate: OperDate): Mono<Void>
