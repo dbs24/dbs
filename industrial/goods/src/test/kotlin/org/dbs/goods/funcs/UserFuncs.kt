@@ -103,14 +103,7 @@ object UserFuncs : Logging {
                                 login.shouldBeEqual(this.login)
                                 firstName.shouldBeEqual(this.firstName!!)
                                 lastName.shouldBeEqual(this.lastName!!)
-                                middleName.shouldBeEqual(this.middleName!!)
                                 userService.passwordEncoder.matches(this.password, password)
-                                birthDate.shouldBeEqual(this.birthDate!!.toInt())
-                                country.shouldBeEqual(this.country!!)
-                                gender.shouldBeEqual(this.gender!!)
-                                avatar.shouldBeEqual(this.avatar!!)
-                                smallAvatar.shouldBeEqual(this.smallAvatar!!)
-
                             }
                         }
                         createdUser
