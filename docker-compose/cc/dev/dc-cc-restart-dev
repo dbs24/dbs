@@ -42,6 +42,22 @@ CONTEXT_NAME="clouds-dev"
 
 docker context use $CONTEXT_NAME
 
+ACTUAL_CONTEXT=$(docker context ls | grep "$CONTEXT_NAME \*")
+
+if [ ${#ACTUAL_CONTEXT} == 0 ]; then
+
+  RED_FONT='\033[0;31m'
+  WHITE_FONT='\033[0;37m'
+  echo -e "${RED_FONT}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  echo -e "!!! Cannot use context '$CONTEXT_NAME'"
+  echo -e "${RED_FONT}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  echo -e "${WHITE_FONT} " 
+
+  docker context ls
+  exit
+fi
+
+
 docker compose \
   --file $PROJECT_FLD/$YML_FLD \
   --env-file $PROJECT_FLD/$ENV_FLD \

@@ -23,6 +23,7 @@ object TestConst {
     const val SQL_TEST_DB_NAME = "db4test"
     const val SQL_TEST_DB_USER = "fakedUser"
     const val SQL_CHESS24_MGMT_DB_SCRIPT = "sql/create_cc_mgmt_scheme.sql"
+    const val SQL_GOODS_DB_SCRIPT = "sql/create_goods_scheme.sql"
     const val SQL_CHESS24_SANDBOX_DB_SCRIPT = "sql/create_cc_sandbox_scheme.sql"
     const val SQL_OUT_OF_SERVICE_CORE = "sql/create_out_of_service_scheme.sql"
 }

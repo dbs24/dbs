@@ -116,6 +116,13 @@ object Dependencies {
         const val CC_MGMT_PROTO_API = "$CC_MGMT_FLD:$CC_MGMT-proto-api"
         const val CC_MGMT_API = "$CC_MGMT_FLD:$CC_MGMT-api"
 
+        // goods
+        const val CC_GOODS = "goods"
+        private const val CC_GOODS_FLD = ":industrial"
+        const val CC_GOODS_GRPC_CLIENT = "$CC_GOODS_FLD:$CC_GOODS-grpc-client"
+        const val CC_GOODS_PROTO_API = "$CC_GOODS_FLD:$CC_GOODS-proto-api"
+        const val CC_GOODS_API = "$CC_GOODS_FLD:$CC_GOODS-api"
+
         // tt
         const val TIK_CORE = "core"
         private const val TT_MGMT_FLD = ":tik"

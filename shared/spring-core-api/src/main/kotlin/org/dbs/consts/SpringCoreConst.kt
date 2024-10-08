@@ -547,6 +547,11 @@ object SpringCoreConst {
         const val MGMT_SERVICE_PORT = "config.grpc.cc-mgmt.server.port"
 
         //--------------------------------------------------------------------------------------------------------------
+        // GRPC USER-SERVICE
+        const val USER_SERVICE_HOST = "config.grpc.industrial-user.server.host"
+        const val USER_SERVICE_PORT = "config.grpc.industrial-user.server.port"
+
+        //--------------------------------------------------------------------------------------------------------------
         // GRPC PLAYER-SERVICE
         const val SANDBOX_SERVICE_HOST = "config.grpc.cc-sandbox.server.host"
         const val SANDBOX_SERVICE_PORT = "config.grpc.cc-sandbox.server.port"

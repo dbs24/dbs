@@ -65,7 +65,7 @@ pluginManagement {
     }
 }
 
-rootProject.name = "chess24"
+rootProject.name = "dbs"
 
 // include subprojects
 val buildSrcFolder = "buildSrc"
