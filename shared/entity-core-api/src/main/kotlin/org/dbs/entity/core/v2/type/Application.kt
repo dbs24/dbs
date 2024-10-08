@@ -5,5 +5,6 @@ enum class Application(
 ) {
     CORE("core"),
     CHESS("chess-mgmt"),
-    SAND_BOX("sandbox")
+    SAND_BOX("sandbox"),
+    INDUSTRIAL("industrial")
 }

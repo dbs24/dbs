@@ -18,7 +18,9 @@ import org.dbs.entity.core.v2.consts.EntityV2Consts.GenericAction.EGAS_UPDATE_PA
 import org.dbs.entity.core.v2.consts.EntityV2Consts.GenericStatuses.EGS_ACTUAL
 import org.dbs.entity.core.v2.consts.EntityV2Consts.GenericStatuses.EGS_BANNED
 import org.dbs.entity.core.v2.consts.EntityV2Consts.GenericStatuses.EGS_CLOSED
+import org.dbs.entity.core.v2.type.Application
 import org.dbs.entity.core.v2.type.Application.CHESS
+import org.dbs.entity.core.v2.type.Application.INDUSTRIAL
 import org.dbs.entity.core.v2.type.EntityCoreInitializer
 import org.dbs.entity.core.v2.type.EntityTypeExtension.registerAllowedStatusesChanges
 import org.dbs.goods.UsersConsts.Names.USER
@@ -30,7 +32,7 @@ object UserCore : EntityCoreInitializer {
         ET_USER {
             override val entityTypeId = 100100
             override val entityTypeName = USER
-            override val module = CHESS
+            override val module = INDUSTRIAL
         },
     }
 
