@@ -2,10 +2,12 @@
 import dsl.Dependencies.ApplicationAttributes.MAIN_CLASS
 import dsl.Dependencies.ProjectAttributes.IMPLEMENTATION_TITLE
 import dsl.Dependencies.ProjectAttributes.IMPLEMENTATION_VERSION
-import dsl.Dependencies.ProjectAttributes.MAIN_CLASS_NAME
 import dsl.Dependencies.Projects.APPLICATION_CORE_API
 import dsl.Dependencies.Projects.AUTH_SERVER_API
 import dsl.Dependencies.Projects.AUTH_SERVER_PROTO_API
+import dsl.Dependencies.Projects.IND_GOODS_API
+import dsl.Dependencies.Projects.IN_GOODS_GRPC_CLIENT
+import dsl.Dependencies.Projects.IND_GOODS_PROTO_API
 import dsl.Dependencies.Projects.CC_MGMT_API
 import dsl.Dependencies.Projects.CC_MGMT_GRPC_CLIENT
 import dsl.Dependencies.Projects.CC_MGMT_PROTO_API
@@ -51,6 +53,8 @@ dependencies {
     api(project(KAFKA_API))
     api(project(CC_MGMT_API))
     api(project(CC_MGMT_GRPC_CLIENT))
+    api(project(IND_GOODS_API))
+    api(project(IN_GOODS_GRPC_CLIENT))
     api(project(PERSISTENCE_API))
     api(project(R2DBC_STARTER))
     api(project(SCHOOL_CACHE_STARTER))
@@ -96,6 +100,7 @@ dependencies {
     implementation(platform(libs.spring.dependencies))
     implementation(project(AUTH_SERVER_PROTO_API))
     implementation(project(CC_MGMT_PROTO_API))
+    implementation(project(IND_GOODS_PROTO_API))
     implementation(project(PROTOBUF_API_SRC))
 
     runtimeOnly(libs.grpc.all)

@@ -131,6 +131,10 @@ config:
       server:
         host: dev01.k11dev.tech
         port: 18443
+    industrial:
+      server:
+        host: dev01.k11dev.tech
+        port: 18443
   security:
     h1:
       white-headers: X-Real-IP, X-Forwarded-For
@@ -156,6 +160,13 @@ config:
     return-error-2-response: true
     security:
       cc-mgmt:
+        enabled: true
+        jwt:
+          secret-key: ThisIsSecretForJWTHS512ThisIsSecretForJWTHS512
+          expiration-time: 500
+        refresh-jwt:
+          expiration-time: 3600
+      industrial:
         enabled: true
         jwt:
           secret-key: ThisIsSecretForJWTHS512ThisIsSecretForJWTHS512

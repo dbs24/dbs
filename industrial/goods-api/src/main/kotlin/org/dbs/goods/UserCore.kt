@@ -30,7 +30,7 @@ object UserCore : EntityCoreInitializer {
     // Types
     enum class EntityTypes : EntityTypeEnum {
         ET_USER {
-            override val entityTypeId = 100100
+            override val entityTypeId = 300100
             override val entityTypeName = USER
             override val module = INDUSTRIAL
         },
@@ -58,17 +58,17 @@ object UserCore : EntityCoreInitializer {
         EA_CREATE_OR_UPDATE_USER {
             override val actionCode = EGAS_CREATE_OR_UPDATE
             override val entityType = ET_USER
-            override val actionName = "Create or update player"
+            override val actionName = "Create or update user"
         },
         EA_UPDATE_USER_STATUS {
             override val actionCode = EGAS_UPDATE
             override val entityType = ET_USER
-            override val actionName = "update player status"
+            override val actionName = "update user status"
         },
         EA_UPDATE_USER_PASSWORD {
             override val actionCode = EGAS_UPDATE_PASSWORD
             override val entityType = ET_USER
-            override val actionName = "update player password"
+            override val actionName = "update user password"
         }
     }
 

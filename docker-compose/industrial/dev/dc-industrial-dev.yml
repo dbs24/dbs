@@ -1,0 +1,306 @@
+services:
+  zookeeper:
+    hostname: ${ZOO_HOST}
+    container_name: ${ZOO_CONTAINER}
+    image: ${ZOO_IMAGE}
+    restart: ${DEFAULT_RESTART}
+    ports:
+      - ${ZOO_PORT}:${ZOO_PORT}
+    networks:
+      - general
+  #---------------------------------------------------------------------------------------------------------------------
+  kafka-1:
+    hostname: ${KAFKA_HOST_1}
+    image: ${KAFKA_IMAGE}
+    container_name: ${KAFKA_CONTAINER_1}
+    restart: ${DEFAULT_RESTART}
+    ports:
+      - ${KAFKA_PORT_1}:${KAFKA_PORT_1}
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: ${ZOO_PROJECT}:${ZOO_PORT}
+      KAFKA_LISTENERS: PLAINTEXT://${KAFKA_HOST_1}:${KAFKA_PORT_1}
+    depends_on:
+      - ${ZOO_PROJECT}
+    networks:
+      - general
+    #---------------------------------------------------------------------------------------------------------------------
+  kafka-2:
+    hostname: ${KAFKA_HOST_2}
+    image: ${KAFKA_IMAGE}
+    container_name: ${KAFKA_CONTAINER_2}
+    restart: ${DEFAULT_RESTART}
+    ports:
+      - ${KAFKA_PORT_2}:${KAFKA_PORT_2}
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: ${ZOO_PROJECT}:${ZOO_PORT}
+      KAFKA_LISTENERS: PLAINTEXT://${KAFKA_HOST_2}:${KAFKA_PORT_2}
+    depends_on:
+      - ${ZOO_PROJECT}
+    networks:
+      - general
+  #---------------------------------------------------------------------------------------------------------------------
+  redis:
+    hostname: ${REDIS_HOST}
+    image: ${REDIS_PROJECT_IMAGE}
+    container_name: ${REDIS_PROJECT_CONTAINER}
+    restart: ${DEFAULT_RESTART}
+    ports:
+      - ${REDIS_PORT}:${REDIS_PORT}
+    command: bash -c "$REDIS_COMMAND && $REDIS_RESET_CACHE_CMD "
+    #volumes:
+    #  - redis:/data
+    networks:
+      - general
+#---------------------------------------------------------------------------------------------------------------------
+  auth:
+    hostname: ${AUTH_HOST}
+    depends_on:
+      - zookeeper
+      - kafka-1
+      - kafka-2
+      - redis
+    environment:
+      spring.application.name: ${AUTH_PROJECT}
+      spring.security.user.name: ${SPRING_SECURITY_USER}
+      spring.security.user.password: ${SPRING_SECURITY_USER}
+      server.port: ${AUTH_PORT}
+      server.ssl.enabled: ${SSL_ENABLED}
+      server.ssl.key-store: ${SSL_CERT_NAME}
+      server.ssl.key-store-password: ${SSL_CERT_PASS}
+      server.k8sMode: ${K8S_ENABLED}
+      grpc.server.port: ${AUTH_GRPC_SERVER_PORT}
+      spring.kafka.bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+      management.health.redis.enabled: ${REDIS_HEALTH_CHECK_ENABLED}
+      spring.data.redis.host: ${REDIS_HOST_URL}
+      spring.data.redis.port: ${REDIS_PORT}
+      spring.data.redis.password: ${REDIS_PASS}
+      network.cors.config.enabled: ${CORS_ENABLED}
+      network.cors.allowed-origins.additional: ${CORS_ALLOWED_ORIGINS_ADDITIONAL}
+      config.restful.security.cc-mgmt.jwt.expiration-time: ${CC_GOODS_JWT_ACCESS_EXPIRATION_TIME}
+      config.restful.security.cc-mgmt.refresh-jwt.expiration-time: ${CC_GOODS_JWT_REFRESH_EXPIRATION_TIME}
+      config.grpc.cc-mgmt.server.host: ${CC_GOODS_HOST}
+      config.grpc.cc-mgmt.server.port: ${CC_GOODS_GRPC_SERVER_PORT}
+      config.grpc.reflection.enable: ${GRPC_REFLECTION_ENABLED}
+      spring.r2dbc.url: ${AUTH_DB_URL}
+      spring.r2dbc.pool.enabled: ${R2DBC_POOL_ENABLE}
+      spring.r2dbc.pool.initial-size: ${R2DBC_MIN_POOL_SIZE}
+      spring.r2dbc.pool.max-size: ${R2DBC_MAX_POOL_SIZE}
+      spring.r2dbc.username: ${AUTH_DB_USERNAME}
+      spring.r2dbc.password: ${AUTH_DB_PASSWORD}
+      config.security.h1.white-headers: ${H1_WHITE_HEADERS}
+      config.security.h1.white-hosts: ${H1_WHITE_HOSTS}
+      config.grpc.reflection.enabled: ${GRPC_REFLECTION_ENABLED}
+      springdoc.api-docs.enabled: ${SWAGGER_ENABLED}
+      springdoc.swagger-ui.enabled: ${SWAGGER_ENABLED}
+    container_name: ${AUTH_CONTAINER}
+    image: ${AUTH_IMAGE}
+    restart: ${DEFAULT_RESTART}
+    build:
+      context: ~/${ROOT_PROJECT}/${AUTH_FLD}/${AUTH_PROJECT}
+    ports:
+      - ${AUTH_PORT}:${AUTH_PORT}
+      - ${AUTH_GRPC_SERVER_PORT}:${AUTH_GRPC_SERVER_PORT}
+    volumes:
+      - ${LOG_FLD}:${LOG_FLD}
+    networks:
+      - general
+  #---------------------------------------------------------------------------------------------------------------------
+  auth-verify:
+    hostname: ${AUTH_VERIFY_HOST}
+    depends_on:
+      - auth
+    environment:
+      spring.application.name: ${AUTH_VERIFY_PROJECT}
+      spring.security.user.name: ${SPRING_SECURITY_USER}
+      spring.security.user.password: ${SPRING_SECURITY_USER}
+      server.port: ${AUTH_VERIFY_PORT}
+      server.ssl.enabled: ${SSL_ENABLED}
+      server.ssl.key-store: ${SSL_CERT_NAME}
+      server.ssl.key-store-password: ${SSL_CERT_PASS}
+      server.k8sMode: ${K8S_ENABLED}
+      grpc.server.port: ${AUTH_VERIFY_GRPC_SERVER_PORT}
+      spring.kafka.bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+      management.health.redis.enabled: ${REDIS_HEALTH_CHECK_ENABLED}
+      spring.data.redis.host: ${REDIS_HOST_URL}
+      spring.data.redis.port: ${REDIS_PORT}
+      spring.data.redis.password: ${REDIS_PASS}
+      network.cors.config.enabled: ${CORS_ENABLED}
+      network.cors.allowed-origins.additional: ${CORS_ALLOWED_ORIGINS_ADDITIONAL}
+      config.grpc.reflection.enable: ${GRPC_REFLECTION_ENABLED}
+      config.security.h1.white-headers: ${H1_WHITE_HEADERS}
+      config.security.h1.white-hosts: ${H1_WHITE_HOSTS}
+      config.grpc.auth.server.host: ${AUTH_HOST}
+      config.grpc.auth.server.port: ${AUTH_GRPC_SERVER_PORT}
+      config.cache.a1.enabled: ${AUTH_VERIFY_CACHE_A1_ENABLED}
+      config.grpc.reflection.enabled: ${GRPC_REFLECTION_ENABLED}
+      springdoc.api-docs.enabled: ${SWAGGER_ENABLED}
+      springdoc.swagger-ui.enabled: ${SWAGGER_ENABLED}
+    container_name: ${AUTH_VERIFY_CONTAINER}
+    image: ${AUTH_VERIFY_IMAGE}
+    restart: ${DEFAULT_RESTART}
+    build:
+      context: ~/${ROOT_PROJECT}/${AUTH_FLD}/${AUTH_VERIFY_PROJECT}
+    ports:
+      - ${AUTH_VERIFY_PORT}:${AUTH_VERIFY_PORT}
+      - ${AUTH_VERIFY_GRPC_SERVER_PORT}:${AUTH_VERIFY_GRPC_SERVER_PORT}
+    volumes:
+      - ${LOG_FLD}:${LOG_FLD}
+    networks:
+      - general
+  #---------------------------------------------------------------------------------------------------------------------
+  nginx:
+    hostname: ${NGINX_HOST}
+    image: ${NGINX_PROJECT_IMAGE}
+    container_name: ${NGINX_PROJECT_CONTAINER}
+    ports:
+      - ${NGINX_SSL_PORT}:${NGINX_PORT}
+    volumes:
+      - /var/www/html:/usr/share/nginx/html
+      #- /home/user/.nginx/default.conf:/etc/nginx/conf.d/default.conf
+    restart: ${DEFAULT_RESTART}
+    depends_on:
+      - auth-verify
+    networks:
+      - general
+  #---------------------------------------------------------------------------------------------------------------------
+  goods:
+    hostname: ${CC_GOODS_HOST}
+    depends_on:
+      - auth
+    environment:
+      spring.application.name: ${CC_GOODS_PROJECT}
+      spring.security.user.name: ${SPRING_SECURITY_USER}
+      spring.security.user.password: ${SPRING_SECURITY_USER}
+      server.port: ${CC_GOODS_PORT}
+      server.ssl.enabled: ${SSL_ENABLED}
+      server.ssl.key-store: ${SSL_CERT_NAME}
+      server.ssl.key-store-password: ${SSL_CERT_PASS}
+      server.k8sMode: ${K8S_ENABLED}
+      grpc.server.port: ${CC_GOODS_GRPC_SERVER_PORT}
+      spring.kafka.bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+      spring.r2dbc.url: ${CC_GOODS_PROJECT_DB_URL}
+      spring.r2dbc.username: ${CC_GOODS_PROJECT_DB_USERNAME}
+      spring.r2dbc.password: ${CC_GOODS_PROJECT_DB_PASSWORD}
+      spring.r2dbc.pool.enabled: ${R2DBC_POOL_ENABLE}
+      spring.r2dbc.pool.initial-size: ${R2DBC_MIN_POOL_SIZE}
+      spring.r2dbc.pool.max-size: ${R2DBC_MAX_POOL_SIZE}
+      management.health.redis.enabled: ${REDIS_HEALTH_CHECK_ENABLED}
+      spring.data.redis.host: ${REDIS_HOST_URL}
+      spring.data.redis.port: ${REDIS_PORT}
+      spring.data.redis.password: ${REDIS_PASS}
+      network.cors.config.enabled: ${CORS_ENABLED}
+      network.cors.allowed-origins.additional: ${CORS_ALLOWED_ORIGINS_ADDITIONAL}
+      config.security.bucket4j.enabled: ${BUCKET4J_ENABLED}
+      config.restful.message.print-entity-id: ${PRINT_ENTITY_ID}
+      config.security.h1.white-hosts: ${H1_WHITE_HOSTS}
+      config.grpc.reflection.enabled: ${GRPC_REFLECTION_ENABLED}
+      springdoc.api-docs.enabled: ${SWAGGER_ENABLED}
+      springdoc.swagger-ui.enabled: ${SWAGGER_ENABLED}
+    container_name: ${CC_GOODS_CONTAINER}
+    image: ${CC_GOODS_IMAGE}
+    restart: ${DEFAULT_RESTART}
+    build:
+      context: ~/${ROOT_PROJECT}/${CC_GOODS_FLD}/${CC_GOODS_PROJECT}
+    #      dockerfile: ./scripts/docker/dev/Dockerfile_dev
+    ports:
+      - ${CC_GOODS_PORT}:${CC_GOODS_PORT}
+      - ${CC_GOODS_GRPC_SERVER_PORT}:${CC_GOODS_GRPC_SERVER_PORT}
+    healthcheck:
+      test: [ "CMD-SHELL", "curl https://${CC_GOODS_HOST}/api/liveness" ]
+      interval: 60s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    volumes:
+      - ${LOG_FLD}:${LOG_FLD}
+    networks:
+      - general
+  #---------------------------------------------------------------------------------------------------------------------
+  mail-service:
+    hostname: ${MAIL_SERVER_HOST}
+    depends_on:
+      - zookeeper
+      - kafka-1
+      - kafka-2
+    environment:
+      spring.application.name: ${MAIL_SERVER_PROJECT}
+      server.ssl.enabled: ${SSL_ENABLED}
+      server.port: ${MAIL_SERVER_PORT}
+      server.ssl.key-store: ${SSL_CERT_NAME}
+      server.ssl.key-store-password: ${SSL_CERT_PASS}
+      server.k8sMode: ${K8S_ENABLED}
+      spring.kafka.bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+      config.restful.message.print-entity-id: ${PRINT_ENTITY_ID}
+      springdoc.api-docs.enabled: ${SWAGGER_ENABLED}
+      springdoc.swagger-ui.enabled: ${SWAGGER_ENABLED}
+    container_name: ${MAIL_SERVER_CONTAINER}
+    image: ${MAIL_SERVER_IMAGE}
+    restart: ${DEFAULT_RESTART}
+    build:
+      context: ~/${ROOT_PROJECT}/${MAIL_SERVER_FLD}/${MAIL_SERVER_PROJECT}
+    ports:
+      - ${MAIL_SERVER_PORT}:${MAIL_SERVER_PORT}
+    volumes:
+      - ${LOG_FLD}:${LOG_FLD}
+    networks:
+      - general
+  #---------------------------------------------------------------------------------------------------------------------
+  out-of-service:
+    hostname: ${SSS_OUT_OF_SERVICE_HOST}
+    depends_on:
+      - auth
+    environment:
+      spring.application.name: ${SSS_OUT_OF_SERVICE_PROJECT}
+      spring.security.user.name: ${SPRING_SECURITY_USER}
+      spring.security.user.password: ${SPRING_SECURITY_USER}
+      server.port: ${SSS_OUT_OF_SERVICE_SERVER_PORT}
+      server.ssl.enabled: ${SSL_ENABLED}
+      server.ssl.key-store: ${SSL_CERT_NAME}
+      server.ssl.key-store-password: ${SSL_CERT_PASS}
+      server.k8sMode: ${K8S_ENABLED}
+      grpc.server.port: ${SSS_OUT_OF_SERVICE_GRPC_SERVER_PORT}
+      spring.r2dbc.url: ${SSS_OUT_OF_SERVICE_PROJECT_DB_URL}
+      spring.r2dbc.username: ${SSS_OUT_OF_SERVICE_PROJECT_DB_USERNAME}
+      spring.r2dbc.password: ${SSS_OUT_OF_SERVICE_PROJECT_DB_PASSWORD}
+      spring.r2dbc.pool.enabled: ${R2DBC_POOL_ENABLE}
+      spring.r2dbc.pool.initial-size: ${R2DBC_MIN_POOL_SIZE}
+      spring.r2dbc.pool.max-size: ${R2DBC_MAX_POOL_SIZE}
+      network.cors.config.enabled: ${CORS_ENABLED}
+      network.cors.allowed-origins.additional: ${CORS_ALLOWED_ORIGINS_ADDITIONAL}
+      config.security.bucket4j.enabled: ${BUCKET4J_ENABLED}
+      config.restful.message.print-entity-id: ${PRINT_ENTITY_ID}
+      config.entity.core.action.execution.async-alg-store.enabled: ${ENTITY_CORE_EXECUTION_ASYNC_ALG_ENABLED}
+      config.entity.core.action.execution.async-alg-store.delay: ${ENTITY_CORE_EXECUTION_ASYNC_ALG_DELAY}
+      config.grpc.reflection.enabled: ${GRPC_REFLECTION_ENABLED}
+      config.security.h1.white-hosts: ${H1_WHITE_HOSTS}
+      springdoc.api-docs.enabled: ${SWAGGER_ENABLED}
+      springdoc.swagger-ui.enabled: ${SWAGGER_ENABLED}
+    container_name: ${SSS_OUT_OF_SERVICE_CONTAINER}
+    image: ${SSS_OUT_OF_SERVICE_IMAGE}
+    restart: ${DEFAULT_RESTART}
+    build:
+      context: ~/${ROOT_PROJECT}/${SSS_OUT_OF_SERVICE_FLD}/${SSS_OUT_OF_SERVICE_PROJECT}
+    ports:
+      - ${SSS_OUT_OF_SERVICE_SERVER_PORT}:${SSS_OUT_OF_SERVICE_SERVER_PORT}
+    healthcheck:
+      test: [ "CMD-SHELL", "curl https://${SSS_OUT_OF_SERVICE_HOST}/api/liveness" ]
+      interval: 60s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    volumes:
+      - ${LOG_FLD}:${LOG_FLD}
+    networks:
+      - general
+#---------------------------------------------------------------------------------------------------------------------
+networks:
+  general:
+    enable_ipv6: true
+    ipam:
+      config:
+        - subnet: 2001:db8::/64
+    driver: bridge
+  postgres:
+    driver: bridge
+#volumes:
+#  myapp:

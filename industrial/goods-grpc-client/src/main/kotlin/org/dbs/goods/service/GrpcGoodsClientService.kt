@@ -12,12 +12,12 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 
 @Service
-class GrpcMgmtClientService(
+class GrpcGoodsClientService(
     @Value("\${$USER_SERVICE_HOST:$URI_LOCALHOST_DOMAIN}")
     private val grpcUrl: String,
     @Value("\${$USER_SERVICE_PORT:$URI_LOCALHOST_NONE}")
     private val grpcPort: Int
-) : MgmtInterfaces, AbstractGrpcClientService<UserServiceGrpcKt.UserServiceCoroutineStub>(grpcUrl, grpcPort) {
+) : GoodsInterfaces, AbstractGrpcClientService<UserServiceGrpcKt.UserServiceCoroutineStub>(grpcUrl, grpcPort) {
     override fun getUserCredentials(
         userLogin: String,
     ): MainResponse = grpcCall {

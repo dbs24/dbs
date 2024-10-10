@@ -26,7 +26,7 @@ import org.dbs.consts.SysConst.LongConsts.MAX_EXPIRY_TIME
 import org.dbs.consts.SysConst.STRING_FALSE
 import org.dbs.consts.SysConst.STRING_TRUE
 import org.dbs.consts.SysConst.UsersConsts.ROOT_USER
-import org.dbs.goods.IndustrialApplication
+import org.dbs.goods.GoodsProductionApplication
 import org.dbs.goods.config.GoodsConfig
 import org.dbs.goods.service.UserService
 import org.dbs.spring.core.api.ServiceLocator.findService
@@ -72,7 +72,7 @@ typealias ChessKoTest = AbstractUserTest.() -> Unit
 @ContextConfiguration
 @SpringBootTest(
     webEnvironment = RANDOM_PORT,
-    classes = [IndustrialApplication::class]
+    classes = [GoodsProductionApplication::class]
 )
 @Import(GoodsConfig::class)
 @TestInstance(PER_CLASS)

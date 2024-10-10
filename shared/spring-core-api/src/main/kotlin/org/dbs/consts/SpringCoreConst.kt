@@ -311,6 +311,12 @@ object SpringCoreConst {
             "config.restful.security.cc-mgmt.jwt.expiration-time"
         const val JWT_CC_PLAYER_REFRESH_EXPIRATION_TIME =
             "config.restful.security.cc-mgmt.refresh-jwt.expiration-time"
+
+        const val JWT_INDUSTRIAL_SECRET_KEY = "config.restful.security.industrial.jwt.secret-key"
+        const val JWT_INDUSTRIAL_ACCESS_EXPIRATION_TIME =
+            "config.restful.security.industrial.jwt.expiration-time"
+        const val JWT_INDUSTRIAL_REFRESH_EXPIRATION_TIME =
+            "config.restful.security.industrial.refresh-jwt.expiration-time"
         const val JWT_CM_PUT_IP = "config.restful.security.cm.jwt.ip2jwt"
         const val JWT_CM_SECRET_KEY = "config.restful.security.cm.jwt.secret-key"
         const val JWT_CM_ACCESS_EXPIRATION_TIME = "config.restful.security.cm.jwt.expiration-time"
@@ -548,8 +554,8 @@ object SpringCoreConst {
 
         //--------------------------------------------------------------------------------------------------------------
         // GRPC USER-SERVICE
-        const val USER_SERVICE_HOST = "config.grpc.industrial-user.server.host"
-        const val USER_SERVICE_PORT = "config.grpc.industrial-user.server.port"
+        const val USER_SERVICE_HOST = "config.grpc.industrial.server.host"
+        const val USER_SERVICE_PORT = "config.grpc.industrial.server.port"
 
         //--------------------------------------------------------------------------------------------------------------
         // GRPC PLAYER-SERVICE

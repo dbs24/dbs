@@ -3,9 +3,9 @@ import dsl.Dependencies.ProjectAttributes.IMPLEMENTATION_TITLE
 import dsl.Dependencies.ProjectAttributes.IMPLEMENTATION_VERSION
 import dsl.Dependencies.Projects.APPLICATION_CORE_API
 import dsl.Dependencies.Projects.CACHE_STARTER
-import dsl.Dependencies.Projects.CC_GOODS
-import dsl.Dependencies.Projects.CC_GOODS_API
-import dsl.Dependencies.Projects.CC_GOODS_PROTO_API
+import dsl.Dependencies.Projects.IND_GOODS
+import dsl.Dependencies.Projects.IND_GOODS_API
+import dsl.Dependencies.Projects.IND_GOODS_PROTO_API
 import dsl.Dependencies.Projects.GRPC_HTTP_API
 import dsl.Dependencies.Projects.GRPC_SERVER_STARTER
 import dsl.Dependencies.Projects.KAFKA_API
@@ -39,12 +39,12 @@ val googleGroup = "com.google.code.gson"
 // exludes
 val springExcStarter = "spring-boot-starter"
 val springExcStarterLogging = "spring-boot-starter-logging"
-val mainApplicationClassName = "org.dbs.mgmt.MgmtApplication"
+val mainApplicationClassName = "org.dbs.goods.GoodsProductionApplication"
 
 dependencies {
     api(project(APPLICATION_CORE_API))
     api(project(CACHE_STARTER))
-    api(project(CC_GOODS_API))
+    api(project(IND_GOODS_API))
     api(project(GRPC_SERVER_STARTER))
     api(project(GRPC_HTTP_API))
     api(project(KAFKA_API))
@@ -97,7 +97,7 @@ dependencies {
     implementation(platform(libs.kotlin.bom))
     implementation(platform(libs.log4j.bom))
     implementation(platform(libs.spring.dependencies))
-    implementation(project(CC_GOODS_PROTO_API))
+    implementation(project(IND_GOODS_PROTO_API))
     implementation(project(PROTOBUF_API_SRC))
 
     testApi(libs.coroutines.test)
@@ -169,7 +169,7 @@ application {
 //    }
 //}
 
-description = CC_GOODS
+description = IND_GOODS
 
 tasks.test {
     useJUnitPlatform()

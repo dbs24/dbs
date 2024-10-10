@@ -117,11 +117,11 @@ object Dependencies {
         const val CC_MGMT_API = "$CC_MGMT_FLD:$CC_MGMT-api"
 
         // goods
-        const val CC_GOODS = "goods"
-        private const val CC_GOODS_FLD = ":industrial"
-        const val CC_GOODS_GRPC_CLIENT = "$CC_GOODS_FLD:$CC_GOODS-grpc-client"
-        const val CC_GOODS_PROTO_API = "$CC_GOODS_FLD:$CC_GOODS-proto-api"
-        const val CC_GOODS_API = "$CC_GOODS_FLD:$CC_GOODS-api"
+        const val IND_GOODS = "goods"
+        private const val IN_GOODS_FLD = ":industrial"
+        const val IN_GOODS_GRPC_CLIENT = "$IN_GOODS_FLD:$IND_GOODS-grpc-client"
+        const val IND_GOODS_PROTO_API = "$IN_GOODS_FLD:$IND_GOODS-proto-api"
+        const val IND_GOODS_API = "$IN_GOODS_FLD:$IND_GOODS-api"
 
         // tt
         const val TIK_CORE = "core"

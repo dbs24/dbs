@@ -214,6 +214,9 @@ object SysConst {
     const val APP_CC_CAMEL_CASE = "ChessCommunity"
     const val APP_SAND_BOX = "chess sandbox"
     const val APP_SAND_BOX_CASE = "ChessSandBox"
+    const val APP_INDUSTRIAL_GOODS = "industrial goods"
+    const val APP_INDUSTRIAL_GOODS_CASE = "IndustrialGoods"
+
 
     // Swagger consts
     //==================================================================================================================

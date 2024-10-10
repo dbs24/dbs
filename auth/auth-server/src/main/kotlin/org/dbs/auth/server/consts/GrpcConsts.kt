@@ -6,6 +6,7 @@ import org.dbs.consts.CTX
 object GrpcConsts {
     // player
     val CK_PLAYER_LOGIN_PROCEDURE: CKS = CTX.key("playerLogin")
+    val CK_USER_LOGIN_PROCEDURE: CKS = CTX.key("userLogin")
     val CK_FIND_JWT_PROCEDURE: CKS = CTX.key("findJwt")
 
 }

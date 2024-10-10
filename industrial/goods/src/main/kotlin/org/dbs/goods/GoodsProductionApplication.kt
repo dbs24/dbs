@@ -14,10 +14,10 @@ import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories
 
 @SpringBootApplication
 @EnableR2dbcRepositories(basePackages = [ALL_PACKAGES])
-class IndustrialApplication : AbstractSpringBootApplication() {
+class GoodsProductionApplication : AbstractSpringBootApplication() {
     companion object {
         @JvmStatic
-        fun main(args: Array<String>) = runSpringBootApplication(args, IndustrialApplication::class)
+        fun main(args: Array<String>) = runSpringBootApplication(args, GoodsProductionApplication::class)
         { WEB_SET + GOOGLE_CLIENT_SET + R2DBC_SET + KAFKA_SET + REDIS_SET + CORS_CONFIG_SET + GRPC_SET }
     }
 }

@@ -25,6 +25,10 @@ object AuthServerConsts {
         const val ROUTE_PLAYER_LOGIN = URI_API + URI_PLAYER + URI_V1 + URI_LOGIN
         const val ROUTE_PLAYER_REFRESH_JWT = URI_API + URI_PLAYER + URI_V1 + URI_REFRESH_JWT
 
+        private const val URI_USER = "/user"
+        const val ROUTE_USER_LOGIN = URI_API + URI_USER + URI_V1 + URI_LOGIN
+        const val ROUTE_USER_REFRESH_JWT = URI_API + URI_USER + URI_V1 + URI_REFRESH_JWT
+
         private const val URI_JWT = "/jwt"
         const val ROUTE_JWT_VERIFY = URI_API + URI_JWT + URI_V1 + URI_VERIFY
     }

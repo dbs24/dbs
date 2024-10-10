@@ -1,4 +1,4 @@
-package org.dbs.auth.server.clients.players.grpc
+package org.dbs.auth.server.clients.industrial.grpc
 
 
 import org.dbs.application.core.api.CollectionLateInitVal
@@ -8,16 +8,16 @@ import org.dbs.auth.server.enums.ApplicationEnum.CHESS_COMMUNITY
 import org.dbs.auth.server.model.IssuedJwt
 import org.dbs.auth.server.model.RefreshJwt
 import org.dbs.auth.server.service.AuthServiceLayer.Companion.jwtStorageService
-import org.dbs.auth.server.service.AuthServiceLayer.Companion.playerClientService
-import org.dbs.auth.server.service.AuthServiceLayer.Companion.playersSecurityService
+import org.dbs.auth.server.service.AuthServiceLayer.Companion.userClientService
+import org.dbs.auth.server.service.AuthServiceLayer.Companion.usersSecurityService
 import org.dbs.auth.server.service.grpc.AuthServerGrpcService
 import org.dbs.consts.GrpcConsts.ContextKeys.CK_REMOTE_ADDRESS
 import org.dbs.consts.GrpcConsts.ContextKeys.CK_USER_AGENT
+import org.dbs.goods.UsersConsts.Claims.CL_USER_LOGIN
 import org.dbs.consts.IpAddress
+import org.dbs.consts.Login
 import org.dbs.consts.PrivilegeCode
 import org.dbs.grpc.ext.ResponseAnswerObj.noErrors
-import org.dbs.player.PlayerLogin
-import org.dbs.player.PlayersConsts.Claims.CL_PLAYER_LOGIN
 import org.dbs.protobuf.core.ResponseCode.RC_INVALID_REQUEST_DATA
 import org.dbs.protobuf.core.ResponseCode.RC_INVALID_RESPONSE_DATA
 import org.dbs.service.RAB
@@ -30,12 +30,12 @@ import reactor.core.publisher.Mono
 import reactor.core.publisher.Mono.empty
 import reactor.kotlin.core.publisher.switchIfEmpty
 import reactor.kotlin.core.publisher.toMono
-import org.dbs.protobuf.auth.RefreshPlayerJwtRequest as REQ
+import org.dbs.protobuf.auth.RefreshUserJwtRequest as REQ
 import org.dbs.protobuf.core.JwtsExpiry as ENT
 import org.dbs.protobuf.core.MainResponse as RESP
 
-object GrpcPlayerRefreshJwt {
-    suspend fun AuthServerGrpcService.playerRefreshJwtInternal(
+object GrpcUserRefreshJwt {
+    suspend fun AuthServerGrpcService.userRefreshJwtInternal(
         request: REQ,
         remoteAddress: IpAddress = CK_REMOTE_ADDRESS.get(),
         userAgent: String = CK_USER_AGENT.get()
@@ -43,12 +43,12 @@ object GrpcPlayerRefreshJwt {
 
         validateRemoteAddress(remoteAddress)
         val entityBuilder by lazy { ENT.newBuilder() }
-        val playerLogin by lazy { LateInitVal<PlayerLogin>() }
+        val userLogin by lazy { LateInitVal<Login>() }
         val issuedJwt by lazy { LateInitVal<IssuedJwt>() }
         val refreshJwt by lazy { LateInitVal<RefreshJwt>() }
         val existsExpiredIssuedJwt by lazy { LateInitVal<IssuedJwt>() }
         val existsRefreshJwt by lazy { LateInitVal<RefreshJwt>() }
-        val existsPlayerPrivileges by lazy { CollectionLateInitVal<PrivilegeCode>() }
+        val existsUserPrivileges by lazy { CollectionLateInitVal<PrivilegeCode>() }
 
         buildGrpcResponseOld {
             it.run {
@@ -73,28 +73,28 @@ object GrpcPlayerRefreshJwt {
                         )
                     }
 
-                    // validate player login from Jwt
+                    // validate user login from Jwt
                     jwtSecurityService.getClaim(
                         jwts.refreshJwt,
-                        CL_PLAYER_LOGIN
+                        CL_USER_LOGIN
                     )?.let {
-                        playerLogin.init(it)
+                        userLogin.init(it)
                     } ?: run {
                         addErrorInfo(
                             RC_INVALID_REQUEST_DATA,
                             INVALID_ENTITY_ATTR,
-                            SSS_PLAYER_LOGIN,
-                            "unknown or invalid player login in jwt claims [${jwts.refreshJwt.firstAndLast10()}]"
+                            SSS_USER_LOGIN,
+                            "unknown or invalid user login in jwt claims [${jwts.refreshJwt.firstAndLast10()}]"
                         )
                     }
                     noErrors()
                 }
 
-                fun validatePlayerCredentials(): Mono<RAB> =
-                    playerClientService.getAndValidatePlayerCredentials(playerLogin.value, it).run {
+                fun validateUserCredentials(): Mono<RAB> =
+                    userClientService.getAndValidateUserCredentials(userLogin.value, it).run {
                         // no errors
 //                        if (responseAnswer.hasResponseEntity()) {
-//                            logger.debug { "+++ validatePlayerCredentials "}
+//                            logger.debug { "+++ validateUserCredentials "}
 //                        }
 
                         it.takeIf { it.noErrors() }.toMono()
@@ -104,25 +104,25 @@ object GrpcPlayerRefreshJwt {
                                 it.addErrorInfo(
                                     RC_INVALID_REQUEST_DATA,
                                     INVALID_ENTITY_ATTR,
-                                    SSS_PLAYER_LOGIN,
-                                    "unknown player login '${{ playerLogin.value }}'"
+                                    SSS_USER_LOGIN,
+                                    "unknown user login '${{ userLogin.value }}'"
                                 )
                             }
                         }
                         empty()
                     }
 
-                fun createPlayerJwt(): Mono<IssuedJwt> =
-                    playersSecurityService.createPlayerJwt(
-                        playerLogin.value,
+                fun createUserJwt(): Mono<IssuedJwt> =
+                    usersSecurityService.createUserJwt(
+                        userLogin.value,
                         userAgent,
                         remoteAddress,
-                        existsPlayerPrivileges.value
+                        existsUserPrivileges.value
                     )
                         .map { it.also { issuedJwt.init(it) } }
 
-                fun createPlayerRefreshJwt(issuedJwt: IssuedJwt) =
-                    playersSecurityService.createPlayerRefreshJwt(issuedJwt.jwtId, playerLogin.value, userAgent, remoteAddress)
+                fun createUserRefreshJwt(issuedJwt: IssuedJwt) =
+                    usersSecurityService.createUserRefreshJwt(issuedJwt.jwtId, userLogin.value, userAgent, remoteAddress)
                         .map { it.also { refreshJwt.init(it) } }
 
                 fun moveObsoletJwtsToArc(newRefreshJwt: RefreshJwt) = newRefreshJwt.run {
@@ -155,10 +155,10 @@ object GrpcPlayerRefreshJwt {
                         }
                 }
 
-                fun Mono<RAB>.validatePlayerPrivileges() = map { // TODO not finished?
-//                    actorsClientService.getPlayerPrivileges(playerLogin.value, response)
+                fun Mono<RAB>.validateUserPrivileges() = map { // TODO not finished?
+//                    actorsClientService.getUserPrivileges(userLogin.value, response)
 //                        .map {
-//                            it.responseEntity?.run { existsPlayerPrivileges.hold(playerPrivileges) }
+//                            it.responseEntity?.run { existsUserPrivileges.hold(userPrivileges) }
 //                            response
 //                        }
                     it
@@ -167,11 +167,11 @@ object GrpcPlayerRefreshJwt {
                 fun Mono<RAB>.createAndSaveNewJwts() = flatMap { ab ->
                     inTransaction {
                         jwtStorageService.revokeExistsJwt(
-                            playerLogin.value,
+                            userLogin.value,
                             CHESS_COMMUNITY
                         )
-                            .then(createPlayerJwt())
-                            .flatMap(::createPlayerRefreshJwt)
+                            .then(createUserJwt())
+                            .flatMap(::createUserRefreshJwt)
                             .flatMap(::moveObsoletJwtsToArc)
                             .map { ab }
                     }
@@ -180,7 +180,7 @@ object GrpcPlayerRefreshJwt {
                 //======================================================================================================
                 fun Mono<RAB>.finishResponseEntity() = map {
                     it.also {
-                        playersSecurityService.apply {
+                        usersSecurityService.apply {
                             entityBuilder
                                 .setAccessJwt(buildAccessJwtsExp(issuedJwt.value.jwt))
                                 .setRefreshJwt(buildRefreshJwtsExp(refreshJwt.value.jwt))
@@ -190,8 +190,8 @@ object GrpcPlayerRefreshJwt {
 
                 if (validateRequestBody()) {
                     processGrpcResponse {
-                        validatePlayerCredentials()
-                            .validatePlayerPrivileges()
+                        validateUserCredentials()
+                            .validateUserPrivileges()
                             .validateExpiredAccessJwt()
                             .validateExistsRefreshJwt()
                             .createAndSaveNewJwts()
