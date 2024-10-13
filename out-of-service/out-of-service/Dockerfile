@@ -5,7 +5,7 @@ FROM ubuntu:${OS_VERSION}
 FROM eclipse-temurin:${JVM_VERSION}
 # ------------------------------
 LABEL maintainer="info@smartsafeschool.com"
-ENV TZ Europe/Moscow
+ENV TZ=Europe/Moscow
 ENV PORT="1447"
 ENV APP_NAME="out-of-service"
 ENV APP_JAR="$APP_NAME.jar"

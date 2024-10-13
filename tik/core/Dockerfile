@@ -5,7 +5,7 @@ FROM ubuntu:${OS_VERSION}
 FROM eclipse-temurin:${JVM_VERSION}
 # ------------------------------
 LABEL maintainer="info@test.k11dev.tech"
-ENV TZ Europe/Moscow
+ENV TZ=Europe/Moscow
 ENV PORT="443"
 ENV APP_NAME="mgmt"
 ENV APP_JAR="$APP_NAME.jar"
