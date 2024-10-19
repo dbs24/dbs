@@ -10,6 +10,9 @@ import org.dbs.consts.SysConst.STRING_NULL
 import org.dbs.consts.SysConst.UNKNOWN
 import org.dbs.rest.api.consts.RestApiConst.Headers.X_REAL_IP
 import org.dbs.rest.api.consts.RestApiConst.Headers.allowedIpV4Regex
+import org.dbs.rest.api.consts.RestApiConst.Headers.allowedIpV6Regex
+import org.dbs.rest.api.ext.AbstractWebClientServiceExt.isIpV4
+import org.dbs.rest.api.ext.AbstractWebClientServiceExt.isIpV6
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.HttpHeaders.USER_AGENT
 import org.springframework.web.reactive.function.server.ServerRequest
@@ -27,10 +30,13 @@ object ServerRequestFuncs {
     fun ServerRequest.userAgent(): String = headers().firstHeader(USER_AGENT) ?: NOT_ASSIGNED
 
     fun ServerRequest.ip(): String = if (remoteAddress().isEmpty) "localhost/test" else
-        //"${xRealIp() ?: remoteAddress().get().address?.hostAddress ?: UNKNOWN}:${remoteAddress().get().port}"
         xRealIp() ?: remoteAddress().get().address?.hostAddress ?: UNKNOWN
 
-    fun ServerRequest.xRealIp(): String? = headers().firstHeader(X_REAL_IP)?.replace(allowedIpV4Regex, EMPTY_STRING)
+    fun ServerRequest.xRealIp(): String? = headers().firstHeader(X_REAL_IP)?.let {
+        if (it.isIpV4()) it.replace(allowedIpV4Regex, EMPTY_STRING)
+        else if (it.isIpV6()) it.replace(allowedIpV6Regex, EMPTY_STRING)
+        else UNKNOWN
+    }
 
     fun ServerRequest.qpDef(queryParamName: QueryParamName, defaultValue: String): String =
         this.queryParam(queryParamName).orElse(defaultValue)

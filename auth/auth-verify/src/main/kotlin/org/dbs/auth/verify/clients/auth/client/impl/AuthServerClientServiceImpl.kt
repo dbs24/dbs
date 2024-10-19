@@ -25,21 +25,6 @@ class AuthServerClientServiceImpl(private val grpcAuthServerClientService: GrpcA
             } else {
                 // validate status
                 logger.warn { "${jwt.last15()}: ${errorMessagesCount.errorS()}" }
-
-//                with(it.responseAnswer.unpackResponseEntity<JwtIntrospect>()) {
-//
-//                    //require(jwt == this.jwt) { "invalid jwt - [$jwt<>${this.jwt}]" }
-//
-//                    // allowed player statuses
-//                    if (!this.active) {
-//                        addErrorInfo(
-//                            RC_INVALID_RESPONSE_DATA,
-//                            PLAYER_INVALID_STATUS,
-//                            SSS_PLAYER_STATUS,
-//                            findI18nMessage(FLD_INVALID_JWT, jwt),
-//                        )
-//                    }
-//                }
             }
         }
     }

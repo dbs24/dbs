@@ -197,27 +197,3 @@ grpc:
   server:
     security:
       enabled: false
----
-spring:
-  config:
-    activate:
-      on-profile: ilona-k11-dev-ssl-on
-  r2dbc:
-    username: dev_auth_admin
-    password: 4fa4c68e2a04458db2e0b748b
-    url: r2dbc:postgresql://localhost:5432/dev_auth_db
-springdoc:
-  api-docs:
-    enabled: true
-  swagger-ui:
-    enabled: true
-config:
-  grpc:
-    reflection:
-      enabled: true
-    cc-mgmt:
-      server:
-        host: ilona.k11dev.tech
-        port: 18443
-  references:
-    auto-synchronize: false

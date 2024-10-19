@@ -51,7 +51,7 @@ object GrpcJwtVerify {
                 private val verifiedJwt by lazy { LateInitVal<Jwt>("mainResponse") }
 
                 //======================================================================================================
-                override fun isValidDto() = request.run dto@{
+                override fun isValidDto() = request.run {
                     with(rab) {
 
                         verifiedJwt.init(jwt.replace(BEARER, EMPTY_STRING))
@@ -89,14 +89,15 @@ object GrpcJwtVerify {
                             .apply { authClientResponse.init(this) }
 
                         require(authClientResponse.isInitialized()) { "Auth client response is not initialized" }
-                        with(authClientResponse.value.responseAnswer.unpackResponseEntity<JwtIntrospect>()) {
-                            isVerified = this.active
+                        if (rab.noErrors())
+                            with(authClientResponse.value.responseAnswer.unpackResponseEntity<JwtIntrospect>()) {
+                                isVerified = this.active
 
-                            if (isVerified) {
-                                logger.debug { "put to cache: $jwtLast15" }
-                                cachedJwtList.addJwt(jwtLast15.value, JwtAttrs(exp.toLocalDateTime()))
+                                if (isVerified) {
+                                    logger.debug { "put to cache: $jwtLast15" }
+                                    cachedJwtList.addJwt(jwtLast15.value, JwtAttrs(exp.toLocalDateTime()))
+                                }
                             }
-                        }
                     }
                 }
 
