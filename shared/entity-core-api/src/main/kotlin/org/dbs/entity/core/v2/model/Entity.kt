@@ -13,22 +13,14 @@ import org.springframework.data.relational.core.mapping.Table
 
 @Table("core_entities")
 data class Entity(
-    @Id @Column("entity_id")
+    @Id
     val entityId: EntityId,
-
     @Column("entity_type_id")
     val entityType: EntityTypeEnum,
-
     @Column("entity_status_id")
     val entityStatus: EntityStatusEnum,
-
-    @Column("create_date")
     val createDate: OperDate,
-
-    @Column("modify_date")
     val modifyDate: OperDate,
-
-    @Column("close_date")
     val closeDate: OperDateNull = null
 )  : AbstractRefEntity<EntityId>() {
     override fun getId() = entityId

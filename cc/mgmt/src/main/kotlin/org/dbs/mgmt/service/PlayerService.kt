@@ -1,5 +1,6 @@
 package org.dbs.mgmt.service
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.runBlocking
 import org.apache.logging.log4j.kotlin.logger
 import org.dbs.consts.Email
@@ -33,6 +34,7 @@ class PlayerService(
     val dao: DAO,
     val passwordEncoder: PasswordEncoder,
     val playerFactory: PlayerFactory,
+    val objectMapper: ObjectMapper,
 ) : AbstractApplicationService() {
     //override fun initialize() = super.initialize().also { getOrCreateDefaultRootPlayer().subscribeMono() }
 

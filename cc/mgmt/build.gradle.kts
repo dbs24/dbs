@@ -1,7 +1,6 @@
 import dsl.Dependencies.ApplicationAttributes.MAIN_CLASS
 import dsl.Dependencies.ProjectAttributes.IMPLEMENTATION_TITLE
 import dsl.Dependencies.ProjectAttributes.IMPLEMENTATION_VERSION
-import dsl.Dependencies.ProjectAttributes.MAIN_CLASS_NAME
 import dsl.Dependencies.Projects.APPLICATION_CORE_API
 import dsl.Dependencies.Projects.CACHE_STARTER
 import dsl.Dependencies.Projects.CC_MGMT

@@ -33,7 +33,7 @@ class EntityIdCacheService(redisTemplate: RedisTemplate<String, String>) :
     private val redisUtil by lazy { RedisUtil(redisTemplate) }
 
     @Value("\${$CONFIG_SPRING_REDIS_INVALIDATE:$SPRING_REDIS_INVALIDATE_HOURS}")
-    private val invalidate: Long = 24
+    private val invalidateHours: Long = 24
 
     fun getEntityId(cacheKey: EntityCacheKeyEnum, code: String, func: NoArg2Mono<EntityId>): Mono<EntityId> =
         getCachedEntityId(cacheKey, code).run {
@@ -77,12 +77,12 @@ class EntityIdCacheService(redisTemplate: RedisTemplate<String, String>) :
 
     private fun put(cache: EntityCacheKeyEnum, code: String, entityId: EntityId) = redisUtil.run {
         logger.debug("put to cache[${cache.cacheCode}], code: '$code', entityId: $entityId]")
-        putValueWithExpireTime(code.cacheKeyMask(cache), entityId.toString(), invalidate, HOURS)
+        putValueWithExpireTime(code.cacheKeyMask(cache), entityId.toString(), invalidateHours, HOURS)
     }
 
     private fun put(cache: EntityCacheKeyEnum, entityId: EntityId, code: String) = redisUtil.run {
         logger.debug("put to cache[${cache.cacheCode}], entityId: $entityId, code: '$code'")
-        putValueWithExpireTime(entityId.cacheKey2code(cache), code, invalidate, HOURS)
+        putValueWithExpireTime(entityId.cacheKey2code(cache), code, invalidateHours, HOURS)
     }
 
     private suspend inline fun heavyLoad(

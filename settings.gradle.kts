@@ -202,6 +202,7 @@ dependencyResolutionManagement {
             val micrometerPrometheusLibVersion: String by settings
             val fasterXmlJacksonDataformatLibVersion: String by settings
             val fasterXmlJacksonModuleLibVersion: String by settings
+            val fasterXmlJacksonDataTypeLibVersion: String by settings
             val reflectionsLinVersion: String by settings
             val jwtLibVersion: String by settings
             val jjwtApiLibVersion: String by settings
@@ -276,6 +277,7 @@ dependencyResolutionManagement {
             val micrometerPrometheusVersion = "micrometer.prometheus.version"
             val openJdkJmhVersion = "openjdk.jmh.version"
             val fasterXmlJacksonDataformatVersion = "fasterxml.jackson.dataformat.version"
+            val fasterXmlJacksonDataTypeVersion = "fasterxml.jackson.datatype.version"
             val fasterXmlJacksonModuleVersion = "fasterxml.jackson.module.version"
             val reflectionsVersion = "reflections.version"
             val jwtVersion = "jwt.version"
@@ -429,6 +431,9 @@ dependencyResolutionManagement {
             // jackson.dataformat
             version(fasterXmlJacksonDataformatVersion, fasterXmlJacksonDataformatLibVersion)
             library("jackson-dataformat-xml", "com.fasterxml.jackson.dataformat", "jackson-dataformat-xml").versionRef(fasterXmlJacksonDataformatVersion)
+            // jackson.datatype
+            version(fasterXmlJacksonDataTypeVersion, fasterXmlJacksonDataTypeLibVersion)
+            library("jackson-datatype-jsr310", "com.fasterxml.jackson.datatype", "jackson-datatype-jsr310").versionRef(fasterXmlJacksonDataTypeVersion)
             // jackson.module
             version(fasterXmlJacksonModuleVersion, fasterXmlJacksonModuleLibVersion)
             library("jackson-module-kotlin", "com.fasterxml.jackson.module", "jackson-module-kotlin").versionRef(fasterXmlJacksonModuleVersion)

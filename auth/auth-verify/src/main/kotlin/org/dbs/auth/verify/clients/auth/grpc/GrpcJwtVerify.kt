@@ -7,7 +7,6 @@ import org.dbs.application.core.service.funcs.Patterns.JWT_PATTERN
 import org.dbs.application.core.service.funcs.StringFuncs.last15
 import org.dbs.auth.verify.clients.auth.api.JwtAttrs
 import org.dbs.auth.verify.service.AuthServiceLayer.Companion.authServerClientService
-import org.dbs.auth.verify.service.YmlService
 import org.dbs.auth.verify.service.grpc.JwtVerifyGrpcService
 import org.dbs.consts.GrpcConsts.ContextKeys.CK_REMOTE_ADDRESS
 import org.dbs.consts.IpAddress

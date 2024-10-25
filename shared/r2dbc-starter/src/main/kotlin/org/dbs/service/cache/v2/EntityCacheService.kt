@@ -56,9 +56,8 @@ class EntityCacheService<V : EntityCoreVal>(redisEntityTemplate: RedisEntityTemp
     override suspend fun getEntity(
         cacheKey: EntityCacheKeyEnum,
         code: String,
-        cachedEntity: SuspendNoArg2Generic<V?>
-    ): V? =
-        getEntityInternalCo(cacheKey, code, cachedEntity)
+        func: SuspendNoArg2Generic<V?>
+    ): V? = getEntityInternalCo(cacheKey, code, func)
 
     override fun invalidateCaches(code: String, vararg cacheKey: EntityCacheKeyEnum) {
         logger.debug { "invalidate caches[${code}], ${cacheKey.map { it.cacheCode }.toList()}" }
@@ -89,11 +88,10 @@ class EntityCacheService<V : EntityCoreVal>(redisEntityTemplate: RedisEntityTemp
         cacheKey: EntityCacheKeyEnum,
         code: String,
         func: SuspendNoArg2Generic<V?>
-    ): V? =
-        getCachedEntityCo(cacheKey, code) ?: run {
-            logger.debug("heavy loading ($cacheKey: entity/code='$code')")
-            heavyLoadCo(cacheKey, code, func)
-        }
+    ): V? = getCachedEntityCo(cacheKey, code) ?: run {
+        logger.debug("heavy loading ($cacheKey: entity/code='$code')")
+        heavyLoadCo(cacheKey, code, func)
+    }
 
 
     private fun getCachedEntity(cacheKey: EntityCacheKeyEnum, code: String): V? =
@@ -123,26 +121,23 @@ class EntityCacheService<V : EntityCoreVal>(redisEntityTemplate: RedisEntityTemp
                     }
             }
         } catch (th: Throwable) {
-            logger.warn { "getCachedEntity($cacheKey, $code): $th" }
+            logger.warn { "getCachedEntityCo($cacheKey, $code): $th" }
             invalidateCaches(code, cacheKey)
+            th.printStackTrace()
             null
         }
 
-
-    private suspend fun put(cacheKey: EntityCacheKeyEnum, code: String, entity: V) = redisUtil.run {
+    private fun put(cacheKey: EntityCacheKeyEnum, code: String, entity: V) = redisUtil.run {
         logger.debug("put to cache[${cacheKey}]")
-        putValue(code.cacheKeyMask(cacheKey), entity)
+        putValueWithExpireTime(code.cacheKeyMask(cacheKey), entity, invalidateHours, HOURS)
     }
 
     private inline fun heavyLoad(cacheKey: EntityCacheKeyEnum, code: String, cachedEntity: NoArg2Mono<V>): Mono<V> =
-        cachedEntity().map { id ->
-            //runBlocking { put(cacheKey, code, id) }
-            id
-        }
+        cachedEntity().map { it.also { put(cacheKey, code, it) } }
 
     private suspend inline fun heavyLoadCo(
         cacheKey: EntityCacheKeyEnum,
         code: String,
         cachedEntity: SuspendNoArg2Generic<V?>
-    ): V? = cachedEntity()
+    ): V? = cachedEntity()?.let { it.also { put(cacheKey, code, it) } }
 }

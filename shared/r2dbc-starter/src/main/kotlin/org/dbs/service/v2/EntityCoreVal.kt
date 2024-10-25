@@ -15,6 +15,7 @@ import org.dbs.entity.core.v2.model.EntityCore
 import org.dbs.service.v2.EntityCoreValExt.loadEntityCore
 import org.dbs.spring.core.api.ServiceLocator.findService
 import org.springframework.data.annotation.Transient
+import com.fasterxml.jackson.annotation.JsonIgnore
 import reactor.core.publisher.Mono
 
 abstract class EntityCoreVal(
@@ -26,14 +27,17 @@ abstract class EntityCoreVal(
 
     @delegate:Transient
     @get:Transient
+    @get:JsonIgnore
     val justCreated: LateInitValNoInline<Boolean> by lazy { LateInitValNoInline(false) }
 
     @delegate:Transient
     @get:Transient
+    @get:JsonIgnore
     val newEntityStatus: LateInitValNoInline<EntityStatusEnum> by lazy { LateInitValNoInline("entityStatus") }
 
     @delegate:Transient
     @get:Transient
+    @get:JsonIgnore
     val isClosed: LateInitValNoInline<Boolean> by lazy { LateInitValNoInline(false) }
 
     @delegate:Transient
@@ -48,6 +52,8 @@ abstract class EntityCoreVal(
         @java.io.Serial
         private const val serialVersionUID: Long = 10L
 
+        @delegate:Transient
+        @get:Transient
         val r2dbService by lazy { findService(R2dbcPersistenceService::class) }
 
         suspend fun generateNewEntityId() = r2dbService.generateNewEntityIdV2().awaitSingle()

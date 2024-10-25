@@ -36,6 +36,7 @@ dependencies {
 
     compileOnly(libs.jmh.core)
     compileOnly(libs.jmh.annotations)
+    compileOnly(libs.jackson.module.kotlin)
 }
 
 description = "r2dbc-starter"
