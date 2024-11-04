@@ -6,3 +6,7 @@
 #flushall
 
 docker exec -i dev-redis redis-cli -a eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81 FLUSHALL
+
+docker exec -i dev-redis redis-cli --scan --pattern '*' -a eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+
+docker exec -i dev-redis redis-cli -a eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81 GET PLAYER.LOGIN_ROOT

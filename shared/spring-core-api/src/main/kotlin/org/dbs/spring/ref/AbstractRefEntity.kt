@@ -1,5 +1,6 @@
 package org.dbs.spring.ref
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import org.dbs.consts.SysConst.UNCHECKED_CAST
 import org.springframework.data.annotation.Transient
 import org.springframework.data.domain.Persistable
@@ -10,16 +11,17 @@ import java.util.concurrent.atomic.AtomicBoolean
 abstract class AbstractRefEntity<T> : Persistable<T>, Serializable {
 
     @Transient
+    @JsonIgnore
     val internalNew = AtomicBoolean(false)
     fun <E : AbstractRefEntity<T>> asNew() = also {
         internalNew.set(true)
     } as E
 
+    @JsonIgnore
     override fun isNew() = internalNew.get()
 
     companion object {
         @java.io.Serial
         private const val serialVersionUID: Long = 2L
     }
-
 }

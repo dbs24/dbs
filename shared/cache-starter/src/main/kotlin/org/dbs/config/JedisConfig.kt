@@ -1,5 +1,6 @@
 package org.dbs.config
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.dbs.consts.SpringCoreConst.Beans.DEFAULT_PROXY_BEANS_VAL
 import org.dbs.consts.SpringCoreConst.PropertiesNames.JUNIT_MODE
 import org.dbs.consts.SpringCoreConst.PropertiesNames.SPRING_REDIS_HOST
@@ -25,8 +26,9 @@ import org.springframework.data.redis.connection.RedisStandaloneConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
 import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer
 import org.springframework.data.redis.serializer.GenericToStringSerializer
-import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer
+import org.springframework.data.redis.serializer.RedisSerializationContext
 import org.springframework.data.redis.serializer.StringRedisSerializer
 import org.springframework.session.ReactiveMapSessionRepository
 import org.springframework.session.ReactiveSessionRepository
@@ -70,26 +72,45 @@ class JedisConfig(
 
     private fun lettuceCfg() = LettuceClientConfiguration.builder().build()
 
-    private fun redisCacheConfiguration() = RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofHours(4))
+    private fun redisCacheConfiguration() = RedisCacheConfiguration
+        .defaultCacheConfig()
+        .entryTtl(Duration.ofHours(4))
+        .usePrefix()
 
     @Bean
-    fun redisCacheManager(connectionFactory: LettuceConnectionFactory): RedisCacheManager =
-        RedisCacheManager.builder(connectionFactory)
-            .transactionAware()
-            .cacheDefaults(redisCacheConfiguration())
+    fun redisCacheManager(factory: LettuceConnectionFactory, objectMapper: ObjectMapper): RedisCacheManager =
+        RedisCacheManager.builder(factory)
+            .cacheDefaults(
+                RedisCacheConfiguration
+                    .defaultCacheConfig()
+                    .entryTtl(Duration.ofHours(4))
+                    .disableCachingNullValues()
+                    .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(StringRedisSerializer()))
+                    .serializeValuesWith(
+                        RedisSerializationContext.SerializationPair.fromSerializer(
+                            GenericJackson2JsonRedisSerializer(objectMapper)
+                        )
+                    )
+                    .entryTtl(Duration.ofHours(4))
+                    .also {
+                        it.usePrefix()
+                    }
+
+            )
             .build()
 
     @Bean
     @ConditionalOnMissingBean(name = ["redisTemplate"])
-    fun redisTemplate(lcf: LettuceConnectionFactory): RedisTemplate<String, Any> = RedisTemplate<String, Any>().apply {
-        logger.debug("create default redis template ($redisHost:$redisPort:$redisPass)")
+    fun redisTemplate(lcf: LettuceConnectionFactory, objectMapper: ObjectMapper): RedisTemplate<String, Any> = RedisTemplate<String, Any>().apply {
+        logger.debug("create default redis template ($redisHost:$redisPort)")
         connectionFactory = lcf
         keySerializer = StringRedisSerializer()
         hashKeySerializer = GenericToStringSerializer(Any::class.java)
-        hashValueSerializer = JdkSerializationRedisSerializer()
-        valueSerializer = JdkSerializationRedisSerializer()
+        hashValueSerializer = GenericJackson2JsonRedisSerializer(objectMapper)
+        valueSerializer = GenericJackson2JsonRedisSerializer(objectMapper)
     }
 
-    override fun initialize() = super.initialize().also { addHost4LivenessTracking(redisHost, redisPort, javaClass.simpleName) }
+    override fun initialize() =
+        super.initialize().also { addHost4LivenessTracking(redisHost, redisPort, javaClass.simpleName) }
 
 }

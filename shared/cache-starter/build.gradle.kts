@@ -19,6 +19,8 @@ dependencies {
     implementation(libs.jedis)
     implementation(libs.log4j.api.kotlin)
 
+    compileOnly(libs.jackson.module.kotlin)
+
     testApi(libs.spring.starter.test)
     implementation(libs.kotlin.stdlib.jdk8)
 }

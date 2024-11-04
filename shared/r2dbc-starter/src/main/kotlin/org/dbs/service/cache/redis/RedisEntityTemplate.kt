@@ -1,4 +1,4 @@
-package org.dbs.service.cache.v2
+package org.dbs.service.cache.redis
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.dbs.consts.SysConst.UNCHECKED_CAST

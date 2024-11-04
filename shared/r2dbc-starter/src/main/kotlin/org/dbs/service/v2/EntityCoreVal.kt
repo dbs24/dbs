@@ -16,8 +16,10 @@ import org.dbs.service.v2.EntityCoreValExt.loadEntityCore
 import org.dbs.spring.core.api.ServiceLocator.findService
 import org.springframework.data.annotation.Transient
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 import reactor.core.publisher.Mono
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 abstract class EntityCoreVal(
     @Transient
     override val entityId: EntityId,

@@ -9,6 +9,7 @@ import org.dbs.api.JobKey
 import org.dbs.application.core.service.funcs.ServiceFuncs.createMap
 import org.dbs.consts.GrpcConsts.Coroutines.HEAVY_SPEED_LIMIT_MS
 import org.dbs.consts.GrpcConsts.Coroutines.MIN_SPEED_LIMIT
+import org.dbs.consts.GrpcConsts.YIELD_FALSE
 import org.dbs.consts.SysConst.EMPTY_STRING
 import org.dbs.consts.suspendNoArg
 import org.dbs.ext.CoroutineFuncs.createSuperVisorScope
@@ -56,6 +57,7 @@ interface ResponseCoProcessor<T : GM, B : GMBuilder<B>> : Closeable, Logging {
     suspend fun launchJob(
         jobKey: JobKey,
         dependencyJobKey: Set<JobKey>,
+        doYieldAfterAction: Boolean = YIELD_FALSE,
         context: CoroutineContext = Dispatchers.Default.limitedParallelism(5),
         action: suspendNoArg
     ) {
@@ -72,7 +74,7 @@ interface ResponseCoProcessor<T : GM, B : GMBuilder<B>> : Closeable, Logging {
                                 logger.warn("${jobKey}: the use of coroutine is not recommended for very speed code : took $it ms")
                             } else {
                                 // for heavy operation
-                                if (it > HEAVY_SPEED_LIMIT_MS) {
+                                if ((it > HEAVY_SPEED_LIMIT_MS) or (doYieldAfterAction)) {
                                     yield()
                                 }
                                 logger.debug("${jobKey}: job execution time: took $it ms ${if (it > HEAVY_SPEED_LIMIT_MS) "[apply yield]" else EMPTY_STRING}")
@@ -95,25 +97,25 @@ interface ResponseCoProcessor<T : GM, B : GMBuilder<B>> : Closeable, Logging {
                         }
                         yield()
                     }
-                }.also { co ->
+                }.also { job ->
 
-                    co.invokeOnCompletion { th ->
+                    job.invokeOnCompletion { th ->
                         th?.apply {
                             logger.warn("### $jobKey job was cancelled (${this})")
                             printStackTrace()
                         }
                         logger.trace("$jobKey: job was finished ")
                     }
-                    co.start().also {
+                    job.start().also {
                         logger.apply {
                             if (it)
-                                debug("$jobKey: job was started [${co}]")
+                                debug("$jobKey: job was started [${job}]")
                             else
                                 error("$jobKey: job was not started")
                         }
                     }
                     jobsMap[jobKey]?.apply { error("job '$jobKey' already registered") }
-                        ?: apply { jobsMap[jobKey] = co }
+                        ?: apply { jobsMap[jobKey] = job }
                 }
             }
         } else {
@@ -125,15 +127,17 @@ interface ResponseCoProcessor<T : GM, B : GMBuilder<B>> : Closeable, Logging {
     suspend fun launchJob(
         jobKey: JobKey,
         dependencyJob: JobKey = JK_EMPTY_JOB,
+        doYieldAfterAction: Boolean = YIELD_FALSE,
         context: CoroutineContext = Dispatchers.IO,
         action: suspendNoArg
-    ) = launchJob(jobKey, setOf(dependencyJob), context, action)
+    ) = launchJob(jobKey, setOf(dependencyJob), doYieldAfterAction, context, action)
 
     suspend fun launchJob(
         jobKey: JobKey,
+        doYieldAfterAction: Boolean = YIELD_FALSE,
         context: CoroutineContext = Dispatchers.IO,
         action: suspendNoArg
-    ) = launchJob(jobKey, setOf(JK_EMPTY_JOB), context, action)
+    ) = launchJob(jobKey, setOf(JK_EMPTY_JOB), doYieldAfterAction, context, action)
 
     suspend fun <B : GMBuilder<B>> finish(
         dependencyJobKeys: Set<JobKey>,

@@ -431,6 +431,7 @@ dependencyResolutionManagement {
             // jackson.dataformat
             version(fasterXmlJacksonDataformatVersion, fasterXmlJacksonDataformatLibVersion)
             library("jackson-dataformat-xml", "com.fasterxml.jackson.dataformat", "jackson-dataformat-xml").versionRef(fasterXmlJacksonDataformatVersion)
+            library("jackson-databind", "com.fasterxml.jackson.core", "jackson-databind").versionRef(fasterXmlJacksonDataformatVersion)
             // jackson.datatype
             version(fasterXmlJacksonDataTypeVersion, fasterXmlJacksonDataTypeLibVersion)
             library("jackson-datatype-jsr310", "com.fasterxml.jackson.datatype", "jackson-datatype-jsr310").versionRef(fasterXmlJacksonDataTypeVersion)

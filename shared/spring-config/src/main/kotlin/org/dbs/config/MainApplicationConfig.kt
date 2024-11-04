@@ -1,8 +1,11 @@
 package org.dbs.config
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
 import com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT
 import com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping.NON_FINAL
+import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.dbs.application.core.service.funcs.StringFuncs.clearName
@@ -20,6 +23,9 @@ abstract class MainApplicationConfig : AbstractApplicationConfiguration() {
         // игнорируем ненужные поля
         configure(FAIL_ON_UNKNOWN_PROPERTIES, false)
         //objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+
+        activateDefaultTyping(LaissezFaireSubTypeValidator(), NON_FINAL, PROPERTY)
+
         registerModule(JavaTimeModule())
     }
 

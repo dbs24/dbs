@@ -30,6 +30,9 @@ object GrpcConsts {
         DELIMITER to EMPTY_STRING
     )
 
+    const val YIELD_TRUE = true
+    const val YIELD_FALSE = false
+
     object MetadataKeys {
         val GRPC_IS_AUTHORIZED: MK = MK.of("IS_AUTHORIZED", ASCII_STRING_MARSHALLER)
         val GRPC_BEARER_AUTHORIZATION: MK = MK.of("AUTHORIZATION", ASCII_STRING_MARSHALLER)

@@ -32,6 +32,7 @@ dependencies {
     implementation(libs.kotlin.stdlib.jdk8)
     implementation(libs.coroutines.core)
     implementation(libs.coroutines.core.jvm)
+    runtimeOnly(libs.jackson.databind)
     implementation(project(mapOf("path" to REF_STARTER)))
 
     compileOnly(libs.jmh.core)

@@ -13,10 +13,12 @@ import org.dbs.entity.core.v2.consts.EntityV2Consts
 import org.dbs.entity.core.v2.type.Application
 import org.dbs.service.RedisUtil
 import org.dbs.service.cache.CacheConsts.cacheKeyMask
+import org.dbs.service.cache.redis.RedisEntityTemplate
 import org.dbs.service.cache.v2.EntityCacheService.CacheKeyCoreEnum.CC_ENTITY_ID
 import org.dbs.service.v2.EntityCoreVal
 import org.dbs.spring.core.api.AbstractApplicationService
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.redis.cache.RedisCacheManager
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
@@ -24,7 +26,9 @@ import java.util.concurrent.TimeUnit.HOURS
 
 @Service
 @Suppress(UNCHECKED_CAST)
-class EntityCacheService<V : EntityCoreVal>(redisEntityTemplate: RedisEntityTemplate<V>) :
+class EntityCacheService<V : EntityCoreVal>(
+    redisEntityTemplate: RedisEntityTemplate<V>,
+    redisCacheManager: RedisCacheManager) :
     AbstractApplicationService(), CacheService<V> {
     @Suppress(UNCHECKED_CAST)
     private val redisUtil by lazy { RedisUtil(redisEntityTemplate) }
@@ -115,8 +119,7 @@ class EntityCacheService<V : EntityCoreVal>(redisEntityTemplate: RedisEntityTemp
             redisUtil.run {
                 logger.debug { "load cache[${cacheKey.cacheCode}], entity/code: [$code]" }
 
-                getGenericValue(code.cacheKeyMask(cacheKey))
-                    ?.also {
+                getGenericValue(code.cacheKeyMask(cacheKey))?.also {
                         logger.debug("found in cache: '$it' (${cacheKey.cacheCode}], entity/code: [$code])")
                     }
             }
