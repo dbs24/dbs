@@ -7,18 +7,11 @@ import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.redis.core.ValueOperations
 import java.util.concurrent.TimeUnit
 
-//@Service
-//@ConditionalOnProperty(name = ["spring.data.redis.enabled"], havingValue = "true", matchIfMissing = false)
 class RedisUtil<K, V>(private val redisTemplate: RedisTemplate<K, V>) : AbstractApplicationService() {
-    private val hashOperation: HashOperations<K, Any, V>
-    private val listOperation: ListOperations<K, V>
-    private val valueOperations: ValueOperations<K, V>
+    private val hashOperation: HashOperations<K, Any, V> = redisTemplate.opsForHash()
+    private val listOperation: ListOperations<K, V> = redisTemplate.opsForList()
+    private val valueOperations: ValueOperations<K, V> = redisTemplate.opsForValue()
 
-    init {
-        hashOperation = redisTemplate.opsForHash()
-        listOperation = redisTemplate.opsForList()
-        valueOperations = redisTemplate.opsForValue()
-    }
     fun putValue(key: K & Any, value: V & Any) = value.apply { valueOperations[key] = this }
 
     fun putValueWithExpireTime(key: K & Any, value: V & Any, timeout: Long, unit: TimeUnit) =
