@@ -38,7 +38,7 @@ spring:
   r2dbc:
     username: dev_goods_admin
     password: 15486002099248ee8378b0394
-    url: r2dbc:postgresql://dev01.k11dev.tech:5432/dev_goods_db
+    url: r2dbc:postgresql://k11keenetic.ddns.net:5431/dev_goods_db
     pool:
       enabled: true
       initial-size: 2

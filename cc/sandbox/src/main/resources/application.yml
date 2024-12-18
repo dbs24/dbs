@@ -38,7 +38,7 @@ spring:
   r2dbc:
     username: dev_sandbox_admin
     password: b81ad53345de4a1a8583168f1
-    url: r2dbc:postgresql://dev01.k11dev.tech:5432/dev_sandbox_db
+    url: r2dbc:postgresql://k11keenetic.ddns.net:5431/dev_sandbox_db
     pool:
       enabled: true
       initial-size: 2

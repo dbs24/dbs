@@ -51,6 +51,7 @@ plugins {
     id("io.reflectoring.spring-boot-devtools")
     // kotlin
     id("org.jetbrains.kotlin.jvm")
+    id("org.jetbrains.kotlin.kapt") // apply plugin: "kotlin-kapt"
     id("org.jetbrains.kotlin.plugin.serialization")
     id("org.jetbrains.kotlin.plugin.scripting")
     id("org.jetbrains.kotlin.plugin.spring")
@@ -99,6 +100,7 @@ val detektReportMergeSarif by tasks.registering(ReportMergeTask::class) {
 allprojects {
     apply(plugin = "base")
     apply(plugin = "kotlin")
+    apply(plugin = "kotlin-kapt") // apply(plugin = "kotlin")
     apply(plugin = "java-library")
     apply(plugin = "jvm-test-suite")
     apply(plugin = "org.dbs.java-conventions")
@@ -223,7 +225,9 @@ allprojects {
 
 dependencies {
 
+    // kotlin
     implementation(kotlin(STDLIB))
+    kapt("org.springframework.boot:spring-boot-configuration-processor")
     // spring boot dependencies
     implementation(platform(libs.kotlin.bom))
     implementation(platform(libs.spring.dependencies))

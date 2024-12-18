@@ -35,7 +35,7 @@ spring:
   r2dbc:
     username: dev_auth_admin
     password: 61ab33da324c4f23900c137d8
-    url: r2dbc:postgresql://dev01.k11dev.tech:5432/dev_auth_db
+    url: r2dbc:postgresql://k11keenetic.ddns.net:5431/dev_auth_db
     pool:
       enabled: true
       initial-size: 2
@@ -60,7 +60,7 @@ spring:
     max-in-memory-size: 20MB
   kafka:
     enabled: true
-    bootstrap-servers: kafka-1.k11dev.tech:9092,kafka-2.k11dev.tech:9093
+    bootstrap-servers: kafka-1.k11keenetic.ddns.net:9092,kafka-2.k11keenetic.ddns.net:9093
     listener:
       type: batch
     producer:
@@ -129,11 +129,11 @@ config:
       enabled: false
     cc-mgmt:
       server:
-        host: dev01.k11dev.tech
+        host: dev01.k11keenetic.ddns.net
         port: 18443
     industrial:
       server:
-        host: dev01.k11dev.tech
+        host: dev01.k11keenetic.ddns.net
         port: 18443
   security:
     h1:
@@ -241,7 +241,7 @@ config:
       enabled: true
     cc-mgmt:
       server:
-        host: ilona.k11dev.tech
+        host: ilona.k11keenetic.ddns.net
         port: 18443
   references:
     auto-synchronize: false

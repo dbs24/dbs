@@ -40,7 +40,7 @@ spring:
   r2dbc:
     username: dev_oos_admin
     password: 7a5db147356645749ddfdd461
-    url: r2dbc:postgresql://dev01.k11dev.tech:5432/dev_oos_db
+    url: r2dbc:postgresql://k11keenetic.ddns.net:5431/dev_oos_db
     pool:
       enabled: true
       initial-size: 2
