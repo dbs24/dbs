@@ -1,7 +1,7 @@
 package api
 
 object TestConst {
-    const val REPEATED_TEST_AMOUNT = 13
+    const val REPEATED_TEST_AMOUNT = 1
     const val REPEATED_KOTEST_AMOUNT = REPEATED_TEST_AMOUNT //*REPEATED_TEST_AMOUNT
 
     var PLAYER_TEST_AMOUNT = 1

@@ -32,7 +32,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
 import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.toMono
+import reactor.core.publisher.Mono.just
 import java.time.Duration.ofSeconds
 import java.util.function.Consumer
 import kotlin.reflect.KClass
@@ -68,7 +68,7 @@ abstract class AbstractHttpRequestProcessor<S : ServerRequest> : AbstractApplica
                 ?: runCatching { funcResponse() }.getOrElse { Mono.error(it) }
                     .onErrorResume { createErrorAnswer(it, classV, serverRequest) }
                     .timeout(ofSeconds(maxDurationOfSec))
-                    .switchIfEmpty { createEmptyBodyAnswer(classV, serverRequest) }
+                    .switchIfEmpty(createEmptyBodyAnswer(classV, serverRequest))
                     .doOnError(throwableConsumer)
                     .retry(ONE_ATTEMPT)
                     .log()
@@ -100,7 +100,7 @@ abstract class AbstractHttpRequestProcessor<S : ServerRequest> : AbstractApplica
             error = errMsg
             message = errMsg
             logger.error(toString())
-        }.toMono()
+        }.let { just(it) }
 
     fun <V : HttpResponseBody<E>, E : Dto> createEmptyBodyAnswer(
         classV: KClass<V>,
@@ -124,27 +124,31 @@ abstract class AbstractHttpRequestProcessor<S : ServerRequest> : AbstractApplica
         throwable: Throwable,
         classV: KClass<V>,
         serverRequest: S
-    ): Mono<V> = classV.java.getConstructor(RequestId::class.java)
-        .newInstance(serverRequest.toString()).apply {
-            val suppressedMsg = getSuppressedErrMessage(throwable)
+    ): Mono<V> = runCatching {
+        classV.java.getConstructor(RequestId::class.java).newInstance(serverRequest.toString())
+    }.getOrThrow().apply {
+        val suppressedMsg = getSuppressedErrMessage(throwable)
 
-            suppressedMsg.takeIf { it.contains(EX_CONNECTION_RESET_BY_PEER) }?.run {
+        // Flat mapping logic using takeIf/elvis instead of if/else or direct null checks
+        suppressedMsg.takeIf { it.contains(EX_CONNECTION_RESET_BY_PEER) }
+            ?.let {
                 responseCode = OC_CONNECTION_ERROR
                 message = OC_CONNECTION_ERROR.getValue()
             } ?: run {
-                responseCode = restOperCodeEnum
-                error = returnErrors2Response.takeIf { it }
-                    ?.run { "${throwable.javaClass.canonicalName}: ${throwable.message}" }
-                    ?: OC_UNKNOWN_ERROR.getValue()
-                message = returnErrors2Response.takeIf { it }
-                    ?.run { suppressedMsg }
-                    ?: OC_UNKNOWN_ERROR.getValue()
-            }
+            responseCode = restOperCodeEnum
+            error = returnErrors2Response.takeIf { it }
+                ?.let { "${throwable::class.java.canonicalName}: ${throwable.message}" }
+                ?: OC_UNKNOWN_ERROR.getValue()
+            message = returnErrors2Response.takeIf { it }
+                ?.let { suppressedMsg }
+                ?: OC_UNKNOWN_ERROR.getValue()
+        }
 
-            addErrorInfo(responseCode, GENERAL_ERROR, GENERAL_FIELD, throwable.message ?: responseCode.toString())
-            log(throwable) { "HTTP request: ${serverRequest.method().name()}: ${serverRequest.path()}" }
-            complete()
-        }.toMono()
+        addErrorInfo(responseCode, GENERAL_ERROR, GENERAL_FIELD, throwable.message ?: responseCode.toString())
+        log(throwable) { "HTTP request: ${serverRequest.method().name()}: ${serverRequest.path()}" }
+        complete()
+    }.let { just(it) }
+
 }
 
 class EmptyHttpRequestBody : AbstractHttpRequestBody<RequestDto>(EMPTY_STRING) {

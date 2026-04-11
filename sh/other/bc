@@ -2,7 +2,7 @@
 
 TASK_START=$(date +%s.%N)
 
-./gradlew clean assemble --build-cache compileTestKotlin -x test -x detekt -x checkstyleMain -x distZip -x distTar -x bootDistZip -x bootDistTar -x checkStyleMain --warning-mode none || exit 1
+./gradlew clean assemble --build-cache compileKotlin compileTestKotlin -x test -x detekt -x checkstyleMain -x distZip -x distTar -x bootDistZip -x bootDistTar -x checkStyleMain --warning-mode none || exit 1
 
 LINE="################################################################################################################"
 S1="\x1B[32m"

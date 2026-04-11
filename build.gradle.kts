@@ -46,21 +46,21 @@ plugins {
     `version-catalog`
     id("org.dbs.java-conventions")
     // spring
-    id("org.springframework.boot")
-    id("io.spring.dependency-management")
-    id("io.reflectoring.spring-boot-devtools")
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.spring.dependency.management)
+    alias(libs.plugins.spring.boot.devtools)
     // kotlin
-    id("org.jetbrains.kotlin.jvm")
-    id("org.jetbrains.kotlin.kapt") // apply plugin: "kotlin-kapt"
-    id("org.jetbrains.kotlin.plugin.serialization")
-    id("org.jetbrains.kotlin.plugin.scripting")
-    id("org.jetbrains.kotlin.plugin.spring")
-    id("org.jetbrains.kotlin.plugin.allopen")
-    id("org.jetbrains.kotlin.plugin.noarg")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.kotlin.scripting)
+    alias(libs.plugins.kotlin.spring)
+    alias(libs.plugins.kotlin.allopen)
+    alias(libs.plugins.kotlin.noarg)
     // arturbosch
-    id("io.gitlab.arturbosch.detekt")
+    alias(libs.plugins.detekt)
     // spotless
-    id("com.diffplug.spotless")
+    alias(libs.plugins.spotless)
     //alias(libs.plugins.gradleVersions)
     // jacoco
     jacoco
@@ -70,22 +70,22 @@ plugins {
     checkstyle
     signing
     // gradle
-    id("org.gradle.test-retry")
-    id("org.jetbrains.gradle.plugin.idea-ext")
+    alias(libs.plugins.test.retry)
+    alias(libs.plugins.idea.ext)
     //id ("com.jvadev.gradle-kotlin-common-plugin' version '2.1.0'
     //  gradle
-    id("org.gradle.wrapper-upgrade")
-    id("org.gradle.crypto.checksum")
+    alias(libs.plugins.gradle.wrapper.upgrade)
+    alias(libs.plugins.checksum)
     // swagger
-    id("io.swagger.core.v3.swagger-gradle-plugin")
+    alias(libs.plugins.swagger)
     // other
-    id("org.kordamp.gradle.project-enforcer")
-    id("com.github.slamdev.openapi-spring-generator")
-    id("com.autonomousapps.plugin-best-practices-plugin")
+    alias(libs.plugins.project.enforcer)
+    alias(libs.plugins.openapi.spring.generator)
+    alias(libs.plugins.plugin.best.practices)
     // grpc
-    id("com.google.protobuf")
+    alias(libs.plugins.protobuf)
     // other
-    id("com.github.ben-manes.versions")
+    alias(libs.plugins.gradle.versions)
     // graalVM
     //id("org.graalvm.buildtools.native")
 }

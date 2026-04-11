@@ -1,0 +1,357 @@
+[versions]
+# Spring Boot
+springBoot = "3.5.13"
+springBootSession = "3.5.5"
+springBootData = "3.5.10"
+springCloud = "3.1.4"
+springSecurity = "1.1.1.RELEASE"
+springKafka = "3.3.14"
+springdoc = "2.8.5"
+
+# Data / Persistence
+redisClients = "7.4.1"
+postgres = "42.7.10"
+flyway = "12.3.0"
+r2dbcPool = "1.0.2.RELEASE"
+r2dbcPostgres = "1.1.1.RELEASE"
+queryDsl = "5.1.0"
+
+# Kotlin
+kotlin = "2.1.0"
+kotlinx = "1.10.2"
+kotlinxLincheck = "2.39"
+kotlinSerialization = "1.11.0"
+
+# Reactor / Netty
+reactorTools = "3.8.4"
+reactorTest = "3.8.4"
+reactorNetty = "1.3.4"
+reactorKotlinExtensions = "1.3.0"
+blockhoundJunitPlatform = "1.0.16.RELEASE"
+
+# gRPC / Protobuf
+grpc = "1.80.0"
+grpcKotlinStub = "1.5.0"
+grpcGateway = "2.88.0"
+grpcServerSpringBoot = "3.1.0.RELEASE"
+grpcServerSpringBootAutoconfigure = "2.15.0.RELEASE"
+grpcSpringBoot = "4.5.10"
+googleProtobuf = "4.34.1"
+
+# Jakarta
+jakartaAnnotation = "3.0.0"
+jakartaValidation = "4.0.0-M1"
+
+# Jackson
+fasterXmlJacksonDataformat = "2.21.2"
+fasterXmlJacksonDataType = "2.21.2"
+fasterXmlJacksonModule = "2.21.2"
+
+# Testing
+kotest = "6.1.11"
+kotestAssertionJvm = "4.0.7"
+kotestCoreJvm = "4.1.3"
+kotestSpringExtension = "1.3.0"
+kotestTestContainersExtension = "2.0.2"
+mockito = "5.12.0"
+mockitoInline = "5.2.0"
+testcontainers = "1.21.4"
+
+# Logging
+log4jApi = "2.23.1"
+log4jApiKotlin = "1.5.0"
+jbossLogging = "3.6.3.Final"
+jbossMarshalling = "2.3.0"
+
+# Security / Auth
+jwt = "4.5.1"
+jjwtApi = "0.13.0"
+nimbusJoseJwt = "10.9"
+
+# Observability
+micrometerPrometheus = "1.17.0-M3"
+openJdkJmh = "1.37"
+
+# Other libraries
+yaml = "2.6"
+reflections = "0.10.2"
+swaggerCoreV3 = "2.2.47"
+minio = "9.0.0"
+bucket4j = "8.10.1"
+jsoup = "1.22.1"
+detektPlugin = "1.23.8"
+googleFirebase = "9.3.0"
+applePushy = "0.15.4"
+deviceDetector = "1.0.10"
+stripePayments = "24.24.0"
+googleGson = "2.11.0"
+neatChess = "1.0"
+apacheCommonsCollections4 = "4.5.0-M2"
+
+# Plugin versions (duplicated in gradle.properties for pluginManagement)
+intellijPlugin = "1.17.4"
+autonomousappsPluginBestPractices = "0.10"
+benManes = "0.53.0"
+googleProtobufPlugin = "0.9.6"
+gradleProjectEnforcer = "0.14.0"
+gradleWrapperUpgrade = "0.12"
+jetbrainsGradlePluginIdeaExt = "1.4.1"
+kordampGradle = "0.47.0"
+openapiSpringGenerator = "0.2.4"
+reflectoringSpringBootDevtools = "0.0.3"
+springDependencyManagement = "1.1.7"
+springJavadocAggregate = "0.0.1"
+springRelease = "0.20.1"
+swaggerGradlePlugin = "2.2.47"
+johnRengelman = "7.1.2"
+cryptoChecksum = "1.4.0"
+javaGradlePlugin = "1.6.9"
+gradleTestRetryPlugin = "1.6.4"
+diffPlugSpotless = "8.4.0"
+
+[libraries]
+# Spring Boot starters
+spring-boot                       = { module = "org.springframework.boot:spring-boot",                                    version.ref = "springBoot" }
+spring-boot-parent                = { module = "org.springframework.boot:spring-boot-starter-parent",                    version.ref = "springBoot" }
+spring-dependencies               = { module = "org.springframework.boot:spring-boot-dependencies",                      version.ref = "springBoot" }
+spring-starter                    = { module = "org.springframework.boot:spring-boot-starter",                           version.ref = "springBoot" }
+spring-webflux                    = { module = "org.springframework.boot:spring-boot-starter-webflux",                   version.ref = "springBoot" }
+spring-web                        = { module = "org.springframework.boot:spring-boot-starter-web",                       version.ref = "springBoot" }
+spring-data-jpa                   = { module = "org.springframework.boot:spring-boot-starter-data-jpa",                  version.ref = "springBoot" }
+spring-data-jdbc                  = { module = "org.springframework.boot:spring-boot-starter-data-jdbc",                 version.ref = "springBoot" }
+spring-data-r2dbc                 = { module = "org.springframework.boot:spring-boot-starter-data-r2dbc",                version.ref = "springBoot" }
+spring-data-redis                 = { module = "org.springframework.boot:spring-boot-starter-data-redis",                version.ref = "springBoot" }
+spring-data-redis-reactive        = { module = "org.springframework.boot:spring-boot-starter-data-redis-reactive",       version.ref = "springBoot" }
+spring-validation                 = { module = "org.springframework.boot:spring-boot-starter-validation",                version.ref = "springBoot" }
+spring-security                   = { module = "org.springframework.boot:spring-boot-starter-security",                  version.ref = "springBoot" }
+spring-actuator                   = { module = "org.springframework.boot:spring-boot-starter-actuator",                  version.ref = "springBoot" }
+spring-devtools                   = { module = "org.springframework.boot:spring-boot-devtools",                          version.ref = "springBoot" }
+spring-mongodb                    = { module = "org.springframework.boot:spring-boot-starter-data-mongodb",              version.ref = "springBoot" }
+spring-mongodb-reactive           = { module = "org.springframework.boot:spring-boot-starter-data-mongodb-reactive",     version.ref = "springBoot" }
+spring-cache                      = { module = "org.springframework.boot:spring-boot-starter-cache",                     version.ref = "springBoot" }
+spring-json                       = { module = "org.springframework.boot:spring-boot-starter-json",                      version.ref = "springBoot" }
+spring-configuration-processor    = { module = "org.springframework.boot:spring-boot-configuration-processor",           version.ref = "springBoot" }
+spring-autoconfigure-processor    = { module = "org.springframework.boot:spring-boot-autoconfigure-processor",           version.ref = "springBoot" }
+spring-autoconfigure              = { module = "org.springframework.boot:spring-boot-autoconfigure",                     version.ref = "springBoot" }
+spring-mail                       = { module = "org.springframework.boot:spring-boot-starter-mail",                      version.ref = "springBoot" }
+spring-thymeleaf                  = { module = "org.springframework.boot:spring-boot-starter-thymeleaf",                 version.ref = "springBoot" }
+spring-log4j2                     = { module = "org.springframework.boot:spring-boot-starter-log4j2",                    version.ref = "springBoot" }
+spring-starter-test               = { module = "org.springframework.boot:spring-boot-starter-test",                     version.ref = "springBoot" }
+spring-starter-test-autoconfigure = { module = "org.springframework.boot:spring-boot-test-autoconfigure",               version.ref = "springBoot" }
+
+# Spring Session
+spring-redis-session = { module = "org.springframework.session:spring-session-data-redis", version.ref = "springBootSession" }
+
+# Spring Data
+spring-data-commons = { module = "org.springframework.data:spring-data-commons", version.ref = "springBootData" }
+
+# Spring Security
+spring-security-jwt = { module = "org.springframework.security:spring-security-jwt", version.ref = "springSecurity" }
+
+# Spring Kafka
+spring-kafka = { module = "org.springframework.kafka:spring-kafka", version.ref = "springKafka" }
+
+# Springdoc / OpenAPI
+springdoc-openapi-webflux-ui = { module = "org.springdoc:springdoc-openapi-starter-webflux-ui",      version.ref = "springdoc" }
+springdoc-openapi-kotlin     = { module = "org.springdoc:springdoc-openapi-kotlin-starter-common",   version.ref = "springdoc" }
+swagger-annotations          = { module = "io.swagger.core.v3:swagger-annotations",                  version.ref = "swaggerCoreV3" }
+
+# Redis
+jedis = { module = "redis.clients:jedis", version.ref = "redisClients" }
+
+# Jakarta
+jakarta-validation    = { module = "jakarta.validation:jakarta.validation-api",  version.ref = "jakartaValidation" }
+jakarta-annotation-api = { module = "jakarta.annotation:jakarta.annotation-api", version.ref = "jakartaAnnotation" }
+
+# Micrometer
+micrometer-prometheus = { module = "io.micrometer:micrometer-registry-prometheus", version.ref = "micrometerPrometheus" }
+
+# JMH
+jmh-core        = { module = "org.openjdk.jmh:jmh-core",                 version.ref = "openJdkJmh" }
+jmh-annotations = { module = "org.openjdk.jmh:jmh-generator-annprocess", version.ref = "openJdkJmh" }
+
+# Jackson
+jackson-dataformat-xml  = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-xml", version.ref = "fasterXmlJacksonDataformat" }
+jackson-databind        = { module = "com.fasterxml.jackson.core:jackson-databind",              version.ref = "fasterXmlJacksonDataformat" }
+jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310",  version.ref = "fasterXmlJacksonDataType" }
+jackson-module-kotlin   = { module = "com.fasterxml.jackson.module:jackson-module-kotlin",       version.ref = "fasterXmlJacksonModule" }
+
+# Reflections
+reflection = { module = "org.reflections:reflections", version.ref = "reflections" }
+
+# JWT / Auth
+jwt-auth     = { module = "com.auth0:java-jwt",           version.ref = "jwt" }
+jjwt-api     = { module = "io.jsonwebtoken:jjwt-api",     version.ref = "jjwtApi" }
+jjwt-impl    = { module = "io.jsonwebtoken:jjwt-impl",    version.ref = "jjwtApi" }
+jjwt-jackson = { module = "io.jsonwebtoken:jjwt-jackson", version.ref = "jjwtApi" }
+nimbus-jose-jwt = { module = "com.nimbusds:nimbus-jose-jwt", version.ref = "nimbusJoseJwt" }
+
+# Jboss
+jboss-logging    = { module = "org.jboss.logging:jboss-logging",       version.ref = "jbossLogging" }
+jboss-marshalling = { module = "org.jboss.marshalling:jboss-marshalling", version.ref = "jbossMarshalling" }
+
+# Database
+postgresql               = { module = "org.postgresql:postgresql",                  version.ref = "postgres" }
+flyway-core              = { module = "org.flywaydb:flyway-core",                   version.ref = "flyway" }
+flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql",  version.ref = "flyway" }
+querydsl-mongodb         = { module = "com.querydsl:querydsl-mongodb",              version.ref = "queryDsl" }
+querydsl-apt             = { module = "com.querydsl:querydsl-apt",                  version.ref = "queryDsl" }
+r2dbc-pool               = { module = "io.r2dbc:r2dbc-pool",                       version.ref = "r2dbcPool" }
+r2dbc-postgresql         = { module = "org.postgresql:r2dbc-postgresql",            version.ref = "r2dbcPostgres" }
+
+# Reactor
+reactor-tools              = { module = "io.projectreactor:reactor-tools",                      version.ref = "reactorTools" }
+reactor-test               = { module = "io.projectreactor:reactor-test",                       version.ref = "reactorTest" }
+reactor-netty              = { module = "io.projectreactor.netty:reactor-netty",                version.ref = "reactorNetty" }
+reactor-kotlin-extensions  = { module = "io.projectreactor.kotlin:reactor-kotlin-extensions",   version.ref = "reactorKotlinExtensions" }
+blockhound                 = { module = "io.projectreactor.tools:blockhound",                   version.ref = "blockhoundJunitPlatform" }
+blockhound-junit-platform  = { module = "io.projectreactor.tools:blockhound-junit-platform",    version.ref = "blockhoundJunitPlatform" }
+
+# Testcontainers
+testcontainers              = { module = "org.testcontainers:testcontainers",  version.ref = "testcontainers" }
+testcontainers-junit-jupiter = { module = "org.testcontainers:junit-jupiter",  version.ref = "testcontainers" }
+testcontainers-postgresql   = { module = "org.testcontainers:postgresql",      version.ref = "testcontainers" }
+testcontainers-kafka        = { module = "org.testcontainers:kafka",           version.ref = "testcontainers" }
+testcontainers-r2dbc        = { module = "org.testcontainers:r2dbc",          version.ref = "testcontainers" }
+
+# Kotlin
+kotlin-bom            = { module = "org.jetbrains.kotlin:kotlin-bom",            version.ref = "kotlin" }
+kotlin-stdlib-common  = { module = "org.jetbrains.kotlin:kotlin-stdlib-common",  version.ref = "kotlin" }
+kotlin-stdlib-jdk8    = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8",    version.ref = "kotlin" }
+kotlin-reflect        = { module = "org.jetbrains.kotlin:kotlin-reflect",        version.ref = "kotlin" }
+kotlin-noarg          = { module = "org.jetbrains.kotlin:kotlin-noarg",          version.ref = "kotlin" }
+kotlin-plugin-noarg   = { module = "org.jetbrains.kotlin:kotlin-noarg",          version.ref = "kotlin" }
+kotlin-gradle-plugin  = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin",  version.ref = "kotlin" }
+kotlin-script-runtime = { module = "org.jetbrains.kotlin:kotlin-script-runtime", version.ref = "kotlin" }
+kotlin-osgi-bundle    = { module = "org.jetbrains.kotlin:kotlin-osgi-bundle",    version.ref = "kotlin" }
+kotlin-test           = { module = "org.jetbrains.kotlin:kotlin-test",           version.ref = "kotlin" }
+kotlin-test-junit     = { module = "org.jetbrains.kotlin:kotlin-test-junit",     version.ref = "kotlin" }
+kotlin-jacoco         = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin",  version.ref = "kotlin" }
+
+# Kotlinx Coroutines
+coroutines-core     = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core",      version.ref = "kotlinx" }
+coroutines-core-jvm = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm",  version.ref = "kotlinx" }
+coroutines-reactor  = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactor",   version.ref = "kotlinx" }
+coroutines-reactive = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactive",  version.ref = "kotlinx" }
+coroutines-test     = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test",      version.ref = "kotlinx" }
+lincheck            = { module = "org.jetbrains.kotlinx:lincheck",                     version.ref = "kotlinxLincheck" }
+kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinSerialization" }
+
+# Kotest
+kotest-bom                    = { module = "io.kotest:kotest-bom",                         version.ref = "kotest" }
+kotest-assertions-core        = { module = "io.kotest:kotest-assertions-core",              version.ref = "kotest" }
+kotest-assertions-core-jvm    = { module = "io.kotest:kotest-assertions-core-jvm",         version.ref = "kotest" }
+kotest-runner-junit5-jvm      = { module = "io.kotest:kotest-runner-junit5-jvm",           version.ref = "kotest" }
+kotest-runner-junit5          = { module = "io.kotest:kotest-runner-junit5",               version.ref = "kotest" }
+kotest-property-jvm           = { module = "io.kotest:kotest-property-jvm",               version.ref = "kotest" }
+kotest-common-jvm             = { module = "io.kotest:kotest-common-jvm",                 version.ref = "kotest" }
+kotest-engine                 = { module = "io.kotest:kotest-framework-engine-jvm",       version.ref = "kotest" }
+kotest-spring                 = { module = "io.kotest:kotest-extensions-spring",           version.ref = "kotest" }
+kotest-blockhound             = { module = "io.kotest:kotest-extensions-blockhound",       version.ref = "kotest" }
+kotest-assertions-jvm         = { module = "io.kotest:kotest-assertions-jvm",             version.ref = "kotestAssertionJvm" }
+kotest-core-jvm               = { module = "io.kotest:kotest-core-jvm",                   version.ref = "kotestCoreJvm" }
+kotest-extensions-spring      = { module = "io.kotest.extensions:kotest-extensions-spring",        version.ref = "kotestSpringExtension" }
+kotest-testcontainers         = { module = "io.kotest.extensions:kotest-extensions-testcontainers", version.ref = "kotestTestContainersExtension" }
+
+# Mockito
+mockito-core          = { module = "org.mockito:mockito-core",          version.ref = "mockito" }
+mockito-junit-jupiter = { module = "org.mockito:mockito-junit-jupiter",  version.ref = "mockito" }
+mockito-inline        = { module = "org.mockito:mockito-inline",         version.ref = "mockitoInline" }
+
+# Log4j2
+log4j-bom         = { module = "org.apache.logging.log4j:log4j-bom",          version.ref = "log4jApi" }
+log4j-api         = { module = "org.apache.logging.log4j:log4j-api",          version.ref = "log4jApi" }
+log4j-core        = { module = "org.apache.logging.log4j:log4j-core",         version.ref = "log4jApi" }
+log4j-jcl         = { module = "org.apache.logging.log4j:log4j-jcl",          version.ref = "log4jApi" }
+log4j-slf4j       = { module = "org.apache.logging.log4j:log4j-slf4j-impl",   version.ref = "log4jApi" }
+log4j-spring-boot = { module = "org.apache.logging.log4j:log4j-spring-boot",  version.ref = "log4jApi" }
+log4j-jakarta-smtp = { module = "org.apache.logging.log4j:log4j-jakarta-smtp", version.ref = "log4jApi" }
+log4j-api-kotlin  = { module = "org.apache.logging.log4j:log4j-api-kotlin",   version.ref = "log4jApiKotlin" }
+
+# gRPC
+grpc-bom            = { module = "io.grpc:grpc-bom",              version.ref = "grpc" }
+grpc-api            = { module = "io.grpc:grpc-api",              version.ref = "grpc" }
+grpc-all            = { module = "io.grpc:grpc-all",              version.ref = "grpc" }
+grpc-protobuf       = { module = "io.grpc:grpc-protobuf",         version.ref = "grpc" }
+grpc-googleapis     = { module = "io.grpc:grpc-googleapis",       version.ref = "grpc" }
+grpc-gen            = { module = "io.grpc:protoc-gen-grpc-java",  version.ref = "grpc" }
+grpc-netty          = { module = "io.grpc:grpc-netty",            version.ref = "grpc" }
+grpc-stub           = { module = "io.grpc:grpc-stub",             version.ref = "grpc" }
+grpc-protobuf-lite  = { module = "io.grpc:grpc-protobuf-lite",   version.ref = "grpc" }
+grpc-testing        = { module = "io.grpc:grpc-testing",          version.ref = "grpc" }
+grpc-kotlin-stub    = { module = "io.grpc:grpc-kotlin-stub",      version.ref = "grpcKotlinStub" }
+grpc-protoc-kotlin  = { module = "io.grpc:protoc-gen-grpc-kotlin", version.ref = "grpcKotlinStub" }
+grpc-gateway        = { module = "com.google.api.grpc:grpc-google-cloud-api-gateway-v1", version.ref = "grpcGateway" }
+grpc-server-spring-boot     = { module = "net.devh:grpc-server-spring-boot-starter",        version.ref = "grpcServerSpringBoot" }
+grpc-server-autoconfigure   = { module = "net.devh:grpc-server-spring-boot-autoconfigure",  version.ref = "grpcServerSpringBootAutoconfigure" }
+grpc-spring-boot            = { module = "io.github.lognet:grpc-spring-boot-starter",       version.ref = "grpcSpringBoot" }
+
+# Protobuf
+protobuf-bom          = { module = "com.google.protobuf:protobuf-bom",         version.ref = "googleProtobuf" }
+grpc-protoc           = { module = "com.google.protobuf:protoc",               version.ref = "googleProtobuf" }
+protobuf-kotlin-lite  = { module = "com.google.protobuf:protobuf-kotlin-lite", version.ref = "googleProtobuf" }
+protobuf-java         = { module = "com.google.protobuf:protobuf-java",        version.ref = "googleProtobuf" }
+
+# SnakeYaml
+snakeyaml = { module = "org.yaml:snakeyaml", version.ref = "yaml" }
+
+# Minio
+minio = { module = "io.minio:minio", version.ref = "minio" }
+
+# Bucket4j
+bucket4j-core = { module = "com.bucket4j:bucket4j-core", version.ref = "bucket4j" }
+
+# Jsoup
+jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
+
+# Detekt
+detekt-formatting        = { module = "io.gitlab.arturbosch.detekt:detekt-formatting",         version.ref = "detektPlugin" }
+detekt-rules-libraries   = { module = "io.gitlab.arturbosch.detekt:detekt-rules-libraries",    version.ref = "detektPlugin" }
+detekt-rules-ruleauthors = { module = "io.gitlab.arturbosch.detekt:detekt-rules-ruleauthors",  version.ref = "detektPlugin" }
+
+# Push / Notifications
+google-firebase-admin = { module = "com.google.firebase:firebase-admin", version.ref = "googleFirebase" }
+apple-pushy           = { module = "com.eatthepath:pushy",               version.ref = "applePushy" }
+devicedetector        = { module = "io.github.mngsk:device-detector",    version.ref = "deviceDetector" }
+
+# Payments
+stripe-java = { module = "com.stripe:stripe-java", version.ref = "stripePayments" }
+
+# Google
+google-gson = { module = "com.google.code.gson:gson", version.ref = "googleGson" }
+
+# Chess
+neatchess = { module = "net.andreinc:neatchess", version.ref = "neatChess" }
+
+# Apache Commons
+commons-collections4 = { module = "org.apache.commons:commons-collections4", version.ref = "apacheCommonsCollections4" }
+
+[plugins]
+kotlin-jvm              = { id = "org.jetbrains.kotlin.jvm",                             version.ref = "kotlin" }
+kotlin-spring           = { id = "org.jetbrains.kotlin.plugin.spring",                  version.ref = "kotlin" }
+kotlin-serialization    = { id = "org.jetbrains.kotlin.plugin.serialization",            version.ref = "kotlin" }
+kotlin-scripting        = { id = "org.jetbrains.kotlin.plugin.scripting",               version.ref = "kotlin" }
+kotlin-allopen          = { id = "org.jetbrains.kotlin.plugin.allopen",                 version.ref = "kotlin" }
+kotlin-noarg            = { id = "org.jetbrains.kotlin.plugin.noarg",                   version.ref = "kotlin" }
+kotlin-kapt             = { id = "org.jetbrains.kotlin.kapt",                           version.ref = "kotlin" }
+intellij                = { id = "org.jetbrains.intellij",                              version.ref = "intellijPlugin" }
+spring-boot             = { id = "org.springframework.boot",                            version.ref = "springBoot" }
+spring-release          = { id = "io.spring.release",                                   version.ref = "springRelease" }
+spring-dependency-management = { id = "io.spring.dependency-management",               version.ref = "springDependencyManagement" }
+spring-javadoc-aggregate = { id = "io.spring.javadoc-aggregate",                       version.ref = "springJavadocAggregate" }
+spring-boot-devtools    = { id = "io.reflectoring.spring-boot-devtools",                version.ref = "reflectoringSpringBootDevtools" }
+idea-ext                = { id = "org.jetbrains.gradle.plugin.idea-ext",               version.ref = "jetbrainsGradlePluginIdeaExt" }
+swagger                 = { id = "io.swagger.core.v3.swagger-gradle-plugin",            version.ref = "swaggerGradlePlugin" }
+project-enforcer        = { id = "org.kordamp.gradle.project-enforcer",                 version.ref = "gradleProjectEnforcer" }
+openapi-spring-generator = { id = "com.github.slamdev.openapi-spring-generator",       version.ref = "openapiSpringGenerator" }
+plugin-best-practices   = { id = "com.autonomousapps.plugin-best-practices-plugin",     version.ref = "autonomousappsPluginBestPractices" }
+protobuf                = { id = "com.google.protobuf",                                 version.ref = "googleProtobufPlugin" }
+kordamp-project         = { id = "org.kordamp.gradle.project",                          version.ref = "kordampGradle" }
+shadow                  = { id = "com.github.johnrengelman.shadow",                     version.ref = "johnRengelman" }
+gradle-versions         = { id = "com.github.ben-manes.versions",                       version.ref = "benManes" }
+detekt                  = { id = "io.gitlab.arturbosch.detekt",                         version.ref = "detektPlugin" }
+gradle-wrapper-upgrade  = { id = "org.gradle.wrapper-upgrade",                         version.ref = "gradleWrapperUpgrade" }
+java-gradle-plugin      = { id = "dev.gradleplugins.java-gradle-plugin",               version.ref = "javaGradlePlugin" }
+test-retry              = { id = "org.gradle.test-retry",                               version.ref = "gradleTestRetryPlugin" }
+checksum                = { id = "org.gradle.crypto.checksum",                          version.ref = "cryptoChecksum" }
+spotless                = { id = "com.diffplug.spotless",                               version.ref = "diffPlugSpotless" }

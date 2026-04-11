@@ -70,5 +70,5 @@ object FluxFuncs : Logging {
 
     fun <T: Any, T1: Any> Mono<T>.mapDefaultIfEmpty(mapValue: T1) = map { mapValue }.defaultIfEmpty(mapValue)
 
-    fun <T: Any, T1: Any> Mono<T>.mapSwitchIfEmpty(mapValue: Mono<T1>) = flatMap { mapValue }.switchIfEmpty { mapValue }
+    fun <T: Any, T1: Any> Mono<T>.mapSwitchIfEmpty(mapValue: Mono<T1>) = flatMap { mapValue }.switchIfEmpty(mapValue)
 }
