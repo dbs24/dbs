@@ -58,7 +58,7 @@ dependencies {
     api(project(SPRING_CORE_API))
     api(project(SPRING_KAFKA_STARTER))
     api(project(SPRING_REST_API))
-    testApi(project(TEST_CORE))
+    testImplementation(project(TEST_CORE))
 
     implementation(libs.bucket4j.core)
     implementation(libs.coroutines.core)

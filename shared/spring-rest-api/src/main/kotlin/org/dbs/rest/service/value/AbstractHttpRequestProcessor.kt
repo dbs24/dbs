@@ -32,7 +32,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
 import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.switchIfEmpty
 import reactor.kotlin.core.publisher.toMono
 import java.time.Duration.ofSeconds
 import java.util.function.Consumer
@@ -40,11 +39,14 @@ import kotlin.reflect.KClass
 
 abstract class AbstractHttpRequestProcessor<S : ServerRequest> : AbstractApplicationService() {
     @Value("\${$CONFIG_RESTFUL_RETURN_ERROR_2_RESPONSE:$VALUE_RESTFUL_RETURN_ERROR_2_RESPONSE}")
-    private val returnErrors2Response: Boolean = false
+    private val returnErrors2ResponseProp: Boolean = false
 
     @Value("\${$CONFIG_RESTFUL_MAX_DURATION_OF_SEC:$VALUE_RESTFUL_MAX_DURATION_OF_SEC}")
-    val maxDurationOfSec: Long = 10
+    private val maxDurationOfSecProp: Long = 10
 
+    // Lazy initialization for class-level variables as requested
+    private val returnErrors2Response by lazy { returnErrors2ResponseProp }
+    val maxDurationOfSec by lazy { maxDurationOfSecProp }
 
     suspend inline fun <V : HttpResponseBody<E>, E : ResponseDto> createResponse(
         serverRequest: S,
@@ -63,9 +65,9 @@ abstract class AbstractHttpRequestProcessor<S : ServerRequest> : AbstractApplica
 
         val respBody: Mono<V> =
             headers().firstHeader(USER_ACCESS_DENIED.name)?.run { createAccessDeniedError(classV, this) }
-                ?: run { funcResponse() }
+                ?: runCatching { funcResponse() }.getOrElse { Mono.error(it) }
                     .onErrorResume { createErrorAnswer(it, classV, serverRequest) }
-                    .take(ofSeconds(maxDurationOfSec))
+                    .timeout(ofSeconds(maxDurationOfSec))
                     .switchIfEmpty { createEmptyBodyAnswer(classV, serverRequest) }
                     .doOnError(throwableConsumer)
                     .retry(ONE_ATTEMPT)
@@ -78,31 +80,26 @@ abstract class AbstractHttpRequestProcessor<S : ServerRequest> : AbstractApplica
     fun <V : HttpResponseBody<E>, E : Dto> createServerResponse(
         body: Mono<V>,
         classV: KClass<V>,
-    ): ServerResponse = body.run {
-        flatMap {
-            ServerResponse
-                .status(findActualHttpCode(it.responseCode, it.errorsCount > 0))
-                .contentType(it.contentType)
-                .body(body, classV.java)
-                .doOnError(throwableConsumer)
-        }.subscribeMono()
-    }
+    ): ServerResponse = body.flatMap { resp ->
+        ServerResponse
+            .status(findActualHttpCode(resp.responseCode, resp.errorsCount > 0))
+            .contentType(resp.contentType)
+            .body(body, classV.java)
+            .doOnError(throwableConsumer)
+    }.subscribeMono()
 
     val throwableConsumer by lazy {
-        Consumer { throwable: Throwable ->
-            log(throwable)
-            { "Create response exception" }
+        Consumer<Throwable> { throwable ->
+            log(throwable) { "Create response exception" }
         }
     }
 
     fun <V : HttpResponseBody<E>, E : Dto> createAccessDeniedError(classV: KClass<V>, errMsg: String): Mono<V> =
-        classV.java.getDeclaredConstructor().newInstance().also {
-            it.apply {
-                responseCode = OC_ACCESS_DENIED_ERROR
-                error = errMsg
-                message = errMsg
-                logger.error(toString())
-            }
+        classV.java.getConstructor().newInstance().apply {
+            responseCode = OC_ACCESS_DENIED_ERROR
+            error = errMsg
+            message = errMsg
+            logger.error(toString())
         }.toMono()
 
     fun <V : HttpResponseBody<E>, E : Dto> createEmptyBodyAnswer(
@@ -127,36 +124,29 @@ abstract class AbstractHttpRequestProcessor<S : ServerRequest> : AbstractApplica
         throwable: Throwable,
         classV: KClass<V>,
         serverRequest: S
-    ): Mono<V> = classV.java.getDeclaredConstructor(RequestId::class.java)
+    ): Mono<V> = classV.java.getConstructor(RequestId::class.java)
         .newInstance(serverRequest.toString()).apply {
+            val suppressedMsg = getSuppressedErrMessage(throwable)
 
-            val suppressedErrMessage = getSuppressedErrMessage(throwable)
-            val isConnectionError = suppressedErrMessage.contains(EX_CONNECTION_RESET_BY_PEER)
-
-            if (isConnectionError) {
+            suppressedMsg.takeIf { it.contains(EX_CONNECTION_RESET_BY_PEER) }?.run {
                 responseCode = OC_CONNECTION_ERROR
                 message = OC_CONNECTION_ERROR.getValue()
-            } else {
+            } ?: run {
                 responseCode = restOperCodeEnum
-                error =
-                    if (returnErrors2Response) throwable.javaClass.canonicalName +
-                            ": " + throwable.message else OC_UNKNOWN_ERROR.getValue()
-                message =
-                    (if (returnErrors2Response) suppressedErrMessage else OC_UNKNOWN_ERROR.getValue())
+                error = returnErrors2Response.takeIf { it }
+                    ?.run { "${throwable.javaClass.canonicalName}: ${throwable.message}" }
+                    ?: OC_UNKNOWN_ERROR.getValue()
+                message = returnErrors2Response.takeIf { it }
+                    ?.run { suppressedMsg }
+                    ?: OC_UNKNOWN_ERROR.getValue()
             }
 
-            addErrorInfo(
-                responseCode,
-                GENERAL_ERROR,
-                GENERAL_FIELD,
-                throwable.message ?: responseCode.toString()
-            )
-            log(throwable) { "HTTP request: ${serverRequest.method().name()}: ${serverRequest.method().name()}" }
+            addErrorInfo(responseCode, GENERAL_ERROR, GENERAL_FIELD, throwable.message ?: responseCode.toString())
+            log(throwable) { "HTTP request: ${serverRequest.method().name()}: ${serverRequest.path()}" }
             complete()
         }.toMono()
 }
 
 class EmptyHttpRequestBody : AbstractHttpRequestBody<RequestDto>(EMPTY_STRING) {
-    override val requestBodyDto: RequestDto
-        get() = TODO("Not implemented yet")
+    override val requestBodyDto: RequestDto get() = TODO("Not implemented yet")
 }

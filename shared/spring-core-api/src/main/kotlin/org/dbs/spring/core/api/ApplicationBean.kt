@@ -1,13 +1,10 @@
 package org.dbs.spring.core.api
 
-import kotlinx.coroutines.runBlocking
-import org.dbs.spring.core.api.ServiceLocator.findService
-import org.dbs.spring.core.api.ServiceLocator.registerService
-import org.dbs.spring.core.api.ServiceLocator.releaseService
-import org.dbs.spring.core.api.liveness.LivenessHost
 import org.apache.logging.log4j.kotlin.Logging
 import org.dbs.application.core.service.funcs.ServiceFuncs.createCollection
 import org.dbs.application.core.service.funcs.StringFuncs.clearName
+import org.dbs.spring.core.api.ServiceLocator.findService
+import org.dbs.spring.core.api.liveness.LivenessHost
 import org.springframework.beans.factory.DisposableBean
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.beans.factory.annotation.Autowired
@@ -23,14 +20,12 @@ sealed interface ApplicationBean : InitializingBean, DisposableBean, Logging, Se
 
     @Throws(Exception::class)
     override fun afterPropertiesSet() {
-        registerService(this)
         initialize()
     }
 
     @Throws(Exception::class)
     override fun destroy() {
         logger.trace { "Service '${javaClass.simpleName.clearName()}' is destroyed" }
-        releaseService(this)
         shutdown()
     }
 

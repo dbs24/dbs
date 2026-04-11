@@ -129,6 +129,7 @@ object SpringCoreConst {
         const val SPRING_ACTIVE_PROFILE = "spring.profiles.active"
         const val REACTIVE_APPLICATION = "reactive"
         const val SPRING_THREADS_VIRTUAL = "spring.threads.virtual.enabled:false"
+        const val LOGGING_LEVEL_DEFAULT = "logging.level.default"
 
         //--------------------------------------------------------------------------------------------------------------
         const val CONFIG_REMOTE_SHUTDOWN_ALLOWED = "remote.Shutdown.allowed"
@@ -187,6 +188,9 @@ object SpringCoreConst {
         const val SELECT_NEXT_VAL_ACTION = "SELECT $NEXT_VAL_ACTION"
         const val SEQ_NAME_TEMPLATE = "SEQ_NAME"
         const val SELECT_NEXT_VAL_GENERIC = "SELECT nextval('$SEQ_NAME_TEMPLATE')"
+        const val SPRING_FLYWAY_URL = "spring.flyway.url"
+        const val SPRING_FLYWAY_USER = "spring.flyway.user"
+        const val SPRING_FLYWAY_PASSWORD = "spring.flyway.password"
 
         // GRPC
         const val GRPC_SERVER_PORT = "grpc.server.port"

@@ -30,7 +30,6 @@ import org.dbs.consts.SysConst.MN42
 import org.dbs.consts.SysConst.MN42L
 import org.dbs.consts.SysConst.SB_DEF_CAPACITY
 import org.dbs.consts.SysConst.UNKNOWN
-import org.dbs.ext.LoggerFuncs.initLog4j2
 import org.dbs.spring.boot.banner.BannerBuilder
 import org.dbs.spring.boot.banner.BannerInititializer
 import org.dbs.spring.boot.vm.WmBuilder
@@ -107,7 +106,7 @@ abstract class AbstractSpringBootApplication : Logging {
                 applicationStartup = BufferingApplicationStartup(BUFFER_APP_SIZE)
                 applicationStartup.start(clazz.simpleName ?: UNKNOWN)
                 run(*args)
-                logger.initLog4j2(userApplicationName.value)
+                //logger.initLog4j2(userApplicationName.value)
             }
 
             sbi.initialize()
@@ -147,7 +146,7 @@ abstract class AbstractSpringBootApplication : Logging {
 
         override fun onComplete() {
             logger.info { memoryStatistics }
-            logger.info { "finally initialization '$userApplicationName' ($applicationName)" }
+            logger.info { "finally initialization '${userApplicationName.value}' ($applicationName)" }
             logger.info { stopWatcher.stringExecutionTime }
         }
 

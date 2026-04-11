@@ -10,7 +10,6 @@ import org.dbs.application.core.service.funcs.ServiceFuncs.createMap
 import org.dbs.consts.GrpcConsts.Coroutines.HEAVY_SPEED_LIMIT_MS
 import org.dbs.consts.GrpcConsts.Coroutines.MIN_SPEED_LIMIT
 import org.dbs.consts.GrpcConsts.YIELD_FALSE
-import org.dbs.consts.SysConst.EMPTY_STRING
 import org.dbs.consts.suspendNoArg
 import org.dbs.ext.CoroutineFuncs.createSuperVisorScope
 import org.dbs.grpc.consts.GM
@@ -20,11 +19,10 @@ import org.dbs.grpc.ext.ResponseAnswerObj.joins
 import org.dbs.grpc.ext.ResponseAnswerObj.noErrors
 import org.dbs.service.RAB
 import org.dbs.service.validator.GrpcValidators.addErrorInfo
-import java.io.Closeable
-import kotlin.coroutines.CoroutineContext
-import kotlin.system.measureTimeMillis
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
+import java.io.Closeable
+import kotlin.coroutines.CoroutineContext
 
 @JvmInline
 value class ResponseCoProcessorWrapper<T : GM, B : GMBuilder<B>>(private val responseCoProcessor: ResponseCoProcessor<T, B>) :
@@ -61,68 +59,63 @@ interface ResponseCoProcessor<T : GM, B : GMBuilder<B>> : Closeable, Logging {
         context: CoroutineContext = Dispatchers.Default.limitedParallelism(5),
         action: suspendNoArg
     ) {
-        if (coroutineScope.isActive) {
-            if (!rab.joins(dependencyJobKey.key2job())) {
-                coroutineScope.cancel()
-            } else {
-                coroutineScope.launch(context + SecurityCoroutineContext(), LAZY) {
-                    runCatching {
-                        measureTimeMillis {
-                            action()
-                        }.also {
-                            if (it <= MIN_SPEED_LIMIT) {
-                                logger.warn("${jobKey}: the use of coroutine is not recommended for very speed code : took $it ms")
-                            } else {
-                                // for heavy operation
-                                if ((it > HEAVY_SPEED_LIMIT_MS) or (doYieldAfterAction)) {
-                                    yield()
-                                }
-                                logger.debug("${jobKey}: job execution time: took $it ms ${if (it > HEAVY_SPEED_LIMIT_MS) "[apply yield]" else EMPTY_STRING}")
-                            }
-                        }
-                    }.getOrElse {
-                        val msg = "$jobKey: register exception: $it"
+        if (!coroutineScope.isActive) {
+            logger.warn { "$jobKey: scope inactive: ${coroutineScope.coroutineContext}" }
+            return yield()
+        }
 
-                        when (it) {
-                            is CancellationException -> {
-                                logger.warn(msg)
-                            }
+        // Fail early if dependencies aren't met
+        if (!rab.joins(dependencyJobKey.key2job())) {
+            coroutineScope.cancel("Dependencies failed for $jobKey")
+            return
+        }
 
-                            else -> {
-                                logger.error(msg)
-                                rab.addErrorInfo(msg)
-                                cancel(CancellationException(msg))
-                                it.printStackTrace()
-                            }
-                        }
-                        yield()
-                    }
-                }.also { job ->
+        // Avoid double-registration before launching
+        if (jobsMap.containsKey(jobKey)) {
+            logger.error("Job '$jobKey' already registered")
+            return
+        }
 
-                    job.invokeOnCompletion { th ->
-                        th?.apply {
-                            logger.warn("### $jobKey job was cancelled (${this})")
-                            printStackTrace()
-                        }
-                        logger.trace("$jobKey: job was finished ")
-                    }
-                    job.start().also {
-                        logger.apply {
-                            if (it)
-                                debug("$jobKey: job was started [${job}]")
-                            else
-                                error("$jobKey: job was not started")
-                        }
-                    }
-                    jobsMap[jobKey]?.apply { error("job '$jobKey' already registered") }
-                        ?: apply { jobsMap[jobKey] = job }
-                }
+        val job = coroutineScope.launch(context + SecurityCoroutineContext(), LAZY) {
+            val start = System.currentTimeMillis()
+            try {
+                action()
+                val duration = System.currentTimeMillis() - start
+
+                handlePostAction(jobKey, duration, doYieldAfterAction)
+            } catch (e: CancellationException) {
+                logger.warn("$jobKey: cancelled: ${e.message}")
+                throw e
+            } catch (e: Throwable) {
+                val msg = "$jobKey exception: ${e.message}"
+                logger.error(msg, e)
+                rab.addErrorInfo(msg)
+                cancel(CancellationException(msg, e))
+            } finally {
+                yield()
             }
-        } else {
-            logger.warn { "$jobKey: coroutineScope is not active: ${coroutineScope.coroutineContext}" }
-            yield()
+        }
+
+        job.invokeOnCompletion { th ->
+            if (th != null && th !is CancellationException) logger.error("$jobKey failed", th)
+            logger.trace("$jobKey finished")
+        }
+
+        jobsMap[jobKey] = job
+        if (job.start()) logger.debug("$jobKey started [$job]")
+    }
+
+    private suspend fun handlePostAction(key: JobKey, ms: Long, forceYield: Boolean) {
+        when {
+            ms <= MIN_SPEED_LIMIT -> logger.warn("$key: speed warning ($ms ms)")
+            ms > HEAVY_SPEED_LIMIT_MS || forceYield -> {
+                logger.debug("$key: execution $ms ms [yielded]")
+                yield()
+            }
+            else -> logger.debug("$key: execution $ms ms")
         }
     }
+
 
     suspend fun launchJob(
         jobKey: JobKey,
@@ -198,7 +191,7 @@ value class SecurityCoroutineContext(
     override val key: CoroutineContext.Key<SecurityCoroutineContext> get() = Key
     override fun updateThreadContext(context: CoroutineContext): SecurityContext? = run {
         SecurityContextHolder.setContext(securityContext)
-        SecurityContextHolder.getContext().takeIf { it.authentication?.let { true } ?: false }
+        SecurityContextHolder.getContext().takeIf { it.authentication?.let { true } == true }
     }
 
     override fun restoreThreadContext(context: CoroutineContext, oldState: SecurityContext?) =

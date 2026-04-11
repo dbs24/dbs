@@ -1,4 +1,4 @@
-import org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_2
 
 plugins {
     `version-catalog`
@@ -8,22 +8,13 @@ plugins {
 }
 
 kotlin {
-    compilerOptions.apply {
-        languageVersion.set(KOTLIN_2_0)
-        apiVersion.set(KOTLIN_2_0)
-    }
-
-    sourceSets.all {
-        languageSettings {
-            languageVersion = KOTLIN_2_0.version
-            apiVersion = KOTLIN_2_0.version
-            //progressiveMode = true
-        }
+    compilerOptions {
+        languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.fromVersion(KOTLIN_2_2.version))
+        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.fromVersion(KOTLIN_2_2.version))
     }
 }
 
 repositories {
     gradlePluginPortal()
     mavenCentral()
-    google()
 }

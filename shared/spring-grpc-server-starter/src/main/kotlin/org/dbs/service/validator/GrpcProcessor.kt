@@ -10,8 +10,8 @@ import org.dbs.service.RAB
 import org.dbs.service.validator.GrpcValidators.addErrorInfo
 import org.dbs.validator.Error.GRPC_INTERNAL_ERROR
 import org.dbs.validator.Field.UNKNOWN_FIELD
+import reactor.core.publisher.Mono
 import reactor.core.publisher.Mono.empty
-import reactor.kotlin.core.publisher.toMono
 
 object GrpcProcessor : Logging {
     fun RAB.processGrpcResponse(func: NoArg2Mono<RAB>): Unit = if (noErrors()) {
@@ -37,7 +37,7 @@ object GrpcProcessor : Logging {
         ).doSubscribe()
     } else Unit
 
-    fun <T> Int.noEmpty(rab: RAB, func: NoArg2Mono<T>): MonoRAB =
-        if (this > 0) func().map { rab } else rab.toMono()
+    fun <T: Any> Int.noEmpty(rab: RAB, func: NoArg2Mono<T>): MonoRAB =
+        if (this > 0) func().map { rab } else Mono.just(rab)
 
 }

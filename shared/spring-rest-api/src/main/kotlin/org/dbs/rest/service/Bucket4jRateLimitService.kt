@@ -47,116 +47,96 @@ class Bucket4jRateLimitService(
     @Value("\${$BUCKET_4J_BLACK_LIST_IPS:$BUCKET_4J_BLACK_LIST_IPS_DEF_VAL}")
     val blackListIps: Collection<IpAddress>,
     @Value("\${$BUCKET_4J_RATE_LIMIT_CAPACITY:$BUCKET_4J_RATE_LIMIT_CAPACITY_DEF_VAL}")
-    private val capacity: Long,
+    private val capacityValue: Long,
     @Value("\${$BUCKET_4J_RATE_LIMIT_TOKENS:$BUCKET_4J_RATE_LIMIT_TOKENS_DEF_VAL}")
-    val tokens: Long,
+    val tokensValue: Long,
     @Value("\${$BUCKET_4J_RATE_LIMIT_MINUTES:$BUCKET_4J_RATE_LIMIT_MINUTES_DEF_VAL}")
-    val minutes: Long,
+    val minutesValue: Long,
     @Value("\${$BUCKET_4J_RATE_LIMIT_TMP_MINUTES:$BUCKET_4J_RATE_LIMIT_MINUTES_BLACK_LIST_DEF_VAL}")
-    val tmpMinutes: Long,
+    val tmpMinutesValue: Long,
 ) : AbstractApplicationService() {
 
-    private class IpBlackRecord(
-        val ipMask: String,
-        val invalidDate: OperDate,
-    ) {
+    private class IpBlackRecord(val ipMask: String, val invalidDate: OperDate) {
         override fun toString(): String = " $ipMask (${invalidDate.toString2()})"
     }
 
     private val ipTemporaryBlackList by lazy { createCollection<IpBlackRecord>() }
+    private val capacity by lazy { capacityValue }
+    private val tokens by lazy { tokensValue }
+    private val minutes by lazy { minutesValue }
+    private val tmpMinutes by lazy { tmpMinutesValue }
+    private val warnCapacity by lazy { capacity / 2 }
 
-    //==================================================================================================================
-    private val warnCapacity: Long = capacity / 2
-
-    private val buckets = createMap<IpAddress, Bucket>().also {
-        logger.debug { "trustedIps: $trustedIps" }
-        logger.debug { "blackListIps: $blackListIps" }
+    private val buckets by lazy {
+        createMap<IpAddress, Bucket>().also {
+            logger.debug { "trustedIps: $trustedIps" }
+            logger.debug { "blackListIps: $blackListIps" }
+        }
     }
 
     private val whiteIpOnlyMode by lazy {
-        onlyAllowedIp.isNotEmpty() && (onlyAllowedIp.all { it != BUCKET_4J_ONLY_ALLOWED_IPS_DEF_VAL })
+        onlyAllowedIp.isNotEmpty() && onlyAllowedIp.none { it == BUCKET_4J_ONLY_ALLOWED_IPS_DEF_VAL }
     }
 
     override fun initialize() = super.initialize().also {
-        if (whiteIpOnlyMode) {
-            val warnMsg = "######## whiteIpOnlyMode activated: $onlyAllowedIp "
+        whiteIpOnlyMode.takeIf { it }?.run {
             logger.info { BANNER_ROW_BOLD_DELIMITER }
-            logger.info { "$warnMsg" }
+            logger.info { "######## whiteIpOnlyMode activated: $onlyAllowedIp " }
             logger.info { BANNER_ROW_BOLD_DELIMITER }
         }
     }
 
-    fun validateRateLimit(ip: IpAddress) : Boolean =
+    fun validateRateLimit(ip: IpAddress): Boolean = when {
         // whiteIpOnly mode
-        if (whiteIpOnlyMode) {
-            onlyAllowedIp.any { ip.start(it) }.also {
-                if (!it) {
-                    logger.error { "$ip not allowed by the whiteIpOnlyMode $onlyAllowedIp" }
-                }
-            }
-        } else
-        // blackListIps mode
-            (blackListIps.any { ip.start(it) }).let {
-                val now = now()
-                if (it) {
-                    false.also { logger.error { "$ip is in blacklist " } }
-                } else {
-                    (ipTemporaryBlackList.any { ip.start(it.ipMask) && (it.invalidDate > now) }).let {
-                        if (it) {
-                            false.also {
-                                val tillDate =
-                                    ipTemporaryBlackList.firstOrNull { ip.start(it.ipMask) }?.invalidDate ?: now
-                                logger.error {
-                                    "put ${ip.validIpV4()} in temporary blacklist till ${tillDate.toString2()} (remain ${
-                                        now.d1d2Diff(
-                                            tillDate
-                                        )
-                                    }) "
-                                }
-                            }
-                        } else
-                            trustedIps.any { ip.start(it) }.takeIf {
-                                it.also {
-                                    if (it) {
-                                        logger.debug { "passed as trusted ip: $ip" }
-                                    }
-                                }
-                            } ?: let {
-                                buckets[ip]?.run {
-                                    if (this.availableTokens < warnCapacity)
-                                        logger.warn { "$ip: available tokens: ${this.availableTokens}|${capacity}" }
-
-                                    this.tryConsume(1).also {
-                                        if (!it) {
-                                            logger.error { "$ip: access limit exceeded (capacity:$capacity, tokens:$tokens, minutes:$minutes)" }
-                                        }
-                                    }
-                                } ?: addNewBucket(ip)
-                            }
-                    }
-                }
-            }
-
-    private fun addNewBucket(ip: IpAddress) =
-        ip.run {
-            buckets[this] = Bucket.builder()
-                .addLimit(Bandwidth.classic(capacity, Refill.greedy(tokens, ofMinutes(minutes))))
-                .build()
-            logger.info { "new rate bucket ($ip, ${buckets.size} bucket(s))" }
-            buckets.isNotEmpty()
+        whiteIpOnlyMode -> onlyAllowedIp.any { ip.start(it) }.also { allowed ->
+            allowed.takeUnless { it }?.run { logger.error { "$ip not allowed by whiteIpOnlyMode $onlyAllowedIp" } }
         }
 
-    fun addNewTemporaryBlackList(ipAddressOrMask: IpAddress, tillDate: OperDate = now().plusMinutes(tmpMinutes)) =
-        with (ipTemporaryBlackList) {
-            logger.warn { "add subnet $ipAddressOrMask to temporary blackList(till ${tillDate.toString2()})" }
-                removeIf { it.ipMask == ipAddressOrMask }
-                add(IpBlackRecord(ipAddressOrMask, tillDate))
-            now().apply {
-                removeIf { it.invalidDate < this }
-            }
+        // permanent blacklist
+        blackListIps.any { ip.start(it) } -> false.also { logger.error { "$ip is in blacklist" } }
 
-            if (isNotEmpty()) {
-                logger.warn { "ipTemporaryBlackList = $ipTemporaryBlackList" }
+        // temporary blacklist
+        else -> run {
+            val now = now()
+            ipTemporaryBlackList.firstOrNull { ip.start(it.ipMask) && it.invalidDate > now }?.let { record ->
+                logger.error { "put ${ip.validIpV4()} in temporary blacklist till ${record.invalidDate.toString2()} (remain ${now.d1d2Diff(record.invalidDate)})" }
+                false
+            } ?: trustedIps.any { ip.start(it) }.let { isTrusted ->
+                // trusted ip bypass
+                if (isTrusted) {
+                    logger.debug { "passed as trusted ip: $ip" }
+                    true
+                } else {
+                    // bucket rate limiting
+                    buckets[ip]?.let { bucket ->
+                        bucket.availableTokens.takeIf { it < warnCapacity }?.run {
+                            logger.warn { "$ip: available tokens: $this|$capacity" }
+                        }
+                        bucket.tryConsume(1).also { success ->
+                            success.takeUnless { it }?.run {
+                                logger.error { "$ip: access limit exceeded (capacity:$capacity, tokens:$tokens, minutes:$minutes)" }
+                            }
+                        }
+                    } ?: addNewBucket(ip)
+                }
             }
+        }
+    }
+
+    private fun addNewBucket(ip: IpAddress): Boolean = ip.run {
+        buckets[this] = Bucket.builder()
+            .addLimit(Bandwidth.classic(capacity, Refill.greedy(tokens, ofMinutes(minutes))))
+            .build()
+        logger.info { "new rate bucket ($ip, ${buckets.size} bucket(s))" }
+        true
+    }
+
+    fun addNewTemporaryBlackList(ipAddressOrMask: IpAddress, tillDate: OperDate = now().plusMinutes(tmpMinutes)) =
+        ipTemporaryBlackList.run {
+            logger.warn { "add subnet $ipAddressOrMask to temporary blackList(till ${tillDate.toString2()})" }
+            removeIf { it.ipMask == ipAddressOrMask }
+            add(IpBlackRecord(ipAddressOrMask, tillDate))
+            now().let { currentTime -> removeIf { it.invalidDate < currentTime } }
+            takeIf { it.isNotEmpty() }?.run { logger.warn { "ipTemporaryBlackList = $this" } }
         }
 }

@@ -129,7 +129,7 @@ abstract class AbstractWebClientService : AbstractApplicationService() {
     }
 
     //===========================================================================
-    fun <T> Mono<T>.monoMeasureTimeMillis(uriPath: String): Mono<T> = transform {
+    fun <T: Any> Mono<T>.monoMeasureTimeMillis(uriPath: String): Mono<T> = transform {
         val sw = LateInitVal<StopWatcher>()
         doOnSubscribe { sw.init(StopWatcher(javaClass.simpleName)) }
             .doOnSuccess {
@@ -141,14 +141,14 @@ abstract class AbstractWebClientService : AbstractApplicationService() {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // POST
-    protected fun <P : Any, R> webClientExecute(
+    protected fun <P : Any, R: Any> webClientExecute(
         httpRoute: RouteUrl,
         postBody: P,
         respClass: Class<R>,
         headersConsumer: Consumer<HttpHeaders> = EMPTY_HTTP_HEADERS,
     ) = webClientExecute(httpRoute, postBody, respClass, headersConsumer) {}
 
-    protected fun <P : Any, R> webClientExecute(
+    protected fun <P : Any, R: Any> webClientExecute(
         httpRoute: RouteUrl,
         postBody: P,
         respClass: Class<R>,
@@ -156,7 +156,7 @@ abstract class AbstractWebClientService : AbstractApplicationService() {
         onStatusProcessor: WebClientOnStatusProcessor = EMPTY_STATUS_PROCESSOR,
     ) = webClientExecute(httpRoute, postBody, respClass, { it }, headersConsumer, onStatusProcessor)
 
-    protected fun <P : Any, R> webClientExecute(
+    protected fun <P : Any, R: Any> webClientExecute(
         httpRoute: RouteUrl,
         postBody: P,
         respClass: Class<R>,
@@ -186,7 +186,7 @@ abstract class AbstractWebClientService : AbstractApplicationService() {
         }
     }
 
-    protected fun <R> webClientExecuteMultipart(
+    protected fun <R: Any> webClientExecuteMultipart(
         url: String,
         bodyInserter: BodyInserters.MultipartInserter,
         respClass: Class<R>,
@@ -220,24 +220,24 @@ abstract class AbstractWebClientService : AbstractApplicationService() {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // GET
-    protected fun <R> webClientExecute(
+    protected fun <R: Any> webClientExecute(
         httpRoute: RouteUrl,
         respClass: Class<R>,
     ) = webClientExecute(httpRoute, respClass, { it }, EMPTY_HTTP_HEADERS)
 
-    protected fun <R> webClientExecute(
+    protected fun <R: Any> webClientExecute(
         httpRoute: RouteUrl,
         respClass: Class<R>,
         uriBuilder: WebClientUriBuilder,
     ) = webClientExecute(httpRoute, respClass, uriBuilder, EMPTY_HTTP_HEADERS)
 
-    protected fun <R> webClientExecute(
+    protected fun <R: Any> webClientExecute(
         httpRoute: RouteUrl,
         respClass: Class<R>,
         headersConsumer: Consumer<HttpHeaders>,
     ) = webClientExecute(httpRoute, respClass, { it }, headersConsumer)
 
-    protected fun <R> webClientExecute(
+    protected fun <R: Any> webClientExecute(
         httpRoute: RouteUrl,
         respClass: Class<R>,
         uriBuilder: WebClientUriBuilder,
@@ -262,7 +262,7 @@ abstract class AbstractWebClientService : AbstractApplicationService() {
         }
     }
 
-    private inline fun <R> doWebClientCall(webClientCall: WebClientCall<R>): Mono<R> =
+    private inline fun <R: Any> doWebClientCall(webClientCall: WebClientCall<R>): Mono<R> =
         runCatching {
             webClientCall()
         }.getOrElse {

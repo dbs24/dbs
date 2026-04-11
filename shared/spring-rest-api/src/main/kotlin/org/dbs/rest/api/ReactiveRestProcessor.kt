@@ -3,10 +3,10 @@ package org.dbs.rest.api
 
 import org.dbs.consts.SpringCoreConst.PropertiesNames.CONFIG_REACTOR_REST_DEBUG
 import org.dbs.consts.SpringCoreConst.PropertiesNames.VALUE_REACTOR_REST_DEBUG
-import org.dbs.spring.core.api.AbstractApplicationService
 import org.dbs.consts.SysConst.EMPTY_STRING
 import org.dbs.consts.SysConst.UNCHECKED_CAST
 import org.dbs.consts.SysConst.VOID_CLASS
+import org.dbs.spring.core.api.AbstractApplicationService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.MediaType.APPLICATION_JSON
@@ -14,7 +14,6 @@ import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
 import reactor.core.publisher.Mono
 import reactor.core.publisher.Mono.just
-import reactor.kotlin.core.publisher.toMono
 import java.util.function.Consumer
 import java.util.function.Predicate
 
@@ -33,10 +32,10 @@ abstract class ReactiveRestProcessor : AbstractApplicationService() {
     }
 
     @Suppress(UNCHECKED_CAST)
-    private fun <V> getBody(serverRequest: ServerRequest, clazz: Class<V>): Mono<V> =
-        if (isVoidClass.test(clazz)) EMPTY_STRING.toMono() as Mono<V> else serverRequest.bodyToMono(clazz)
+    private fun <V: Any> getBody(serverRequest: ServerRequest, clazz: Class<V>): Mono<V> =
+        if (isVoidClass.test(clazz)) just(EMPTY_STRING) as Mono<V> else serverRequest.bodyToMono(clazz)
 
-    private fun <T, V> getEntity(entity: T, entityProcessor: EntityProcessor<T, V>): Mono<V> =
+    private fun <T: Any, V: Any> getEntity(entity: T, entityProcessor: EntityProcessor<T, V>): Mono<V> =
         just(entityProcessor.processEntity(if (entity == EMPTY_STRING) null else entity))
 
     private fun <T> getResponse(response: T): Mono<ServerResponse> = ServerResponse
@@ -45,7 +44,7 @@ abstract class ReactiveRestProcessor : AbstractApplicationService() {
         .bodyValue(response as Any)
 
     //==================================================================================================================
-    protected fun <T, V> processServerRequest(
+    protected fun <T: Any, V: Any> processServerRequest(
         serverRequest: ServerRequest,
         clazz: Class<T>,
         entityProcessor: EntityProcessor<T, V>
@@ -59,6 +58,6 @@ abstract class ReactiveRestProcessor : AbstractApplicationService() {
     }
 
     //==========================================================================
-    protected fun <T> log(mono: Mono<T>): Mono<T> = if (restDebug) mono.log() else mono
+    protected fun <T: Any> log(mono: Mono<T>): Mono<T> = if (restDebug) mono.log() else mono
 
 }

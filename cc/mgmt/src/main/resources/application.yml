@@ -35,10 +35,17 @@ spring:
     user:
       name: user
       password: 123123
+  flyway:
+    enabled: true
+    url: jdbc:postgresql://127.0.0.1:5432/dev_cc_db
+    user: ${spring.r2dbc.username}
+    password: ${spring.r2dbc.password}
+    locations: classpath:db/migration
+    baseline-on-migrate: true
   r2dbc:
     username: dev_cc_admin
     password: 2b9df5f50a1348969bdcfdf28
-    url: r2dbc:postgresql://k11keenetic.ddns.net:5431/dev_cc_db
+    url: r2dbc:postgresql://127.0.0.1:5432/dev_cc_db
     pool:
       enabled: true
       initial-size: 2
@@ -87,10 +94,14 @@ spring:
 logging:
   register-shutdown-hook: false
   level:
-    root: WARN
-    org.dbs: DEBUG
-    org.springframework: WARN
-    org.springframework.boot: WARN
+    default: INFO
+    root: ${logging.level.default}
+    org.dbs: ${logging.level.default}
+    org.springframework: ${logging.level.default}
+    org.springframework.boot: ${logging.level.default}
+    org.flywaydb: ${logging.level.default}
+    org.springframework.r2dbc: ${logging.level.default}
+    web: ${logging.level.default}
   config: classpath:log4j2.xml
 network:
   cors:

@@ -17,6 +17,7 @@ SpringBoot active profile    : ${spring.profiles.active}
 Web Application Type         : ${spring.main.web-application-type}
 Lazy initialization          : ${spring.main.lazy-initialization}
 ------------------------------------------------------------
+Default logging level        : ${logging.level.default}
 Logging level root           : ${logging.level.root}
 Default locale               : ${spring.web.locale}
 ------------------------------------------------------------

@@ -2,23 +2,48 @@ package org.dbs.application.core.api
 
 import org.dbs.application.core.service.funcs.ServiceFuncs.createCollection
 import org.dbs.consts.SysConst.EMPTY_STRING
+import org.dbs.consts.SysConst.NOT_ASSIGNED
 import org.dbs.consts.SysConst.UNCHECKED_CAST
 import java.io.Closeable
-import org.dbs.consts.SysConst.NOT_ASSIGNED
 
 object EMPTYOBJECT
 
-@JvmInline
-value class LateInitVal<T>(private val propertyStorage: InternalPropertyStorageImpl<T>) :
-    InternalPropertyStorage<T> by propertyStorage {
-    @Suppress(UNCHECKED_CAST)
-    constructor() : this(InternalPropertyStorageImpl(NOT_ASSIGNED, EMPTYOBJECT as T))
+class LateInitVal<T : Any>(
+    private val initValue: T? = null,
+    private val propName: String = "PropertyName",
+    private val isReadOnly: Boolean = true
+) {
+    @Suppress("UNCHECKED_CAST")
+    constructor(propName: String) : this(initValue = null, propName = propName)
 
-    @Suppress(UNCHECKED_CAST)
-    constructor(initValue: T) : this(InternalPropertyStorageImpl(NOT_ASSIGNED, initValue))
+    private var _internal: T? = initValue
 
-    @Suppress(UNCHECKED_CAST)
-    constructor(propertyName: String) : this(InternalPropertyStorageImpl(propertyName, EMPTYOBJECT as T))
+    var value: T
+        get() = _internal ?: error("'$propName' is not initialized")
+        set(v) {
+            _internal.takeIf { it == null }?.run { _internal = v }
+                ?: error("'$propName' already initialized with [$_internal]")
+        }
+
+    val valueOrNull: T? by lazy { _internal }
+
+    fun init(v: T): T = v.also {
+        when {
+            isNotInitialized() -> _internal = it
+            isReadOnly -> raiseIsInitialized()
+        }
+    }
+
+    fun update(v: T): T = init(v)
+
+    fun isInitialized(): Boolean = _internal?.run { true } ?: false
+
+    fun isNotInitialized(): Boolean = !isInitialized()
+
+    fun valueOrDefault(default: T): T = _internal ?: default
+
+    private fun raiseIsInitialized(): Nothing =
+        error("Property '$propName' already is initialized")
 }
 
 class LateInitValNoInline<T>(private val propertyStorage: InternalPropertyStorageImpl<T>) : Closeable,

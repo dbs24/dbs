@@ -1,7 +1,6 @@
 import dsl.Dependencies.ApplicationAttributes.MAIN_CLASS
 import dsl.Dependencies.ProjectAttributes.IMPLEMENTATION_TITLE
 import dsl.Dependencies.ProjectAttributes.IMPLEMENTATION_VERSION
-import dsl.Dependencies.ProjectAttributes.MAIN_CLASS_NAME
 import dsl.Dependencies.Projects.KAFKA_API
 import dsl.Dependencies.Projects.MAIL_STARTER
 import dsl.Dependencies.Projects.NO_VERSION_ASSIGNED
@@ -30,7 +29,7 @@ dependencies {
     api(project(SPRING_CONFIG))
     api(project(SPRING_KAFKA_STARTER))
     api(project(KAFKA_API))
-    testApi(project(TEST_CORE))
+    testImplementation(project(TEST_CORE))
 
     implementation(platform(libs.kotlin.bom))
     implementation(libs.reactor.netty)

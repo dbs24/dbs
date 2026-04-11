@@ -11,7 +11,8 @@ NC="\033[0m"
 
 TASK_EXEC_TIME=$(echo "$(date +%s.%N) - $TASK_START" | bc -l)
 
-echo -e "$S1$LINE$2"
-echo -e "$S1 compilation successfully finished in $TASK_EXEC_TIME second(s) at $(date) $S2"
+echo -e "$S1$LINE$2"echo -e "$S1 compilation successfully finished in $TASK_EXEC_TIME second(s) at $(date) $S2"
 echo -e "$S1$LINE$2"
 echo -e "$NC "
+
+./gradlew testClasses

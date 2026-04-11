@@ -2,9 +2,13 @@ package org.dbs.test.container
 
 import api.TestConst.TC_POSTGRES_IMAGE_DEF
 import org.dbs.application.core.service.funcs.StringFuncs.createRandomString
+import org.dbs.consts.SpringCoreConst.PropertiesNames.SPRING_FLYWAY_PASSWORD
+import org.dbs.consts.SpringCoreConst.PropertiesNames.SPRING_FLYWAY_URL
+import org.dbs.consts.SpringCoreConst.PropertiesNames.SPRING_FLYWAY_USER
 import org.dbs.consts.SpringCoreConst.PropertiesNames.SPRING_R2DBC_PASSWORD
 import org.dbs.consts.SpringCoreConst.PropertiesNames.SPRING_R2DBC_URL
 import org.dbs.consts.SpringCoreConst.PropertiesNames.SPRING_R2DBC_USER_NAME
+import org.dbs.consts.SysConst.STRING_NULL
 import org.dbs.test.core.AbstractTestContainer
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.testcontainers.containers.PostgreSQLContainer
@@ -12,18 +16,24 @@ import org.testcontainers.containers.PostgreSQLR2DBCDatabaseContainer
 import java.util.*
 
 
-class PostgresR2dbcContainer(imageName: String, databaseName: String, databaseUser: String, script: String) :
+class PostgresR2dbcContainer(imageName: String, databaseName: String, databaseUser: String, script: String? = STRING_NULL) :
     AbstractTestContainer() {
     val dbPgContainer: PostgreSQLContainer<*>
     private val pgR2dbcContainer: PostgreSQLR2DBCDatabaseContainer
+    private val pgContainerInfo by lazy { "imageName: $imageName, databaseName: $databaseName, databaseUser: $databaseUser, script: $script" }
 
     init {
-        logger.info("Init postgres containers: $imageName")
+        logger.info("Init postgres containers: $pgContainerInfo")
         dbPgContainer = PostgreSQLContainer(imageName)
             .withDatabaseName(databaseName)
             .withUsername(databaseUser)
             .withPassword(createRandomString(10))
-            .withInitScript(script)
+            .apply {
+                script?.let {
+                    logger.info("Init sql script: $it ")
+                    require(it.contains(".sql")) {"$it: is not sql script ($pgContainerInfo)"}
+                    withInitScript(it) }
+            }
             .withReuse(true)
         pgR2dbcContainer = PostgreSQLR2DBCDatabaseContainer(dbPgContainer)
         dbPgContainer.start()
@@ -40,9 +50,19 @@ class PostgresR2dbcContainer(imageName: String, databaseName: String, databaseUs
         script
     )
 
+    constructor(databaseName: String, databaseUser: String) : this(
+        TC_POSTGRES_IMAGE_DEF,
+        databaseName,
+        databaseUser,
+        STRING_NULL
+    )
+
     override fun overrideApplicationProperties(registry: DynamicPropertyRegistry) = with(registry) {
         val postgresUrl = "postgresql://${dbPgContainer.host}:${dbPgContainer.firstMappedPort}/${dbPgContainer.databaseName}"
         add(SPRING_R2DBC_URL) { "r2dbc:$postgresUrl" }
+        add(SPRING_FLYWAY_URL) { "jdbc:$postgresUrl" }
+        add(SPRING_FLYWAY_USER) { dbPgContainer.username }
+        add(SPRING_FLYWAY_PASSWORD) { dbPgContainer.password }
         add(SPRING_R2DBC_USER_NAME) { dbPgContainer.username }
         add(SPRING_R2DBC_PASSWORD) { dbPgContainer.password }
     }

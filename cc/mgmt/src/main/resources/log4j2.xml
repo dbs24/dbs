@@ -6,8 +6,8 @@
         </Property>
         <Property name="logFileName">cc-mgmt</Property>
         <Property name="logFolder">/var/log/dbs</Property>
-        <Property name="defaultLevel">DEBUG</Property>
-        <Property name="defaultRootLevel">WARN</Property>
+        <Property name="defaultLevel">TRACE</Property>
+        <Property name="defaultRootLevel">TRACE</Property>
     </Properties>
     <Appenders>
         <Console name="ConsoleAppender" target="SYSTEM_OUT" follow="true">

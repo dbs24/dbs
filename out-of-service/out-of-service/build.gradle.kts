@@ -1,7 +1,6 @@
 import dsl.Dependencies.ApplicationAttributes.MAIN_CLASS
 import dsl.Dependencies.ProjectAttributes.IMPLEMENTATION_TITLE
 import dsl.Dependencies.ProjectAttributes.IMPLEMENTATION_VERSION
-import dsl.Dependencies.ProjectAttributes.MAIN_CLASS_NAME
 import dsl.Dependencies.Projects.APPLICATION_CORE_API
 import dsl.Dependencies.Projects.GRPC_HTTP_API
 import dsl.Dependencies.Projects.GRPC_SERVER_STARTER
@@ -50,7 +49,7 @@ dependencies {
     api(project(GRPC_SERVER_STARTER))
     api(project(GRPC_HTTP_API))
     api(project(OUT_OF_SERVICE_API))
-    testApi(project(TEST_CORE))
+    testImplementation(project(TEST_CORE))
 
     implementation(kotlin(STD_LIB))
     implementation(platform(libs.kotlin.bom))

@@ -39,6 +39,7 @@ import org.dbs.service.consts.ActionExec
 import org.dbs.service.dao.EntityDao
 import org.dbs.spring.core.api.AbstractApplicationService
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.DependsOn
 import org.springframework.context.annotation.Lazy
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.stereotype.Service
@@ -56,6 +57,7 @@ import java.time.LocalTime.MIN
 @Service
 @Lazy(false)
 @EnableTransactionManagement
+@DependsOn("flywayInitializer")
 class R2dbcPersistenceService(
     private val databaseClient: DatabaseClient,
     private val entityDao: EntityDao,
@@ -143,6 +145,7 @@ class R2dbcPersistenceService(
             .subscribeMono()
 
         if (autoSynchronize) with(entityDao) {
+            logger.debug { "synchronize system references" }
             synchronizeEntityTypes()
             synchronizeEntityStatuses()
             synchronizeActionCodes()

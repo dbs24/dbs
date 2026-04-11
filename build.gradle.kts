@@ -33,7 +33,7 @@ import org.gradle.api.file.DuplicatesStrategy.EXCLUDE
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.allopen.gradle.AllOpenExtension
-import org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_2
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 import java.lang.Runtime.getRuntime
 
@@ -444,7 +444,7 @@ kotlin {
     sourceSets.all {
         // language-version 2.0
         languageSettings {
-            languageVersion = KOTLIN_LANG_VERSION
+        languageVersion = KOTLIN_LANG_VERSION
         }
     }
 
@@ -459,8 +459,8 @@ tasks
     .withType<KotlinJvmCompile>()
     .configureEach {
         compilerOptions.apply {
-            languageVersion.set(KOTLIN_2_0)
-            apiVersion.set(KOTLIN_2_0)
+            languageVersion.set(KOTLIN_2_2)
+            apiVersion.set(KOTLIN_2_2)
             progressiveMode.set(true)
         }
     }
@@ -554,13 +554,16 @@ noArg {
     invokeInitializers = true
 }
 
-
 //======================================================================================================================
 
 //sourceSets.all {
 //    java.setSrcDirs(listOf("$name/src"))
 //    resources.setSrcDirs(listOf("$name/resources"))
 //}
+
+sourceSets.main {
+    java.srcDir(tasks.named("openapi"))
+}
 
 configure<AllOpenExtension> {
     annotation("org.openjdk.jmh.annotations.State")
@@ -572,8 +575,8 @@ version = PRODUCT_VERSION
 
 tasks.compileKotlin {
     compilerOptions {
-        apiVersion.set(KOTLIN_2_0)
-        languageVersion.set(KOTLIN_2_0)
+        apiVersion.set(KOTLIN_2_2)
+        languageVersion.set(KOTLIN_2_2)
         freeCompilerArgs = setOf(
             "-Xjsr305=strict",
             "-Xno-call-assertions",
@@ -587,8 +590,8 @@ tasks.compileKotlin {
 
 tasks.compileTestKotlin {
     compilerOptions {
-        apiVersion.set(KOTLIN_2_0)
-        languageVersion.set(KOTLIN_2_0)
+        apiVersion.set(KOTLIN_2_2)
+        languageVersion.set(KOTLIN_2_2)
         freeCompilerArgs = listOf(
             "-Xjsr305=strict",
             "-Xdoclint:none",

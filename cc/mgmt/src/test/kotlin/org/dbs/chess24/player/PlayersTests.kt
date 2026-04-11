@@ -17,7 +17,6 @@ import org.dbs.chess24.funcs.PlayerFuncs.playerStatusesNames
 import org.dbs.chess24.funcs.PlayerFuncs.updatePlayerPassword
 import org.dbs.chess24.funcs.PlayerFuncs.updatePlayerStatus
 import org.dbs.mgmt.model.player.Player
-import org.springframework.security.crypto.password.PasswordEncoder
 import reactor.core.publisher.Flux.concat
 import reactor.core.publisher.Flux.fromIterable
 import reactor.core.publisher.Mono
@@ -25,9 +24,7 @@ import reactor.core.scheduler.Schedulers.boundedElastic
 
 
 typealias MonoPlayer = Mono<Player>
-class PlayerTests(
-    passwordEncoder: PasswordEncoder,
-) : AbstractChessTest({
+class PlayerTests() : AbstractChessTest({
 
     val scheduler = boundedElastic()
     val entitiesCount = REPEATED_KOTEST_AMOUNT
@@ -117,7 +114,6 @@ class PlayerTests(
                             updatePlayerPassword(
                                 it.login,
                                 generateTestPassword811(),
-                                passwordEncoder
                             )
                         }
                     }.count().awaitSingle()

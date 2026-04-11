@@ -1,7 +1,6 @@
 import dsl.Dependencies.ApplicationAttributes.MAIN_CLASS
 import dsl.Dependencies.ProjectAttributes.IMPLEMENTATION_TITLE
 import dsl.Dependencies.ProjectAttributes.IMPLEMENTATION_VERSION
-import dsl.Dependencies.ProjectAttributes.MAIN_CLASS_NAME
 import dsl.Dependencies.Projects.APPLICATION_CORE_API
 import dsl.Dependencies.Projects.CACHE_STARTER
 import dsl.Dependencies.Projects.CC_SANDBOX_API
@@ -59,7 +58,7 @@ dependencies {
     api(project(SPRING_CORE_API))
     api(project(SPRING_KAFKA_STARTER))
     api(project(SPRING_REST_API))
-    testApi(project(TEST_CORE))
+    testImplementation(project(TEST_CORE))
 
     implementation(libs.bucket4j.core)
     implementation(libs.coroutines.core)

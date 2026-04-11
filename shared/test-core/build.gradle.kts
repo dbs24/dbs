@@ -32,6 +32,9 @@ dependencies {
 
     implementation(libs.kotest.assertions.core)
     implementation(libs.kotest.runner.junit5.jvm)
+    implementation(libs.kotest.runner.junit5)
+    implementation(libs.kotest.engine)
+    implementation(libs.kotest.spring)
     implementation(libs.kotest.property.jvm)
     implementation(libs.kotest.extensions.spring)
     implementation(libs.kotest.testcontainers)

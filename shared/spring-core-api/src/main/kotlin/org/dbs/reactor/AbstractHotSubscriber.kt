@@ -5,7 +5,7 @@ import reactor.core.publisher.Sinks
 import java.util.concurrent.locks.LockSupport
 
 
-abstract class AbstractHotSubscriber<T> : AbstractSubscriber<T>() {
+abstract class AbstractHotSubscriber<T: Any> : AbstractSubscriber<T>() {
     val hotSource = Sinks.many().multicast().directBestEffort<T>()
     val hotFlux = hotSource.asFlux()
     override fun initialize() {

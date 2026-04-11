@@ -40,8 +40,9 @@ abstract class AbstractKoTestBehaviorSpec : BehaviorSpec(), Logging {
         }
     }
 
-    //override fun extensions() = listOf(SpringExtension, BlockHound())
-    override fun extensions() = listOf(SpringExtension)
+    init {
+        extension(SpringExtension)
+    }
 
     private val webTestClient by lazy { findCanonicalService(WebTestClient::class) }
 

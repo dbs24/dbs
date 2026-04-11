@@ -24,6 +24,8 @@ dependencies {
 
     implementation(libs.spring.data.r2dbc)
     implementation(libs.spring.data.redis)
+    implementation(libs.flyway.core)
+    implementation(libs.flyway.database.postgresql)
     implementation(libs.log4j.api.kotlin)
     implementation(libs.r2dbc.postgresql)
     implementation(libs.r2dbc.pool)

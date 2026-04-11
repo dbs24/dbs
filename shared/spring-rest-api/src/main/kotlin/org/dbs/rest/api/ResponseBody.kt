@@ -27,7 +27,7 @@ open class ResponseBody<T : EntityInfo> : Logging, Serializable {
     var version: String = VERSION_1_0_0
     private var isCompleted: Boolean = false
     var createdEntity: T? = null
-    val errors = createCollection<ErrorInfo>()
+    var errors: MutableCollection<ErrorInfo> = mutableListOf()
     var errorsCount: Int = 0
 
     @get:JsonIgnore

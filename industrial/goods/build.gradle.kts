@@ -3,11 +3,11 @@ import dsl.Dependencies.ProjectAttributes.IMPLEMENTATION_TITLE
 import dsl.Dependencies.ProjectAttributes.IMPLEMENTATION_VERSION
 import dsl.Dependencies.Projects.APPLICATION_CORE_API
 import dsl.Dependencies.Projects.CACHE_STARTER
+import dsl.Dependencies.Projects.GRPC_HTTP_API
+import dsl.Dependencies.Projects.GRPC_SERVER_STARTER
 import dsl.Dependencies.Projects.IND_GOODS
 import dsl.Dependencies.Projects.IND_GOODS_API
 import dsl.Dependencies.Projects.IND_GOODS_PROTO_API
-import dsl.Dependencies.Projects.GRPC_HTTP_API
-import dsl.Dependencies.Projects.GRPC_SERVER_STARTER
 import dsl.Dependencies.Projects.KAFKA_API
 import dsl.Dependencies.Projects.NO_VERSION_ASSIGNED
 import dsl.Dependencies.Projects.PERSISTENCE_API
@@ -58,7 +58,7 @@ dependencies {
     api(project(SPRING_CORE_API))
     api(project(SPRING_KAFKA_STARTER))
     api(project(SPRING_REST_API))
-    testApi(project(TEST_CORE))
+    testImplementation(project(TEST_CORE))
 
     implementation(libs.bucket4j.core)
     implementation(libs.coroutines.core)

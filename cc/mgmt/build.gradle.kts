@@ -60,7 +60,7 @@ dependencies {
     api(project(SPRING_CORE_API))
     api(project(SPRING_KAFKA_STARTER))
     api(project(SPRING_REST_API))
-    testApi(project(TEST_CORE))
+    testImplementation(project(TEST_CORE))
 
     implementation(libs.bucket4j.core)
     implementation(libs.coroutines.core)
@@ -77,6 +77,7 @@ dependencies {
     implementation(libs.kotlin.stdlib.jdk8)
     implementation(libs.log4j.api.kotlin)
     implementation(libs.log4j.jcl)
+    implementation(libs.log4j.spring.boot)
     implementation(libs.protobuf.kotlin.lite)
     implementation(libs.r2dbc.pool)
     implementation(libs.reactor.kotlin.extensions)
@@ -126,6 +127,7 @@ dependencies {
     runtimeOnly(libs.grpc.netty)
     runtimeOnly(libs.grpc.protoc)
     runtimeOnly(libs.grpc.protoc.kotlin)
+    runtimeOnly(libs.postgresql)
 
     annotationProcessor(libs.spring.configuration.processor)
     annotationProcessor(libs.spring.autoconfigure.processor)

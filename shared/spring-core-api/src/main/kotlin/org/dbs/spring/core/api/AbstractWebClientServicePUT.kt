@@ -19,14 +19,14 @@ object AbstractWebClientServicePUT {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // WebClient With PUT method
 
-    fun <P : Any, R> AbstractWebClientService.webClientExecutePUT(
+    fun <P : Any, R: Any> AbstractWebClientService.webClientExecutePUT(
         httpRoute: RouteUrl,
         putBody: P,
         respClass: Class<R>,
         onStatusProcessor: WebClientOnStatusProcessor = {}
     ) = webClientExecutePUT(httpRoute, putBody, respClass, EMPTY_HTTP_HEADERS, onStatusProcessor)
 
-    fun <P : Any, R> AbstractWebClientService.webClientExecutePUT(
+    fun <P : Any, R: Any> AbstractWebClientService.webClientExecutePUT(
         httpRoute: RouteUrl,
         putBody: P,
         respClass: Class<R>,
@@ -35,7 +35,7 @@ object AbstractWebClientServicePUT {
 
     ) = webClientExecutePUT(httpRoute, putBody, respClass, { it }, headersConsumer, onStatusProcessor)
 
-    fun <P : Any, R> AbstractWebClientService.webClientExecutePUT(
+    fun <P : Any, R: Any> AbstractWebClientService.webClientExecutePUT(
         httpRoute: RouteUrl,
         putBody: P,
         respClass: Class<R>,

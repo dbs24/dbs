@@ -6,6 +6,7 @@ import org.dbs.application.core.service.funcs.SysEnvFuncs.findResourceFile
 import org.dbs.consts.SpringCoreConst.DELIMITER
 import org.dbs.consts.SpringCoreConst.PropertiesNames.BANNER_ROW_DELIMITER
 import org.dbs.consts.SpringCoreConst.PropertiesNames.CUSTOM_BANNER_SET_KEY
+import org.dbs.consts.SpringCoreConst.PropertiesNames.LOGGING_LEVEL_DEFAULT
 import org.dbs.consts.SpringCoreConst.PropertiesNames.LOGGING_LEVEL_ROOT
 import org.dbs.consts.SpringCoreConst.PropertiesNames.SD_API_DOCS_ENABLED
 import org.dbs.consts.SpringCoreConst.PropertiesNames.SD_SWAGGER_UI_ENABLED
@@ -15,7 +16,6 @@ import org.dbs.consts.SpringCoreConst.PropertiesNames.SPRING_APPLICATION_NAME
 import org.dbs.consts.SpringCoreConst.PropertiesNames.SPRING_BOOT_LAZY_INIT
 import org.dbs.consts.SpringCoreConst.PropertiesNames.SPRING_BOOT_VERSION
 import org.dbs.consts.SpringCoreConst.PropertiesNames.SPRING_BOOT_WEB_APP_TYPE
-import org.dbs.consts.SpringCoreConst.PropertiesNames.SPRING_THREADS_VIRTUAL
 import org.dbs.consts.SpringCoreConst.PropertiesNames.SPRING_WEB_LOCALE
 import org.dbs.consts.StringMap
 import org.dbs.consts.SysConst.EMPTY_STRING
@@ -63,6 +63,7 @@ value class BannerBuilder(private val properties: StringMap) : Logging {
                 "Lazy initialization" to SPRING_BOOT_LAZY_INIT,
                 //"Virtual Threads" to SPRING_THREADS_VIRTUAL,
                 DELIMITER to EMPTY_STRING,
+                "Default logging level" to LOGGING_LEVEL_DEFAULT,
                 "Logging level root" to LOGGING_LEVEL_ROOT,
                 "Default locale " to SPRING_WEB_LOCALE,
                 DELIMITER to EMPTY_STRING,

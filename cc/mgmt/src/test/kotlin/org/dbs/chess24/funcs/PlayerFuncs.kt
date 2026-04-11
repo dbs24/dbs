@@ -27,7 +27,6 @@ import org.dbs.ref.serv.enums.CountryEnum.Companion.getRandomCountry
 import org.dbs.ref.serv.enums.GenderEnum.Companion.getRandomGender
 import org.dbs.test.ko.WebTestClientFuncs.executePostRequestV2
 import org.springframework.http.HttpHeaders.AUTHORIZATION
-import org.springframework.security.crypto.password.PasswordEncoder
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.switchIfEmpty
 import reactor.kotlin.core.publisher.toMono
@@ -159,8 +158,7 @@ object PlayerFuncs : Logging {
 
     suspend fun AbstractChessTest.updatePlayerPassword(
         login: EntityCode = generateTestLogin(),
-        newPassword: PlayerPassword,
-        passwordEncoder: PasswordEncoder
+        newPassword: PlayerPassword
     ): Mono<Player> = run {
 
         runTest {
@@ -187,7 +185,7 @@ object PlayerFuncs : Logging {
                         matchDto2Entity(dto, it) {
                             with(it) {
                                 login.shouldBeEqual(this.login)
-                                passwordEncoder.matches(newPassword, this.password)
+                                playerService.passwordEncoder.matches(newPassword, this.password)
                             }
                         }
                     } ?: error("${dto.login}: unknown player")).toMono()

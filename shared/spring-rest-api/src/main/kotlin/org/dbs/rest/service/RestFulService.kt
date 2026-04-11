@@ -16,7 +16,6 @@ import org.dbs.consts.SpringCoreConst.PropertiesNames.QUERY_MAX_EXEC_TIME
 import org.dbs.consts.SpringCoreConst.PropertiesNames.QUERY_MAX_EXEC_TIME_VALUE
 import org.dbs.consts.SpringCoreConst.PropertiesNames.VALUE_RESTFUL_MESSAGE_PRINT_ENTITY_ID
 import org.dbs.consts.SysConst.EMPTY_STRING
-import org.dbs.consts.SysConst.STRING_NULL
 import org.dbs.consts.SysConst.UNCHECKED_CAST
 import org.dbs.ext.LoggerFuncs.logRequestInternal
 import org.dbs.ref.serv.enums.CurrencyEnum.USD
@@ -32,8 +31,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.server.ServerRequest
 import reactor.core.publisher.Mono
-import reactor.core.publisher.Mono.empty
-import reactor.kotlin.core.publisher.switchIfEmpty
 import java.util.function.Consumer
 import kotlin.reflect.KClass
 
@@ -42,19 +39,26 @@ import kotlin.reflect.KClass
 class RestFulService : AbstractApplicationService() {
 
     @Value("\${$CONFIG_RESTFUL_MESSAGE_PRINT_ENTITY_ID:$VALUE_RESTFUL_MESSAGE_PRINT_ENTITY_ID}")
-    private val printEntityId = false
+    private val printEntityIdProp = false
 
     @Value("\${$QUERY_MAX_EXEC_TIME:$QUERY_MAX_EXEC_TIME_VALUE}")
-    private val queryMaxTimeExec = QUERY_MAX_EXEC_TIME_VALUE
+    private val queryMaxTimeExecProp = QUERY_MAX_EXEC_TIME_VALUE
 
     @Value("\${$MAX_PAGE_SIZE:$MAX_PAGE_SIZE_VALUE}")
-    val maxPageSize = MAX_PAGE_SIZE_VALUE
+    private val maxPageSizeProp = MAX_PAGE_SIZE_VALUE
 
     @Value("\${$MAX_PAGES:$MAX_PAGES_VALUE}")
-    val maxPages = MAX_PAGES_VALUE
+    private val maxPagesProp = MAX_PAGES_VALUE
 
     @Value("\${$DEFAULT_SYS_CURRENCY:$DEFAULT_SYS_CURRENCY_VALUE}")
-    val storeMainCurrency = USD
+    private val storeMainCurrencyProp = USD
+
+    // Lazy initialization as per requirements
+    private val printEntityId by lazy { printEntityIdProp }
+    private val queryMaxTimeExec by lazy { queryMaxTimeExecProp }
+    val maxPageSize by lazy { maxPageSizeProp }
+    val maxPages by lazy { maxPagesProp }
+    val storeMainCurrency by lazy { storeMainCurrencyProp }
 
     @Suppress(UNCHECKED_CAST)
     fun <REQ : RequestDto, R : AbstractHttpRequestBody<REQ>, RESP : ResponseDto, T : HttpResponseBody<RESP>>
@@ -66,18 +70,15 @@ class RestFulService : AbstractApplicationService() {
         val path = method().name().plus(path())
 
         bodyToMono(classR.java)
-            .switchIfEmpty {
-                if (method().name() == "POST") {
-                    Mono.error(EmptyBodyException("post query has empty body"))
-                } else {
-                    empty()
-                }
-            }
+            .switchIfEmpty (
+                method().name().takeIf { it == "POST" }
+                    ?.run { Mono.error(EmptyBodyException("post query has empty body")) }
+                    ?: Mono.empty()
+            )
             .flatMap { requestBody ->
                 val stopWatcher = StopWatcher.create()
                 logger.debug("*** $path: [$requestBody]")
-                runBlocking {  funkResponseBody(requestBody.requestBodyDto) }
-                    //.switchIfEmpty{Mono.defer { responseBody.toMono() })
+                runBlocking { funkResponseBody(requestBody.requestBodyDto) }
                     .map { finishResponse(it, path, stopWatcher.executionTime) }
                     .doOn()
             }
@@ -95,59 +96,56 @@ class RestFulService : AbstractApplicationService() {
             .doOn()
     }
 
-    fun getJwtClaim(jwt: Jwt, claimName: String): String = jwt.run {
-        jwtSecurityService.getClaim(this, claimName) ?: error("claim is not found ($claimName), jwt=[${this.last15()}]")
-    }
+    fun getJwtClaim(jwt: Jwt, claimName: String): String =
+        jwtSecurityService.getClaim(jwt, claimName) ?: error("claim is not found ($claimName), jwt=[${jwt.last15()}]")
 
-    fun getJwtClaims(jwt: Jwt): Claims = jwt.run {
-        jwtSecurityService.getAllClaimsFromJwt(this)
-    }
+    fun getJwtClaims(jwt: Jwt): Claims =
+        jwtSecurityService.getAllClaimsFromJwt(jwt)
 
-    private fun <T> Mono<T>.doOn() = this.doOnError(throwableConsumer)
+    private fun <T: Any> Mono<T>.doOn() = this.doOnError(throwableConsumer)
 
     private fun <RESP : ResponseDto, T : HttpResponseBody<RESP>> finishResponse(
         responseBody: T,
         path: String,
         execMillis: Long,
-    ): T = responseBody.run { finishResponseApply(this, path, execMillis) }
+    ): T = finishResponseApply(responseBody, path, execMillis)
 
     private fun <RESP : ResponseDto, T : HttpResponseBody<RESP>> finishResponseApply(
         responseBody: T,
         path: String,
         execMillis: Long,
     ) = responseBody.apply {
-        execMillis.also {
-            execTimeMillis = it.toInt().run { if (this == 0) 1 else this }
-            logger.logRequestInternal(it, queryMaxTimeExec) { "[$path]" }
-            logger.debug { "▒▒▒ [h1, $path: ${responseBody.toString2()}]" }
-        }
+        execTimeMillis = execMillis.toInt().takeUnless { it == 0 } ?: 1
+        logger.logRequestInternal(execMillis, queryMaxTimeExec) { "[$path]" }
+        logger.debug { "▒▒▒ [h1, $path: ${toString2()}]" }
 
-        if (errors.isNotEmpty()) {
-            error = error ?: errors.first().errorMsg
-            message = error ?: "error"
+        errors.takeIf { it.isNotEmpty() }?.run {
+            error = error?.run { this } ?: first().errorMsg
+            message = error?.run { this } ?: "error"
 
-            val singleError = (errorsCount == 1)
-
+            val isSingle = (errorsCount == 1)
             logger.warn(
-                "### ERROR PROCESSING '${path.uppercase()}' - there ${if (singleError) "is" else "are"} " +
-                        "{$errorsCount} error${if (!singleError) "s" else ""}: {$errors}"
+                "### ERROR PROCESSING '${path.uppercase()}' - there ${if (isSingle) "is" else "are"} " +
+                        "{$errorsCount} error${if (!isSingle) "s" else ""}: {$errors}"
             )
         }
 
-        message.run { this.ifEmpty { STRING_NULL } } ?: run {
+        message.takeIf { it.isNotEmpty() } ?: run {
             logger.warn("### ${path.uppercase()}: response message is null or empty".uppercase())
         }
     }
 
-    private val throwableConsumer = Consumer { throwable: Throwable ->
-        logger.error("### {$throwable.cause}: {$throwable.message}")
-        logger.error("### MonoResponse exception: {$throwable.javaClass.simpleName}-'${throwable}'")
+    private val throwableConsumer by lazy {
+        Consumer<Throwable> { t ->
+            logger.error("### {${t.cause}}: {${t.message}}")
+            logger.error("### MonoResponse exception: {${t.javaClass.simpleName}}-'$t'")
+        }
     }
 
     //==========================================================================
 
     protected fun foundStdEntityServiceMsg(clazz: Class<*>, entityId: EntityId?, extMessage: String?) =
-        "${clazz.simpleName}: ${entityId?.let { "found" } ?: "create new"} " +
+        "${clazz.simpleName}: ${entityId?.run { "found" } ?: "create new"} " +
                 "entity ${printEntityId(entityId)} $extMessage"
 
     fun foundStdEntityServiceMsg(clazz: Class<*>, entityCode: String) =
@@ -157,7 +155,7 @@ class RestFulService : AbstractApplicationService() {
         "${clazz.simpleName}: found entities - $entitiesCount"
 
     private fun printEntityId(entityId: EntityId?) =
-        if (printEntityId) "(entityId: ${entityId ?: EMPTY_STRING})" else EMPTY_STRING
+        printEntityId.takeIf { it }?.run { "(entityId: ${entityId ?: EMPTY_STRING})" } ?: EMPTY_STRING
 
     companion object {
         private val jwtSecurityService by lazy { findService(JwtSecurityServiceApi::class) }

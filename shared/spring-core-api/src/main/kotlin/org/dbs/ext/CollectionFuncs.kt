@@ -7,7 +7,7 @@ import reactor.core.publisher.Mono
 import reactor.core.publisher.Mono.empty
 
 object CollectionFuncs {
-    inline fun <T, V> Collection<T>.whenNoErrors(arg: NoArg2Mono<V>): Mono<V> =
+    inline fun <T, V: Any> Collection<T>.whenNoErrors(arg: NoArg2Mono<V>): Mono<V> =
         if (this.isEmpty()) arg().cache() else empty()
 
     inline fun <T> Collection<T>.whenEmpty(arg: NoArg2Unit) =

@@ -157,26 +157,25 @@ fun copyCert(absolutePath: String, srcFile: File) {
 }
 //======================================================================================================================
 
-rootDir
-    .walk()
+rootDir.walk()
     .maxDepth(3)
-    .filter {
-        it.name != buildSrcFolder
-                && it.isDirectory
-                && file("${it.absolutePath}/$resourceFolder").exists()
-                && !it.absolutePath.contains(deprecatedFolder)
-                && !it.name.endsWith("-api")
-                && !it.name.endsWith("-starter")
-                && !it.name.endsWith("-core")
-                && !it.name.endsWith("-ets")
+    .filter { dir ->
+        dir.isDirectory &&
+                dir.name != buildSrcFolder &&
+                !dir.name.endsWith("-api") &&
+                !dir.name.endsWith("-starter") &&
+                !dir.name.endsWith("-core") &&
+                !dir.name.endsWith("-ets") &&
+                !dir.absolutePath.contains(deprecatedFolder) &&
+                runCatching { file("${dir.absolutePath}/$resourceFolder").exists() }.getOrDefault(false)
     }
-    .forEach {
-//        val dstSslFileName = "${it.absolutePath}/$resourceFolder/$sslCertName"
-        copyCert(it.absolutePath, sslCertSrcFile)
-        copyCert(it.absolutePath, sslKeyCertSrcFile)
-        copyCert(it.absolutePath, sslCertChainSrcFile)
+    .forEach { dir ->
+        // val dstSslFileName = "${it.absolutePath}/$resourceFolder/$sslCertName"
+        listOf(sslCertSrcFile, sslKeyCertSrcFile, sslCertChainSrcFile).forEach { cert ->
+            copyCert(dir.absolutePath, cert)
+        }
+    }
 
-    }
 //======================================================================================================================
 buildscript {
     repositories {
@@ -257,6 +256,7 @@ dependencyResolutionManagement {
             val deviceDetectorLibVersion: String by settings
             val stripePaymentsLibVersion: String by settings
             val googleGsonLibVersion: String by settings
+            val flywayLibVersion: String by settings
 
             // groups
             val springBootGroup = "org.springframework.boot"
@@ -344,6 +344,7 @@ dependencyResolutionManagement {
             val deviceDetectorVersion = "github.devicedetector"
             val stripePaymentsVersion = "stripe.payments.lib"
             val googleGsonVersion = "google.gson.version"
+            val flywayVersion = "flyway.version"
 
             val runTime = Runtime.getRuntime()
             val numberFormat = NumberFormat.getInstance(Locale("en"))
@@ -386,6 +387,7 @@ dependencyResolutionManagement {
             library("spring-autoconfigure", springBootGroup, "spring-boot-autoconfigure").versionRef(springBootVersion)
             library("spring-mail", springBootGroup, "spring-boot-starter-mail").versionRef(springBootVersion)
             library("spring-thymeleaf", springBootGroup, "spring-boot-starter-thymeleaf").versionRef(springBootVersion)
+            library("spring-log4j2", springBootGroup, "spring-boot-starter-log4j2").versionRef(springBootVersion)
             // spring-boot-session
             library("spring-redis-session",springBootSessionGroup,"spring-session-data-redis").versionRef(springBootSessionVersion)
             version(springBootSessionVersion, springBootSessionLibVersion)
@@ -469,6 +471,10 @@ dependencyResolutionManagement {
             // postgresql
             version(postgresVersion, postgresLibVersion)
             library("postgresql", "org.postgresql", "postgresql").versionRef(postgresVersion)
+            // flyway
+            version(flywayVersion, flywayLibVersion)
+            library("flyway-core", "org.flywaydb", "flyway-core").versionRef(flywayVersion)
+            library("flyway-database-postgresql", "org.flywaydb", "flyway-database-postgresql").versionRef(flywayVersion)
             // querydsl
             version(queryDslVersion, queryDslLibVersion)
             library("querydsl-mongodb", "com.querydsl", "querydsl-mongodb").versionRef(queryDslVersion)
@@ -512,8 +518,11 @@ dependencyResolutionManagement {
             library("kotest-assertions-core", "io.kotest", "kotest-assertions-core").versionRef(kotestVersion)
             library("kotest-assertions-core-jvm", "io.kotest", "kotest-assertions-core-jvm").versionRef(kotestVersion)
             library("kotest-runner-junit5-jvm", "io.kotest", "kotest-runner-junit5-jvm").versionRef(kotestVersion)
+            library("kotest-runner-junit5", "io.kotest", "kotest-runner-junit5").versionRef(kotestVersion)
             library("kotest-property-jvm", "io.kotest", "kotest-property-jvm").versionRef(kotestVersion)
             library("kotest-common-jvm", "io.kotest", "kotest-common-jvm").versionRef(kotestVersion)
+            library("kotest-engine", "io.kotest", "kotest-framework-engine-jvm").versionRef(kotestVersion)
+            library("kotest-spring", "io.kotest", "kotest-extensions-spring").versionRef(kotestVersion)
             // kotest extension
             library("kotest-blockhound", "io.kotest", "kotest-extensions-blockhound").versionRef(kotestVersion)
             // mockito
@@ -614,6 +623,7 @@ dependencyResolutionManagement {
             library("log4j-core", "org.apache.logging.log4j", "log4j-core").versionRef(log4jApiVersion)
             library("log4j-jcl", "org.apache.logging.log4j", "log4j-jcl").versionRef(log4jApiVersion)
             library("log4j-slf4j", "org.apache.logging.log4j", "log4j-slf4j-impl").versionRef(log4jApiVersion)
+            library("log4j-spring-boot", "org.apache.logging.log4j", "log4j-spring-boot").versionRef(log4jApiVersion)
             library("log4j-jakarta-smtp", "org.apache.logging.log4j", "log4j-jakarta-smtp").versionRef(log4jApiVersion)
             // log4j2 4 kotlin
             version(log4jApiKotlinVersion, log4jApiKotlinLibVersion)

@@ -1,9 +1,7 @@
 package org.dbs.chess24.funcs
 
-import api.TestConst.SQL_CHESS24_MGMT_DB_SCRIPT
 import api.TestConst.SQL_TEST_DB_NAME
 import api.TestConst.SQL_TEST_DB_USER
-import io.kotest.extensions.spring.SpringExtension
 import org.dbs.component.JwtSecurityService
 import org.dbs.consts.SpringCoreConst.PropertiesNames.BUCKET_4J_ENABLED
 import org.dbs.consts.SpringCoreConst.PropertiesNames.DEFAULT_SYS_CURRENCY
@@ -40,16 +38,16 @@ import org.dbs.test.ko.AbstractKoTestBehaviorSpec
 import org.junit.jupiter.api.MethodOrderer.*
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.context.annotation.Import
-import org.springframework.test.context.ContextConfiguration
-import org.springframework.test.context.TestPropertySource
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
+import org.springframework.context.annotation.Import
+import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
+import org.springframework.test.context.TestPropertySource
 
 typealias ChessKoTest = AbstractChessTest.() -> Unit
 
@@ -117,8 +115,7 @@ abstract class AbstractChessTest(chessCoreKoTest: ChessKoTest) : AbstractKoTestB
 
     companion object {
 
-        val postgresR2dbcContainer =
-            PostgresR2dbcContainer(SQL_TEST_DB_NAME, SQL_TEST_DB_USER, SQL_CHESS24_MGMT_DB_SCRIPT)
+        val postgresR2dbcContainer = PostgresR2dbcContainer(SQL_TEST_DB_NAME, SQL_TEST_DB_USER)
         private val kafkaTestContainer = KafkaTestContainer()
         private val redisTestContainer = RedisTestContainer()
         //private val mailTestContainer = MailServerTestContainer()

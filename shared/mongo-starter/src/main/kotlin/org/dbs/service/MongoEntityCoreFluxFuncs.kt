@@ -1,8 +1,8 @@
 package org.dbs.service
 
-import org.dbs.ext.FluxFuncs.subscribeMono
 import org.apache.logging.log4j.kotlin.Logging
 import org.dbs.application.core.service.funcs.ServiceFuncs.createCollection
+import org.dbs.ext.FluxFuncs.subscribeMono
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Flux.fromIterable
@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 object MongoEntityCoreFluxFuncs : Logging {
 
-    fun <T> Flux<T>.synchronizeReference(
+    fun <T: Any> Flux<T>.synchronizeReference(
         repo: ReactiveMongoRepository<T, String>,
         findItemPredicate: (T, T) -> Boolean,
         newItem: (T) -> T

@@ -14,6 +14,7 @@ dependencies {
     implementation(libs.spring.json)
     implementation(libs.jackson.module.kotlin)
     implementation(libs.log4j.api.kotlin)
+    implementation(libs.spring.log4j2)
     implementation(libs.kotlin.stdlib.jdk8)
     implementation(libs.coroutines.core)
     implementation(libs.coroutines.core.jvm)

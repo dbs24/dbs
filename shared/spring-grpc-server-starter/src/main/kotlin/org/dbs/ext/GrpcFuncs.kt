@@ -38,12 +38,12 @@ object GrpcFuncs {
         }
     }"
 
-    fun <T> RAB.fmStart(f: NoArg2Mono<T>): MonoRAB = f().map { this }
+    fun <T: Any> RAB.fmStart(f: NoArg2Mono<T>): MonoRAB = f().map { this }
 
-    fun <T> MonoRAB.fmInTransaction(f: NoArg2Mono<T>): MonoRAB =
+    fun <T: Any> MonoRAB.fmInTransaction(f: NoArg2Mono<T>): MonoRAB =
         flatMap { rab -> rab.inTransaction { f().map { rab } } }
 
-    fun <T> MonoRAB.fmRab(f: NoArg2Mono<T>): MonoRAB = flatMap { rab -> f().map { rab } }
+    fun <T: Any> MonoRAB.fmRab(f: NoArg2Mono<T>): MonoRAB = flatMap { rab -> f().map { rab } }
 
     fun MonoRAB.fmFinish(f: NoArg2Unit): MonoRAB = map { rab -> f(); rab }
 

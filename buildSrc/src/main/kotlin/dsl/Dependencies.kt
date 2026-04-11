@@ -8,7 +8,7 @@ object Dependencies {
         const val PRODUCT_DESCRIPTION = "dbs24"
         const val PRODUCT_VERSION = "0.0.1"
         const val ROOT_PROJECT = "ROOT PROJECT"
-        const val KOTLIN_LANG_VERSION = "2.0"
+        const val KOTLIN_LANG_VERSION = "2.2"
         const val JVM_VERSION = "21"
         const val EMPTY_STRING = ""
         const val STDLIB = "stdlib"

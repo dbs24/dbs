@@ -9,7 +9,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 @JvmInline
-value class MonoSyncSubscriber<T>(private val mono: Mono<T>) {
+value class MonoSyncSubscriber<T: Any>(private val mono: Mono<T>) {
     private fun complete(continuation: Continuation<Unit>) = continuation.resume(Unit)
     fun doSubscribe() {
         runBlocking {
@@ -20,12 +20,12 @@ value class MonoSyncSubscriber<T>(private val mono: Mono<T>) {
         }
     }
 
-    fun <T> doBlockingSubscribe() = runBlocking { doSubscribeThrowable<T>() }
+    fun <T: Any> doBlockingSubscribe() = runBlocking { doSubscribeThrowable<T>() }
 
-    fun <T> doBlockingNullAbleSubscribe() = runBlocking { doSubscribeNullable<T>() }
+    fun <T: Any> doBlockingNullAbleSubscribe() = runBlocking { doSubscribeNullable<T>() }
 
     @Suppress(UNCHECKED_CAST)
-    suspend fun <T> doSubscribeThrowable(): T = run {
+    suspend fun <T: Any> doSubscribeThrowable(): T = run {
         val result = LateInitVal<T>("doSubscribeResult")
         val throwable = LateInitVal<Throwable>("doSubscribeThrowable")
         suspendCoroutine { continuation ->
@@ -43,7 +43,7 @@ value class MonoSyncSubscriber<T>(private val mono: Mono<T>) {
     }
 
     @Suppress(UNCHECKED_CAST)
-    suspend fun <T> doSubscribeNullable(): T? = run {
+    suspend fun <T: Any> doSubscribeNullable(): T? = run {
         val result = LateInitVal<T>("doSubscribeResult")
         val throwable = LateInitVal<Throwable>("doSubscribeThrowable")
         suspendCoroutine { continuation ->

@@ -3,6 +3,7 @@ package org.dbs.config
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
 import com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT
 import com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES
+import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping.NON_FINAL
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator
@@ -22,6 +23,7 @@ abstract class MainApplicationConfig : AbstractApplicationConfiguration() {
         enable(ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
         // игнорируем ненужные поля
         configure(FAIL_ON_UNKNOWN_PROPERTIES, false)
+        configure(MapperFeature.USE_GETTERS_AS_SETTERS, true)
         //objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
 
         activateDefaultTyping(LaissezFaireSubTypeValidator(), NON_FINAL, PROPERTY)
