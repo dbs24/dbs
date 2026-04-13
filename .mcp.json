@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "postgres-mgmt": {
+      "command": "mcp-server-postgres",
+      "args": [
+        "postgresql://dev_cc_admin:2b9df5f50a1348969bdcfdf28@127.0.0.1:5432/dev_cc_db"
+      ]
+    },
+    "postgres-goods": {
+      "command": "mcp-server-postgres",
+      "args": [
+        "postgresql://dev_goods_admin:15486002099248ee8378b0394@127.0.0.1/dev_goods_db"
+      ]
+    }
+  }
+}

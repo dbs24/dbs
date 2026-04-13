@@ -152,8 +152,7 @@ object UserFuncs : Logging {
 
     suspend fun AbstractUserTest.updateUserPassword(
         login: EntityCode = generateTestLogin(),
-        newPassword: UserPassword,
-        passwordEncoder: PasswordEncoder
+        newPassword: UserPassword
     ): Mono<User> = run {
 
         runTest {
@@ -180,7 +179,7 @@ object UserFuncs : Logging {
                         matchDto2Entity(dto, it) {
                             with(it) {
                                 login.shouldBeEqual(this.login)
-                                passwordEncoder.matches(newPassword, this.password)
+                                userService.passwordEncoder.matches(newPassword, this.password)
                             }
                         }
                     } ?: error("${dto.login}: unknown user")).toMono()

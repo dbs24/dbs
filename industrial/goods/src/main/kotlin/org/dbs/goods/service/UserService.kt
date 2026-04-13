@@ -54,15 +54,15 @@ class UserService(
             .switchIfEmpty { createRootUser }
 
     //------------------------------------------------------------------------------------------------------------------
-    suspend fun saveHistory(entity: ENTITY): ENTITY = entity.run {
-            if (!justCreated.value)
-                r2dbcPersistenceService.saveEntityHistCo(userFactory.createHist(entity))
-                    .let {
-                        dao.invalidateCaches(entity.login)
-                        entity
-                    }
-            else this
-        }
+//    suspend fun saveHistory(entity: ENTITY): ENTITY = entity.run {
+//            if (!justCreated.value)
+//                r2dbcPersistenceService.saveEntityHistCo(userFactory.createHist(entity))
+//                    .let {
+//                        dao.invalidateCaches(entity.login)
+//                        entity
+//                    }
+//            else this
+//        }
 
     private val createRootUser: Mono<ENTITY> = runBlocking {
         generateNewEntityId().toMono()

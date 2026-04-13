@@ -24,7 +24,7 @@ import reactor.core.scheduler.Schedulers.boundedElastic
 
 
 typealias MonoPlayer = Mono<Player>
-class PlayerTests() : AbstractChessTest({
+class PlayerTests: AbstractChessTest({
 
     val scheduler = boundedElastic()
     val entitiesCount = REPEATED_KOTEST_AMOUNT

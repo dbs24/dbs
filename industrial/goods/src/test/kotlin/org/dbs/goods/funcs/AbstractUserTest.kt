@@ -1,6 +1,5 @@
 package org.dbs.goods.funcs
 
-import api.TestConst.SQL_GOODS_DB_SCRIPT
 import api.TestConst.SQL_TEST_DB_NAME
 import api.TestConst.SQL_TEST_DB_USER
 import org.dbs.component.JwtSecurityService
@@ -117,7 +116,7 @@ abstract class AbstractUserTest(chessCoreKoTest: ChessKoTest) : AbstractKoTestBe
     companion object {
 
         val postgresR2dbcContainer =
-            PostgresR2dbcContainer(SQL_TEST_DB_NAME, SQL_TEST_DB_USER, SQL_GOODS_DB_SCRIPT)
+            PostgresR2dbcContainer(SQL_TEST_DB_NAME, SQL_TEST_DB_USER)
         private val kafkaTestContainer = KafkaTestContainer()
         private val redisTestContainer = RedisTestContainer()
         //private val mailTestContainer = MailServerTestContainer()

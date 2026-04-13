@@ -25,9 +25,7 @@ import reactor.core.scheduler.Schedulers.boundedElastic
 
 
 typealias MonoUser = Mono<User>
-class UserTests(
-    passwordEncoder: PasswordEncoder,
-) : AbstractUserTest({
+class UserTests: AbstractUserTest({
 
     val scheduler = boundedElastic()
     val entitiesCount = REPEATED_KOTEST_AMOUNT
@@ -116,8 +114,7 @@ class UserTests(
                             logger().debug { "try 2 update user password: ${it.login}" }
                             updateUserPassword(
                                 it.login,
-                                generateTestPassword811(),
-                                passwordEncoder
+                                generateTestPassword811()
                             )
                         }
                     }.count().awaitSingle()

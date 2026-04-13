@@ -124,6 +124,7 @@ dependencies {
     runtimeOnly(libs.grpc.netty)
     runtimeOnly(libs.grpc.protoc)
     runtimeOnly(libs.grpc.protoc.kotlin)
+    runtimeOnly(libs.postgresql)
 
     annotationProcessor(libs.spring.configuration.processor)
     annotationProcessor(libs.spring.autoconfigure.processor)

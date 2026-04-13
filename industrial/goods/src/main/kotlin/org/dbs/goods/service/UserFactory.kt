@@ -37,14 +37,14 @@ class UserFactory (
             password = null,
         ).asNew(ES_USER_ACTUAL)
 
-    fun createHist(src: User) =
-        UserHist(
-            actualDate = src.entityCore.modifyDate,
-            userId = src.userId,
-            login = src.login,
-            email = src.email,
-            lastName = src.lastName,
-            firstName = src.firstName,
-            password = src.password
-        )
+//    fun createHist(src: User) =
+//        UserHist(
+//            actualDate = src.entityCore.modifyDate,
+//            userId = src.userId,
+//            login = src.login,
+//            email = src.email,
+//            lastName = src.lastName,
+//            firstName = src.firstName,
+//            password = src.password
+//        )
 }

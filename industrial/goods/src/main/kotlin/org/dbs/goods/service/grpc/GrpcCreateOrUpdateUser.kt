@@ -144,8 +144,7 @@ object GrpcCreateOrUpdateUser {
 
                 //------------------------------------------------------------------------------------------------------
                 suspend fun saveEntity() = launchJob(JK_SAVE, JK_FIND_OR_CREATE_USER) {
-                    userService.saveHistory(user.value)
-                        .also { saveUser(updateFromDto(user.value)) }
+                  saveUser(updateFromDto(user.value))
                 }
 
                 //------------------------------------------------------------------------------------------------------

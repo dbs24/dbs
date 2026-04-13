@@ -48,11 +48,11 @@ object Dependencies {
         const val GRPC_KT = "grpckt"
         private const val GOOGLE_PROTOBUF = "com.google.protobuf"
         const val PROTOC_LIB = "$GOOGLE_PROTOBUF:protoc"
-        const val PROTOC_LIB_VAR = "googleProtobufLibVersion"
+        const val PROTOC_LIB_VAR = "googleProtobuf"
         const val GRPC_JAVA_LIB = "io.grpc:protoc-gen-grpc-java"
-        const val GRPC_JAVA_LIB_VAR = "grpcLibVersion"
+        const val GRPC_JAVA_LIB_VAR = "grpc"
         const val GRPC_KT_LIB = "io.grpc:protoc-gen-grpc-kotlin"
-        const val GRPC_KT_LIB_VAR = "grpcKotlinStubLibVersion"
+        const val GRPC_KT_LIB_VAR = "grpcKotlinStub"
         const val JDK8_JAR = "jdk8@jar"
     }
     object ProjectAttributes {

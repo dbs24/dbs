@@ -35,10 +35,17 @@ spring:
     user:
       name: user
       password: 123123
+  flyway:
+    enabled: true
+    url: jdbc:postgresql://127.0.0.1:5432/dev_goods_db
+    user: ${spring.r2dbc.username}
+    password: ${spring.r2dbc.password}
+    locations: classpath:db/migration
+    baseline-on-migrate: true
   r2dbc:
     username: dev_goods_admin
     password: 15486002099248ee8378b0394
-    url: r2dbc:postgresql://k11keenetic.ddns.net:5431/dev_goods_db
+    url: r2dbc:postgresql://127.0.0.1:5432/dev_goods_db
     pool:
       enabled: true
       initial-size: 2

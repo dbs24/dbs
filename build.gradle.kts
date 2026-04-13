@@ -90,8 +90,8 @@ plugins {
     //id("org.graalvm.buildtools.native")
 }
 
-val checkstylePluginVersion = (project.findProperty("checkstylePluginVersion")) as String
-val jacocoPluginVersion = (project.findProperty("jacocoPluginVersion")) as String
+val checkstylePluginVersion = libs.versions.checkstylePlugin.get()
+val jacocoPluginVersion = libs.versions.jacocoPlugin.get()
 
 val detektReportMergeSarif by tasks.registering(ReportMergeTask::class) {
     output.set(layout.buildDirectory.file("reports/detekt/merge.sarif"))

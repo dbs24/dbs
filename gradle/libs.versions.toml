@@ -6,7 +6,7 @@ springBootData = "3.5.10"
 springCloud = "3.1.4"
 springSecurity = "1.1.1.RELEASE"
 springKafka = "3.3.14"
-springdoc = "2.8.5"
+springdoc = "2.8.16"
 
 # Data / Persistence
 redisClients = "7.4.1"
@@ -32,7 +32,7 @@ blockhoundJunitPlatform = "1.0.16.RELEASE"
 # gRPC / Protobuf
 grpc = "1.80.0"
 grpcKotlinStub = "1.5.0"
-grpcGateway = "2.88.0"
+grpcGateway = "2.90.0"
 grpcServerSpringBoot = "3.1.0.RELEASE"
 grpcServerSpringBootAutoconfigure = "2.15.0.RELEASE"
 grpcSpringBoot = "4.5.10"
@@ -108,6 +108,8 @@ cryptoChecksum = "1.4.0"
 javaGradlePlugin = "1.6.9"
 gradleTestRetryPlugin = "1.6.4"
 diffPlugSpotless = "8.4.0"
+checkstylePlugin="13.4.0"
+jacocoPlugin="0.8.14"
 
 [libraries]
 # Spring Boot starters
@@ -291,6 +293,7 @@ protobuf-bom          = { module = "com.google.protobuf:protobuf-bom",         v
 grpc-protoc           = { module = "com.google.protobuf:protoc",               version.ref = "googleProtobuf" }
 protobuf-kotlin-lite  = { module = "com.google.protobuf:protobuf-kotlin-lite", version.ref = "googleProtobuf" }
 protobuf-java         = { module = "com.google.protobuf:protobuf-java",        version.ref = "googleProtobuf" }
+protobuf-plugin       = { module = "com.google.protobuf:protobuf-gradle-plugin", version.ref = "googleProtobuf" }
 
 # SnakeYaml
 snakeyaml = { module = "org.yaml:snakeyaml", version.ref = "yaml" }

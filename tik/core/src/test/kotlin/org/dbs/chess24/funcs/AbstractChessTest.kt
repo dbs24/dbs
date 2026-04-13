@@ -1,6 +1,5 @@
 package org.dbs.chess24.funcs
 
-import api.TestConst.SQL_CHESS24_MGMT_DB_SCRIPT
 import api.TestConst.SQL_TEST_DB_NAME
 import api.TestConst.SQL_TEST_DB_USER
 import org.dbs.component.JwtSecurityService
@@ -117,7 +116,7 @@ abstract class AbstractChessTest(chessCoreKoTest: ChessKoTest) : AbstractKoTestB
     companion object {
 
         val postgresR2dbcContainer =
-            PostgresR2dbcContainer(SQL_TEST_DB_NAME, SQL_TEST_DB_USER, SQL_CHESS24_MGMT_DB_SCRIPT)
+            PostgresR2dbcContainer(SQL_TEST_DB_NAME, SQL_TEST_DB_USER)
         private val kafkaTestContainer = KafkaTestContainer()
         private val redisTestContainer = RedisTestContainer()
         //private val mailTestContainer = MailServerTestContainer()
