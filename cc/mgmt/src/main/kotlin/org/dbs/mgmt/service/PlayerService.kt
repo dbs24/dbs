@@ -94,10 +94,9 @@ class PlayerService(
         dao.findPlayerByEmailCo(playerEmail)
 
     fun setPlayerNewStatus(player: ENTITY, status: EntityStatusEnum): ENTITY =
-        player.run {
+        player.apply {
             dao.invalidateCaches(player.login)
             updateStatus(status, isClosedPlayer(status))
-            this
         }
 
     fun setPlayerNewPassword(player: ENTITY, password: PlayerPassword): ENTITY =
