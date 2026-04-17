@@ -138,7 +138,11 @@ Certificates from `certs/k11dev.tech/` (JKS, PEM, private keys) are automaticall
 
 ## Docker / Kubernetes
 
-- `docker-compose/` — compose templates for `cc` and `industrial` domai7.0.2ns
+- `docker-compose/` — compose templates for `cc` and `industrial` domains
 - `k8s/` — Kubernetes manifest templates
 
 Spring profiles: `development`, `test`, `production`. Secrets (JWT keys, DB URLs, broker URLs) are injected via environment variables.
+
+Other requirements and conventions:
+
+ /ai.conventions/database.md

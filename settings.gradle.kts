@@ -21,6 +21,7 @@ var projectsCount = 0
 val excludeProjectsList = setOf(
     "faked-project",
     "p-cm",
+    "tik"
 )
 
 val mandatoryProjectsList = setOf(

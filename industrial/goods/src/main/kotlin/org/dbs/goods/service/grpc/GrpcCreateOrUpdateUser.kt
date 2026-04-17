@@ -26,7 +26,6 @@ import org.dbs.goods.service.grpc.GrpcCreateOrUpdateUser.JobKeyImp.JK_FIND_OR_CR
 import org.dbs.goods.UserCore.UserActionEnum.EA_CREATE_OR_UPDATE_USER
 import org.dbs.protobuf.core.ResponseCode.RC_INVALID_REQUEST_DATA
 import org.dbs.service.I18NService.Companion.findI18nMessage
-import org.dbs.service.v2.EntityCoreVal.Companion.executeAction
 import org.dbs.service.validator.GrpcValidators.addErrorInfo
 import org.dbs.service.validator.GrpcValidators.validateMandatoryField
 import org.dbs.service.validator.GrpcValidators.validateOptionalEmail
@@ -117,7 +116,7 @@ object GrpcCreateOrUpdateUser {
 
                 //------------------------------------------------------------------------------------------------------
                 private suspend fun saveUser(user: User): User =
-                    executeAction(user, EA_CREATE_OR_UPDATE_USER, remoteAddress, request.toString())
+                    userService.saveUser(user, EA_CREATE_OR_UPDATE_USER, remoteAddress, request.toString())
 
                 //------------------------------------------------------------------------------------------------------
                 suspend fun validateNewLogin() =
@@ -144,7 +143,8 @@ object GrpcCreateOrUpdateUser {
 
                 //------------------------------------------------------------------------------------------------------
                 suspend fun saveEntity() = launchJob(JK_SAVE, JK_FIND_OR_CREATE_USER) {
-                  saveUser(updateFromDto(user.value))
+                    userService.saveHistory(user.value)
+                        .also { saveUser(updateFromDto(user.value)) }
                 }
 
                 //------------------------------------------------------------------------------------------------------

@@ -194,6 +194,8 @@ create table core_entity_kinds_ref
             references core_entity_types_ref
             on update restrict on delete restrict,
     entity_kind_name tstr100 not null
+        constraint uk_core_entity_kinds_ref_entity_kind_name
+            unique
 );
 
 comment on table core_entity_kinds_ref is 'Cправочник видов сущностей';
@@ -218,36 +220,15 @@ comment on table core_entity_statuses_ref is 'Справочник статус�
 alter table core_entity_statuses_ref
     owner to dev_sandbox_admin;
 
-create table core_entities
-(
-    entity_id        tidbigcode not null
-        constraint pk_core_entities
-            primary key,
-    entity_type_id   tidcode    not null
-        constraint fk_core_ent_entity_ty_core_ent
-            references core_entity_types_ref
-            on update restrict on delete restrict,
-    entity_status_id tidcode    not null
-        constraint fk_core_entities_status_id
-            references core_entity_statuses_ref,
-    create_date      tdatetime  not null,
-    close_date       tdatetime,
-    modify_date      tdatetime
-);
-
-comment on table core_entities is 'Картотека сущностей';
-
-alter table core_entities
-    owner to dev_sandbox_admin;
-
 create table core_actions
 (
-    action_id       tidbigcode not null
+    action_id       tidbigcode not null default nextval('seq_action_id')
         constraint pk_core_actions
             primary key,
-    entity_id       tidbigcode not null
-        constraint fk_actions_entity_id
-            references core_entities
+    entity_id       tidbigcode not null,
+    entity_type_id  tidcode    not null
+        constraint fk_core_actions_entity_type_id
+            references core_entity_types_ref
             on update restrict on delete restrict,
     action_code     tidcode    not null
         constraint fk_ta_actrefid
@@ -269,19 +250,24 @@ alter table core_actions
 
 create table sb_game_invite
 (
-    invite_id       tidbigcode not null
-        constraint pk_invites
-            primary key
-        constraint fk_players_players_player_id
-            references core_entities,
+    invite_id       tidbigcode not null default nextval('seq_action_id')
+        constraint pk_sb_game_invite
+            primary key,
     invite_code     tstr100    not null
-        constraint ak_sb_game_invite_invite_core
+        constraint ak_sb_game_invite_invite_code
             unique,
     game_type       tidcode    not null,
     player_login    tstr100    not null,
     valid_date      tdatetime  not null,
     required_rating tinteger,
-    white_side      tboolean   not null
+    white_side      tboolean   not null,
+    status_id       tidcode    not null
+        constraint fk_sb_game_invite_status_id
+            references core_entity_statuses_ref
+            on update restrict on delete restrict,
+    create_date     tdatetime  not null,
+    modify_date     tdatetime  not null,
+    close_date      tdatetime
 );
 
 alter table sb_game_invite
@@ -296,9 +282,12 @@ create table sb_game_invite_hist
     player_login    tstr100,
     valid_date      tdatetime,
     required_rating tinteger,
-    white_side      tboolean
+    white_side      tboolean,
+    status_id       tidcode,
+    create_date     tdatetime,
+    modify_date     tdatetime,
+    close_date      tdatetime
 );
 
 alter table sb_game_invite_hist
     owner to dev_sandbox_admin;
-

@@ -5,6 +5,7 @@ import org.dbs.sandbox.invite.client.CreateOrUpdateInviteRequest
 import org.dbs.sandbox.model.invite.GameInvite
 import org.dbs.sandbox.service.InviteService
 import org.dbs.service.v2.EntityCoreValExt.copyEntity
+import java.time.LocalDateTime.now
 
 typealias Dto2Player = (src: GameInvite, srcDto: CreateOrUpdateInviteRequest) -> GameInvite
 
@@ -17,13 +18,12 @@ object InviteMappers {
                 gameType = dto.gameType,
                 validDate = dto.validDate.toLocalDateTime(),
                 requiredRating = dto.requiredRating,
-                whiteSide = dto.whiteSide
+                whiteSide = dto.whiteSide,
+                modifyDate = now(),
             )
         }
     }
 
-    inline fun InviteService.updateInviteFromDto(src: GameInvite, srcDto: CreateOrUpdateInviteRequest): GameInvite = run {
+    inline fun InviteService.updateInviteFromDto(src: GameInvite, srcDto: CreateOrUpdateInviteRequest): GameInvite =
         dto2Invite(src, srcDto)
-    }
-
 }

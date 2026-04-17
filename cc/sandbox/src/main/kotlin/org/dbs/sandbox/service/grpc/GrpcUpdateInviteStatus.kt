@@ -15,7 +15,6 @@ import org.dbs.protobuf.core.ResponseCode.RC_INVALID_REQUEST_DATA
 import org.dbs.sandbox.model.invite.GameInvite
 import org.dbs.sandbox.service.ApplicationServiceGate.ServicesList.inviteService
 import org.dbs.service.I18NService.Companion.findI18nMessage
-import org.dbs.service.v2.EntityCoreVal.Companion.executeAction
 import org.dbs.service.validator.GrpcValidators.addErrorInfo
 import org.dbs.service.validator.GrpcValidators.findEntityStatus
 import org.dbs.service.validator.GrpcValidators.validateEntityUpdateStatus
@@ -92,11 +91,8 @@ object GrpcUpdateInviteStatus {
                 //--------------------------------------------------------------------------------------------------------------
                 suspend fun saveEntity() = inviteService.takeIf { invite.isInitialized() }
                     ?.apply {
-                        setInviteNewStatus(
-                            invite.value,
-                            newStatus4update.value
-                        )
-                        executeAction(invite.value, EA_UPDATE_INVITE_STATUS, remoteAddress, request.toString())
+                        val updated = setInviteNewStatus(invite.value, newStatus4update.value)
+                        saveInvite(updated, EA_UPDATE_INVITE_STATUS, remoteAddress, request.toString())
                     }
 
                 //--------------------------------------------------------------------------------------------------------------

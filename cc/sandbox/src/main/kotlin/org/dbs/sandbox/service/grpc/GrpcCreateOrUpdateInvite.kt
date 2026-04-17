@@ -20,7 +20,6 @@ import org.dbs.sandbox.model.invite.GameInvite
 import org.dbs.sandbox.service.ApplicationServiceGate.ServicesList.inviteService
 import org.dbs.sandbox.service.grpc.GrpcCreateOrUpdateInvite.JobKeyImpl.JK_FIND_OR_CREATE_INVITE
 import org.dbs.service.I18NService.Companion.findI18nMessage
-import org.dbs.service.v2.EntityCoreVal.Companion.executeAction
 import org.dbs.service.validator.GrpcValidators.addErrorInfo
 import org.dbs.service.validator.GrpcValidators.validateMandatoryField
 import org.dbs.service.validator.GrpcValidators.validateOptionalField
@@ -70,7 +69,7 @@ object GrpcCreateOrUpdateInvite {
 
                 //--------------------------------------------------------------------------------------------------------------
                 private suspend fun saveInvite(invite: GameInvite): GameInvite =
-                    executeAction(invite, EA_CREATE_OR_UPDATE_INVITE, remoteAddress, request.toString())
+                    inviteService.saveInvite(invite, EA_CREATE_OR_UPDATE_INVITE, remoteAddress, request.toString())
 
                 //--------------------------------------------------------------------------------------------------------------
                 suspend fun findOrCreateInvite() = launchJob(JK_FIND_OR_CREATE_INVITE) {

@@ -115,8 +115,8 @@ object GrpcCreateOrUpdateUser {
                         .run { user4Update.init(this) }
 
                 //------------------------------------------------------------------------------------------------------
-                private suspend fun saveUser(user: User): User =
-                    executeAction(user, EA_CREATE_OR_UPDATE_USER, remoteAddress, request.toString())
+                private suspend fun saveUser(user: User): User = TODO()
+                    //executeAction(user, EA_CREATE_OR_UPDATE_USER, remoteAddress, request.toString())
 
                 //------------------------------------------------------------------------------------------------------
                 suspend fun validateNewLogin() =

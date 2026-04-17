@@ -15,7 +15,6 @@ import org.dbs.goods.service.ApplicationServiceGate.ServicesList.userService
 import org.dbs.goods.UserCore.UserActionEnum.EA_UPDATE_USER_STATUS
 import org.dbs.protobuf.core.ResponseCode.RC_INVALID_REQUEST_DATA
 import org.dbs.service.I18NService.Companion.findI18nMessage
-import org.dbs.service.v2.EntityCoreVal.Companion.executeAction
 import org.dbs.service.validator.GrpcValidators.addErrorInfo
 import org.dbs.service.validator.GrpcValidators.findEntityStatus
 import org.dbs.service.validator.GrpcValidators.validateEntityUpdateStatus
@@ -98,11 +97,8 @@ object GrpcUpdateUserStatus {
                 //--------------------------------------------------------------------------------------------------------------
                 suspend fun saveEntity() = userService.takeIf { user.isInitialized() }
                     ?.apply {
-                        setUserNewStatus(
-                            user.value,
-                            newStatus4update.value
-                        )
-                        executeAction(user.value, EA_UPDATE_USER_STATUS, remoteAddress, request.toString())
+                        val updated = setUserNewStatus(user.value, newStatus4update.value)
+                        saveUser(updated, EA_UPDATE_USER_STATUS, remoteAddress, request.toString())
                     }
 
                 //--------------------------------------------------------------------------------------------------------------

@@ -142,7 +142,7 @@ object UserFuncs : Logging {
                         matchDto2Entity(dto, it) {
                             with(it) {
                                 login.shouldBeEqual(this.login)
-                                newStatus.shouldBeEqual(this.entityCore.entityStatus.entityStatusName)
+                                newStatus.shouldBeEqual(this.entityStatus.entityStatusName)
                             }
                         }
                     } ?: error("${dto.login}: unknown user")).toMono()

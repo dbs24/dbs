@@ -9,10 +9,3 @@ typealias EntityStatusId = Int
 typealias EntityStatusName = String
 
 typealias AllowedStatusesRoutes = Map<EntityStatusEnum, Collection<EntityStatusEnum>>
-typealias AllowedMapRoutes = Map<EntityTypeEnum, AllowedStatusesRoutes>
-
-sealed interface EntityStatus {
-    val entityStatusId: EntityStatusId
-    val entityType: EntityTypeId
-    val entityStatusName: EntityStatusName
-}

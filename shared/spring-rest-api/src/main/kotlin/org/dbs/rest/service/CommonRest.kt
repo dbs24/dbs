@@ -30,7 +30,7 @@ import java.time.LocalDateTime.now
 
 @Service
 @EnableScheduling
-@EnableAsync
+@EnableAsync(proxyTargetClass = true)
 @ConditionalOnProperty(
     name = ["config.restful.common-routes.enabled"],
     havingValue = STRING_TRUE,

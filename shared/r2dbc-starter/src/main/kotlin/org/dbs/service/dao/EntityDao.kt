@@ -3,11 +3,9 @@ package org.dbs.service.dao
 import kotlinx.coroutines.reactor.awaitSingle
 import org.dbs.application.core.service.funcs.ServiceFuncs.createCollection
 import org.dbs.consts.SysConst.EMPTY_STRING
-import org.dbs.entity.core.Action
 import org.dbs.entity.core.ActionCode
 import org.dbs.entity.core.EntityStatus
 import org.dbs.entity.core.EntityType
-import org.dbs.entity.core.v2.model.Entity
 import org.dbs.entity.core.v2.type.EntityCoreInitializer.Companion.EntityCore.entityActionEnums
 import org.dbs.entity.core.v2.type.EntityCoreInitializer.Companion.EntityCore.entityStatuses
 import org.dbs.entity.core.v2.type.EntityCoreInitializer.Companion.EntityCore.entityTypes
@@ -72,14 +70,6 @@ class EntityDao(
 //        }
 //    }
 
-    fun <T : EntityCoreVal> saveCoreEntity(entity: T): Mono<Entity> =
-        entity.run {
-            //validateEntityStatus()
-            //entityTemplate.databaseClient.
-            if (justCreated.value) entityTemplate.insert(entityCore) else entityTemplate.update(entityCore)
-        }
-
-
     fun <T : EntityCoreVal> saveEntity(entity: T) =
         if (entity.justCreated.value)
             entityTemplate.insert(entity) else entityTemplate.update(entity)
@@ -90,19 +80,12 @@ class EntityDao(
         })
 
     private fun <T : EntityCoreVal> saveInternal(entity: T) = entity.run {
-        //updateModifyDate()
-        saveCoreEntity(entity)
-            .flatMap {
-                if (entity.justCreated.value)
-                    entityTemplate.insert(entity) else entityTemplate.update(entity)
-            }
+        if (entity.justCreated.value) entityTemplate.insert(entity) else entityTemplate.update(entity)
     }
 
     fun <T : EntityCoreVal> saveEntityHist(entity: T) = entityTemplate.insert(entity)
 
     suspend fun <T : EntityCoreVal> saveEntityHistCo(entity: T) = entityTemplate.insert(entity).awaitSingle()
-
-    fun saveAction(action: Action) = entityTemplate.insert(action)
 
     //==================================================================================================================
     fun synchronizeEntityTypes() = measureTimeMillis {

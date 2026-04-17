@@ -7,6 +7,7 @@ import org.dbs.mgmt.model.player.Player
 import org.dbs.mgmt.service.PlayerService
 import org.dbs.service.v2.EntityCoreValExt.copyEntity
 import org.springframework.security.crypto.password.PasswordEncoder
+import java.time.LocalDateTime.now
 
 typealias Dto2Player = (src: Player, srcDto: CreateOrUpdatePlayerRequest, passwordEncoder: PasswordEncoder) -> Player
 
@@ -26,12 +27,12 @@ object PlayerMappers {
                 country = dto.country.grpcGetOrNull(),
                 gender = dto.gender.grpcGetOrNull(),
                 avatar = dto.avatar.grpcGetOrNull(),
-                smallAvatar = dto.smallAvatar.grpcGetOrNull()
+                smallAvatar = dto.smallAvatar.grpcGetOrNull(),
+                modifyDate = now(),
             )
         }
     }
 
     fun PlayerService.updatePlayer(src: Player, srcDto: CreateOrUpdatePlayerRequest): Player =
         dto2Player(src, srcDto, passwordEncoder)
-
 }

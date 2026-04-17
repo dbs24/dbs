@@ -16,7 +16,6 @@ import org.dbs.goods.service.ApplicationServiceGate.ServicesList.userService
 import org.dbs.goods.UserCore.UserActionEnum.EA_UPDATE_USER_PASSWORD
 import org.dbs.protobuf.core.ResponseCode.RC_INVALID_REQUEST_DATA
 import org.dbs.service.I18NService.Companion.findI18nMessage
-import org.dbs.service.v2.EntityCoreVal.Companion.executeAction
 import org.dbs.service.validator.GrpcValidators.addErrorInfo
 import org.dbs.service.validator.GrpcValidators.validateMandatoryField
 import org.dbs.validator.Error.INVALID_ENTITY_ATTR
@@ -81,11 +80,8 @@ object GrpcUpdateUserPassword {
                 //--------------------------------------------------------------------------------------------------------------
                 suspend fun saveEntity() = userService.takeIf { user.isInitialized() }
                     ?.apply {
-                        setUserNewPassword(
-                            user.value,
-                            request.newPassword
-                        )
-                        executeAction(user.value, EA_UPDATE_USER_PASSWORD, remoteAddress, request.toString())
+                        val updated = setUserNewPassword(user.value, request.newPassword)
+                        saveUser(updated, EA_UPDATE_USER_PASSWORD, remoteAddress, request.toString())
                     }
 
                 //--------------------------------------------------------------------------------------------------------------

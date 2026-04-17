@@ -116,7 +116,7 @@ object InviteFuncs : Logging {
                         matchDto2Entity(dto, it) {
                             with(it) {
                                 inviteCode.shouldBeEqual(this.inviteCode)
-                                newStatus.shouldBeEqual(this.entityCore.entityStatus.entityStatusName)
+                                newStatus.shouldBeEqual(this.entityStatus.entityStatusName)
                             }
                         }
                     } ?: error("${dto.inviteCode}: unknown invite")).toMono()

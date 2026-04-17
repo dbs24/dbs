@@ -26,7 +26,6 @@ import org.dbs.mgmt.service.grpc.GrpcCreateOrUpdatePlayer.JobKeyImp.JK_FIND_OR_C
 import org.dbs.player.PlayerCore.PlayerActionEnum.EA_CREATE_OR_UPDATE_PLAYER
 import org.dbs.protobuf.core.ResponseCode.RC_INVALID_REQUEST_DATA
 import org.dbs.service.I18NService.Companion.findI18nMessage
-import org.dbs.service.v2.EntityCoreVal.Companion.executeAction
 import org.dbs.service.validator.GrpcValidators.addErrorInfo
 import org.dbs.service.validator.GrpcValidators.validateMandatoryField
 import org.dbs.service.validator.GrpcValidators.validateOptionalEmail
@@ -117,12 +116,12 @@ object GrpcCreateOrUpdatePlayer {
 
                 //------------------------------------------------------------------------------------------------------
                 private suspend fun savePlayer(player: Player): Player =
-                    executeAction(player, EA_CREATE_OR_UPDATE_PLAYER, remoteAddress, request.toString())
+                    playerService.savePlayer(player, EA_CREATE_OR_UPDATE_PLAYER, remoteAddress, request.toString())
 
                 //------------------------------------------------------------------------------------------------------
                 suspend fun validateNewLogin() =
                     request.apply {
-                        val checkNewLogin = oldPlayerLogin?.let { it != login } ?: true
+                        val checkNewLogin = oldPlayerLogin?.let { it != login } != false
                         val checkNewEmail = oldPlayerLogin.isNull() || oldEmail?.let { it != email } ?: true
                         if (checkNewLogin) validateNewLogin(login)
                         if (checkNewEmail) validateNewEmail(email)

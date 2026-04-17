@@ -16,7 +16,6 @@ import org.dbs.mgmt.service.ApplicationServiceGate.ServicesList.playerService
 import org.dbs.player.PlayerCore.PlayerActionEnum.EA_UPDATE_PLAYER_PASSWORD
 import org.dbs.protobuf.core.ResponseCode.RC_INVALID_REQUEST_DATA
 import org.dbs.service.I18NService.Companion.findI18nMessage
-import org.dbs.service.v2.EntityCoreVal.Companion.executeAction
 import org.dbs.service.validator.GrpcValidators.addErrorInfo
 import org.dbs.service.validator.GrpcValidators.validateMandatoryField
 import org.dbs.validator.Error.INVALID_ENTITY_ATTR
@@ -81,11 +80,8 @@ object GrpcUpdatePlayerPassword {
                 //--------------------------------------------------------------------------------------------------------------
                 suspend fun saveEntity() = playerService.takeIf { player.isInitialized() }
                     ?.apply {
-                        setPlayerNewPassword(
-                            player.value,
-                            request.newPassword
-                        )
-                        executeAction(player.value, EA_UPDATE_PLAYER_PASSWORD, remoteAddress, request.toString())
+                        val updated = setPlayerNewPassword(player.value, request.newPassword)
+                        savePlayer(updated, EA_UPDATE_PLAYER_PASSWORD, remoteAddress, request.toString())
                     }
 
                 //--------------------------------------------------------------------------------------------------------------

@@ -194,6 +194,8 @@ create table core_entity_kinds_ref
             references core_entity_types_ref
             on update restrict on delete restrict,
     entity_kind_name tstr100 not null
+        constraint uk_core_entity_kinds_ref_entity_kind_name
+            unique
 );
 
 comment on table core_entity_kinds_ref is 'Cправочник видов сущностей';
@@ -218,42 +220,56 @@ comment on table core_entity_statuses_ref is 'Справочник статус�
 alter table core_entity_statuses_ref
     owner to dev_cc_admin;
 
-create table core_entities
+-- cc_players must precede core_actions and cc_lobbies (FK targets)
+create table cc_players
 (
-    entity_id        tidbigcode not null
-        constraint pk_core_entities
+    player_id         tidbigcode not null default nextval('seq_action_id')
+        constraint pk_cc_players
             primary key,
-    entity_type_id   tidcode    not null
-        constraint fk_core_ent_entity_ty_core_ent
-            references core_entity_types_ref
+    player_login      tstr100    not null
+        constraint ak_cc_players_player_login
+            unique,
+    password_hash     tstr200,
+    first_name        tstr100,
+    middle_name       tstr100,
+    last_name         tstr100,
+    gender            tstr2,
+    birth_date        tdate,
+    country           tstr3,
+    avatar_path       tstr200,
+    small_avatar_path tstr200,
+    email             tstr200,
+    phone             tstr100,
+    status_id         tidcode    not null
+        constraint fk_cc_players_status_id
+            references core_entity_statuses_ref
             on update restrict on delete restrict,
-    entity_status_id tidcode    not null
-        constraint fk_core_entities_status_id
-            references core_entity_statuses_ref,
-    create_date      tdatetime  not null,
-    close_date       tdatetime,
-    modify_date      tdatetime
+    create_date       tdatetime  not null,
+    modify_date       tdatetime  not null,
+    close_date        tdatetime
 );
 
-comment on table core_entities is 'Картотека сущностей';
-
-alter table core_entities
+alter table cc_players
     owner to dev_cc_admin;
 
 create table core_actions
 (
-    action_id       tidbigcode not null
+    action_id       tidbigcode not null default nextval('seq_action_id')
         constraint pk_core_actions
             primary key,
-    entity_id       tidbigcode not null
-        constraint fk_actions_entity_id
-            references core_entities
+    entity_id       tidbigcode not null,
+    entity_type_id  tidcode    not null
+        constraint fk_core_actions_entity_type_id
+            references core_entity_types_ref
             on update restrict on delete restrict,
     action_code     tidcode    not null
         constraint fk_ta_actrefid
             references core_action_codes_ref
             on update restrict on delete restrict,
-    user_id         tidbigcode not null,
+    user_id         tidbigcode not null
+        constraint fk_core_actions_user_id
+            references cc_players
+            on update restrict on delete restrict,
     execute_date    tdatetime  not null,
     action_address  tstr100    not null,
     err_msg         ttext,
@@ -269,42 +285,30 @@ alter table core_actions
 
 create table cc_lobbies
 (
-    lobby_id   tidbigcode not null
-        constraint fk_cc_lobbies_lobby_id
-            references core_entities,
-    owner_id   tidbigcode not null,
-    lobby_name tstr200    not null,
-    lobby_code tstr50     not null,
-    lobby_kind tidcode    not null
+    lobby_id    tidbigcode not null default nextval('seq_action_id')
+        constraint pk_cc_lobbies
+            primary key,
+    owner_id    tidbigcode not null
+        constraint fk_cc_lobbies_owner_id
+            references cc_players
+            on update restrict on delete restrict,
+    lobby_name  tstr200    not null
+        constraint uk_cc_lobbies_lobby_name
+            unique,
+    lobby_code  tstr50     not null
+        constraint ak_cc_lobbies_lobby_code
+            unique,
+    lobby_kind  tidcode    not null,
+    status_id   tidcode    not null
+        constraint fk_cc_lobbies_status_id
+            references core_entity_statuses_ref
+            on update restrict on delete restrict,
+    create_date tdatetime  not null,
+    modify_date tdatetime  not null,
+    close_date  tdatetime
 );
 
 alter table cc_lobbies
-    owner to dev_cc_admin;
-
-create table cc_players
-(
-    player_id         tidbigcode not null
-        constraint pk_players
-            primary key
-        constraint fk_players_players_player_id
-            references core_entities,
-    player_login      tstr100    not null
-        constraint ak_cc_players_player_login
-            unique,
-    password_hash     tstr200,
-    first_name        tstr100,
-    middle_name       tstr100,
-    last_name         tstr100,
-    gender            tstr2,
-    birth_date        tdate,
-    country           tstr3,
-    avatar_path       tstr200,
-    small_avatar_path tstr200,
-    email             tstr200,
-    phone             tstr100
-);
-
-alter table cc_players
     owner to dev_cc_admin;
 
 create table cc_players_hist
@@ -322,7 +326,11 @@ create table cc_players_hist
     avatar_path       tstr200,
     small_avatar_path tstr200,
     email             tstr200,
-    phone             tstr100
+    phone             tstr100,
+    status_id         tidcode,
+    create_date       tdatetime,
+    modify_date       tdatetime,
+    close_date        tdatetime
 );
 
 alter table cc_players_hist
@@ -331,11 +339,15 @@ alter table cc_players_hist
 create table cc_lobbies_hist
 (
     lobby_id    tidbigcode,
-    actual_fate tdatetime,
+    actual_date tdatetime,
     owner_id    tidbigcode,
     lobby_name  tstr200,
     lobby_code  tstr50,
-    lobby_kind  tidcode
+    lobby_kind  tidcode,
+    status_id   tidcode,
+    create_date tdatetime,
+    modify_date tdatetime,
+    close_date  tdatetime
 );
 
 alter table cc_lobbies_hist
