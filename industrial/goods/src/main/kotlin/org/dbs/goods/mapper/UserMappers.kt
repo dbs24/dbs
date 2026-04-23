@@ -1,10 +1,9 @@
 package org.dbs.goods.mapper
 
-import org.dbs.grpc.ext.GrpcNull.grpcGetOrNull
 import org.dbs.goods.client.CreateOrUpdateUserRequest
 import org.dbs.goods.model.user.User
 import org.dbs.goods.service.UserService
-import org.dbs.service.v2.EntityCoreValExt.copyEntity
+import org.dbs.grpc.ext.GrpcNull.grpcGetOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import java.time.LocalDateTime.now
 
@@ -13,7 +12,6 @@ typealias Dto2User = (src: User, srcDto: CreateOrUpdateUserRequest, passwordEnco
 object UserMappers {
 
     val dto2User: Dto2User = { src, dto, passwordEncoder ->
-        src.copyEntity {
             src.copy(
                 login = dto.login.grpcGetOrNull() ?: dto.oldLogin,
                 email = dto.email.grpcGetOrNull() ?: dto.oldEmail,
@@ -22,7 +20,6 @@ object UserMappers {
                 password = dto.password.grpcGetOrNull()?.let { passwordEncoder.encode(it) },
                 modifyDate = now(),
             )
-        }
     }
 
     fun UserService.updateUser(src: User, srcDto: CreateOrUpdateUserRequest): User =

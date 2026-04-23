@@ -4,15 +4,13 @@ import org.dbs.grpc.ext.GrpcNull.grpcGetOrNull
 import org.dbs.mgmt.client.CreateOrUpdateLobbyRequest
 import org.dbs.mgmt.model.lobby.Lobby
 import org.dbs.mgmt.service.LobbyService
-import org.dbs.service.v2.EntityCoreValExt.copyEntity
 import java.time.LocalDateTime.now
 
 object LobbyMappers {
 
-    fun LobbyService.updateLobby(src: Lobby, srcDto: CreateOrUpdateLobbyRequest): Lobby = src.copyEntity {
+    fun LobbyService.updateLobby(src: Lobby, srcDto: CreateOrUpdateLobbyRequest): Lobby =
         src.copy(
             lobbyCode = srcDto.lobbyCode.grpcGetOrNull() ?: srcDto.oldLobbyCode,
             modifyDate = now(),
         )
-    }
 }

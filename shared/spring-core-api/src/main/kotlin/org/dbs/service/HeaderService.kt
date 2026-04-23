@@ -1,30 +1,27 @@
 package org.dbs.service
 
 import org.dbs.consts.SpringCoreConst.PropertiesNames.BROWSER_HEADERS_LIST
-import org.dbs.consts.SpringCoreConst.PropertiesNames.SECURITY_WHITE_HEADERS_BREAK
 import org.dbs.consts.SpringCoreConst.PropertiesNames.SECURITY_WHITE_HEADERS_LIST
-import org.dbs.consts.SpringCoreConst.PropertiesNames.SECURITY_WHITE_HEADERS_YML
-import org.dbs.consts.SpringCoreConst.PropertiesNames.SECURITY_WHITE_HOSTS_BREAK
-import org.dbs.consts.SpringCoreConst.PropertiesNames.SECURITY_WHITE_HOSTS_YML
 import org.dbs.consts.SysConst.MASK_ALL
-import org.dbs.consts.SysConst.STRING_FALSE
 import org.dbs.spring.core.api.AbstractApplicationService
-import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.stereotype.Service
 
 @Service
+@ConfigurationProperties("config.security.h1")
 class HeaderService : AbstractApplicationService() {
-    @Value("\${$SECURITY_WHITE_HEADERS_YML:$SECURITY_WHITE_HEADERS_LIST}")
-    val whiteHeaders = SECURITY_WHITE_HEADERS_LIST
 
-    @Value("\${$SECURITY_WHITE_HOSTS_YML:$MASK_ALL}")
-    val whiteHosts = MASK_ALL
+    var whiteHeaders: String = SECURITY_WHITE_HEADERS_LIST
+    var whiteHosts: String = MASK_ALL
+    var breakIllegalHeader: Boolean = false
+    var breakIllegalHost: Boolean = false
+    var abused: Abused = Abused()
 
-    @Value("\${$SECURITY_WHITE_HEADERS_BREAK:$STRING_FALSE}")
-    val breakIllegalHeader = false
+    class Abused {
+        var queryParamsValues: Collection<String> = emptyList()
+    }
 
-    @Value("\${$SECURITY_WHITE_HOSTS_BREAK:$STRING_FALSE}")
-    val breakIllegalHost = false
+    val abusedQueryParamsValues: Collection<String> get() = abused.queryParamsValues
 
     val whiteHeadersLists by lazy {
         whiteHeaders.trim().lowercase()
@@ -38,5 +35,4 @@ class HeaderService : AbstractApplicationService() {
             .replace(" ", "")
             .split(",")
     }
-
 }

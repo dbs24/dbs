@@ -57,7 +57,7 @@ class AbusedConnectionWebFilter(val headerService: HeaderService) : AbstractAppl
 
             request.uri.host?.let {
 
-                if (headerService.env.whiteHosts != MASK_ALL) {
+                if (headerService.whiteHosts != MASK_ALL) {
                     // legal domain name
                     if (!LEGAL_DOMAIN.matcher(request.uri.host).matches()) {
                         abusedConnection.init(
@@ -73,7 +73,7 @@ class AbusedConnectionWebFilter(val headerService: HeaderService) : AbstractAppl
                         if (!headerService.whiteHostsLists.contains(request.uri.host)) {
                             val errMsg = "$currentHostName: Suspicious host in request: ${request.uri.host}), " +
                                     "allowed hosts: [${headerService.whiteHostsLists}])"
-                            if (headerService.env.breakIllegalHost) {
+                            if (headerService.breakIllegalHost) {
                                 abusedConnection.update(
                                     AbusedConnection(AR_ILLEGAL_HOST, errMsg)
                                 )
@@ -93,12 +93,12 @@ class AbusedConnectionWebFilter(val headerService: HeaderService) : AbstractAppl
             }
 
             // White headers
-            if (abusedConnection.isNotInitialized() && headerService.env.whiteHeaders != MASK_ALL) {
+            if (abusedConnection.isNotInitialized() && headerService.whiteHeaders != MASK_ALL) {
                 logger.measureExecTime("headers white list filter") {
                     request.headers.asSequence().all { header ->
                         headerService.whiteHeadersLists.contains(header.key.lowercase()).also {
                             if (!it)
-                                if (headerService.env.breakIllegalHeader) {
+                                if (headerService.breakIllegalHeader) {
                                     abusedConnection.update(
                                         AbusedConnection(
                                             AR_ILLEGAL_HEADER,
@@ -116,9 +116,9 @@ class AbusedConnectionWebFilter(val headerService: HeaderService) : AbstractAppl
             }
 
             // Query params
-            if (abusedConnection.isNotInitialized() && headerService.env.abusedQueryParamsValues.isNotEmpty()) {
+            if (abusedConnection.isNotInitialized() && headerService.abusedQueryParamsValues.isNotEmpty()) {
                 request.queryParams.entries.firstOrNull { qp ->
-                    headerService.env.abusedQueryParamsValues.any { qp.value.toString().contains(it) }
+                    headerService.abusedQueryParamsValues.any { qp.value.toString().contains(it) }
                 }?.apply {
                     abusedConnection.update(
                         AbusedConnection(

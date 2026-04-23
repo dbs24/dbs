@@ -1,13 +1,11 @@
 package org.dbs.mgmt.service
 
-import org.dbs.consts.EntityId
 import org.dbs.consts.SysConst.UsersConsts.ROOT_USER
 import org.dbs.consts.SysConst.UsersConsts.ROOT_USER_PASS
 import org.dbs.mgmt.model.hist.PlayerHist
 import org.dbs.mgmt.model.player.Player
 import org.dbs.player.PlayerCore.EntityStatus.ES_PLAYER_ACTUAL
 import org.dbs.player.PlayerCore.EntityStatus.ES_PLAYER_ANONYMOUS
-import org.dbs.service.v2.EntityCoreValExt.asNew
 import org.dbs.spring.core.api.AbstractApplicationService
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -20,8 +18,7 @@ class PlayerFactory(
     val passwordEncoder: PasswordEncoder
 ) : AbstractApplicationService() {
 
-    fun createRootPlayer(id: EntityId): ENTITY = ENTITY(
-        playerId = id,
+    fun createRootPlayer(): ENTITY = ENTITY(
         login = ROOT_USER,
         firstName = ROOT_USER,
         middleName = ROOT_USER,
@@ -38,11 +35,10 @@ class PlayerFactory(
         createDate = now(),
         modifyDate = now(),
         closeDate = null,
-    ).asNew(ES_PLAYER_ACTUAL)
+    )
 
-    fun createNewPlayer(id: EntityId): ENTITY = ENTITY(
-        playerId = id,
-        login = id.hashCode().toString(),
+    fun createNewPlayer(): ENTITY = ENTITY(
+        login = "",
         firstName = null,
         middleName = null,
         lastName = null,
@@ -58,11 +54,11 @@ class PlayerFactory(
         createDate = now(),
         modifyDate = now(),
         closeDate = null,
-    ).asNew(ES_PLAYER_ANONYMOUS)
+    )
 
     fun createHist(src: Player): PlayerHist = PlayerHist(
         actualDate = src.modifyDate,
-        playerId = src.playerId,
+        playerId = requireNotNull(src.playerId) { "Player must be persisted before creating history" },
         login = src.login,
         email = src.email,
         phone = src.phone,

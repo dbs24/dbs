@@ -2,16 +2,14 @@ package org.dbs.service.v2
 
 import org.dbs.api.PersistenceService
 import org.dbs.application.core.service.funcs.ReflectionFuncs.createPkgClassesCollection
-import org.dbs.consts.*
 import org.dbs.consts.RestHttpConsts.URI_HTTPS
 import org.dbs.consts.SpringCoreConst.PropertiesNames.CONFIG_REF_AUTO_SYNCHRONIZE
-import org.dbs.consts.SpringCoreConst.PropertiesNames.SELECT_NEXT_VAL_ACTION
-import org.dbs.consts.SpringCoreConst.PropertiesNames.SPRING_R2DBC_NEXT_VAL_CMD
 import org.dbs.consts.SpringCoreConst.PropertiesNames.SPRING_R2DBC_URL
 import org.dbs.consts.SysConst.ALL_PACKAGES
 import org.dbs.consts.SysConst.EMPTY_STRING
 import org.dbs.consts.SysConst.STRING_TRUE
 import org.dbs.entity.core.*
+import org.dbs.entity.core.v2.model.EntityCore
 import org.dbs.entity.core.v2.type.EntityCoreInitializer
 import org.dbs.entity.core.v2.type.EntityCoreInitializer.Companion.EntityCore.cacheKeys
 import org.dbs.entity.core.v2.type.EntityCoreInitializer.Companion.EntityCore.entityActionEnums
@@ -41,14 +39,11 @@ class R2dbcPersistenceService(
     private val databaseClient: DatabaseClient,
     private val entityDao: EntityDao,
     private val reactiveTransactionManager: ReactiveTransactionManager,
-    private val cacheService: EntityCacheService<EntityCoreVal>,
+    private val cacheService: EntityCacheService<out EntityCore>,
 ) : AbstractApplicationService(), PersistenceService {
 
     @Value("\${$CONFIG_REF_AUTO_SYNCHRONIZE:$STRING_TRUE}")
     private val autoSynchronize = false
-
-    @Value("\${$SPRING_R2DBC_NEXT_VAL_CMD:$SELECT_NEXT_VAL_ACTION}")
-    private val nextValCmd = SELECT_NEXT_VAL_ACTION
 
     @Value("\${$SPRING_R2DBC_URL}")
     val r2dbcUrl = EMPTY_STRING
@@ -119,29 +114,21 @@ class R2dbcPersistenceService(
         }
     }
 
-    fun generateNewEntityIdV2(): Mono<EntityId> = generateNewEntityId()
-
-    override fun generateNewEntityId(): Mono<EntityId> =
-        databaseClient.sql(nextValCmd)
-            .map { row -> row.get(0, java.lang.Long::class.java) }
-            .one()
-            .map { newId -> newId.toLong() }
-
     override val transactionalOperator: TransactionalOperator
         get() = TransactionalOperator.create(reactiveTransactionManager)
 
-    fun <T : EntityCoreVal> saveEntity(abstractEntity: T): Mono<T> =
+    fun <T : EntityCore> saveEntity(abstractEntity: T): Mono<T> =
         entityDao.saveEntity(abstractEntity)
             .doOnSuccess {
                 logger.debug(
-                    "${if (abstractEntity.justCreated.value) "insert new" else "update"} " +
+                    "${if (abstractEntity.entityId == null) "insert new" else "update"} " +
                             "entity: ${abstractEntity.entityId} [${abstractEntity.javaClass.canonicalName}]"
                 )
             }
 
-    fun <T : EntityCoreVal> saveEntityHist(abstractEntity: T): Mono<T> = entityDao.saveEntityHist(abstractEntity)
+    fun <T : EntityCore> saveEntityHist(abstractEntity: T): Mono<T> = entityDao.saveEntityHist(abstractEntity)
 
-    suspend fun <T : EntityCoreVal> saveEntityHistCo(abstractEntity: T): T = entityDao.saveEntityHistCo(abstractEntity)
+    suspend fun <T : EntityCore> saveEntityHistCo(abstractEntity: T): T = entityDao.saveEntityHistCo(abstractEntity)
 
     fun invalidateCaches(code: String, vararg entityCache: EntityCacheKeyEnum) {
         cacheService.invalidateCaches(code, *entityCache)

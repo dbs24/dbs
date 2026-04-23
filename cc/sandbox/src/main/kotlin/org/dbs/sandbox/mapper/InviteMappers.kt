@@ -4,7 +4,6 @@ import org.dbs.application.core.service.funcs.LongFuncs.toLocalDateTime
 import org.dbs.sandbox.invite.client.CreateOrUpdateInviteRequest
 import org.dbs.sandbox.model.invite.GameInvite
 import org.dbs.sandbox.service.InviteService
-import org.dbs.service.v2.EntityCoreValExt.copyEntity
 import java.time.LocalDateTime.now
 
 typealias Dto2Player = (src: GameInvite, srcDto: CreateOrUpdateInviteRequest) -> GameInvite
@@ -12,7 +11,6 @@ typealias Dto2Player = (src: GameInvite, srcDto: CreateOrUpdateInviteRequest) ->
 object InviteMappers {
 
     val dto2Invite: Dto2Player = { src, dto ->
-        src.copyEntity {
             src.copy(
                 playerLogin = dto.playerLogin,
                 gameType = dto.gameType,
@@ -21,7 +19,6 @@ object InviteMappers {
                 whiteSide = dto.whiteSide,
                 modifyDate = now(),
             )
-        }
     }
 
     inline fun InviteService.updateInviteFromDto(src: GameInvite, srcDto: CreateOrUpdateInviteRequest): GameInvite =

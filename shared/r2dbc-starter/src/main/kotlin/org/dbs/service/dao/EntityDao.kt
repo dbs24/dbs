@@ -6,6 +6,7 @@ import org.dbs.consts.SysConst.EMPTY_STRING
 import org.dbs.entity.core.ActionCode
 import org.dbs.entity.core.EntityStatus
 import org.dbs.entity.core.EntityType
+import org.dbs.entity.core.v2.model.EntityCore
 import org.dbs.entity.core.v2.type.EntityCoreInitializer.Companion.EntityCore.entityActionEnums
 import org.dbs.entity.core.v2.type.EntityCoreInitializer.Companion.EntityCore.entityStatuses
 import org.dbs.entity.core.v2.type.EntityCoreInitializer.Companion.EntityCore.entityTypes
@@ -14,9 +15,9 @@ import org.dbs.ext.FluxFuncs.subscribeMono
 import org.dbs.ext.FluxFuncs.validateDb
 import org.dbs.service.api.RefSyncFuncs.synchronizeReference
 import org.dbs.service.repo.ActionCodeRepository
+import org.dbs.service.repo.ActionRepo
 import org.dbs.service.repo.EntityStatusRepository
 import org.dbs.service.repo.EntityTypeRepository
-import org.dbs.service.v2.EntityCoreVal
 import org.dbs.spring.core.api.DaoAbstractApplicationService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Lazy
@@ -34,58 +35,29 @@ class EntityDao(
     private val entityTypeRepository: EntityTypeRepository,
     private val entityStatusRepository: EntityStatusRepository,
     private val actionCodeRepository: ActionCodeRepository,
+    val actionRepo: ActionRepo,
 ) : DaoAbstractApplicationService() {
 
     @Value("\${spring.application.name}")
     private val applicationName = EMPTY_STRING
 
+    fun <T : EntityCore> saveEntity(entity: T): Mono<T> =
+        if (entity.entityId == null)
+            entityTemplate.insert(entity)
+        else
+            entityTemplate.update(entity)
 
-//    fun findCoreEntityV12(entityId: EntityId) = let {
-//        logger.debug {
-//            "1. entityTemplate.selectOne($entityId)"
-//        }
-//        entityTemplate.selectOne(
-//            query(Criteria.where("entity_id").`is`(entityId)),
-//            EntityV2::class.java
-//        ).map {
-//            logger.debug {
-//                "2. entityTemplate.selectOne($entityId)"
-//            }
-//            it
-//        }
-//    }
-//
-//    fun findCoreEntityV2(entityId: EntityId) = let {
-//        logger.debug {
-//            "1. entityTemplate.selectOne($entityId)"
-//        }
-//        entityTemplate.selectOne(
-//            query(Criteria.where("entity_id").`is`(entityId)),
-//            EntityV2::class.java
-//        ).map {
-//            logger.debug {
-//                "2. entityTemplate.selectOne($entityId)"
-//            }
-//            it
-//        }
-//    }
-
-    fun <T : EntityCoreVal> saveEntity(entity: T) =
-        if (entity.justCreated.value)
-            entityTemplate.insert(entity) else entityTemplate.update(entity)
-
-    fun <T : EntityCoreVal> saveEntities(entities: Collection<T>): Flux<T> = Flux.concat(
+    fun <T : EntityCore> saveEntities(entities: Collection<T>): Flux<T> = Flux.concat(
         createCollection { savedEntities ->
             entities.forEach { savedEntities.add(saveInternal(it)) }
         })
 
-    private fun <T : EntityCoreVal> saveInternal(entity: T) = entity.run {
-        if (entity.justCreated.value) entityTemplate.insert(entity) else entityTemplate.update(entity)
-    }
+    private fun <T : EntityCore> saveInternal(entity: T): Mono<T> =
+        if (entity.entityId == null) entityTemplate.insert(entity) else entityTemplate.update(entity)
 
-    fun <T : EntityCoreVal> saveEntityHist(entity: T) = entityTemplate.insert(entity)
+    fun <T : EntityCore> saveEntityHist(entity: T): Mono<T> = entityTemplate.insert(entity)
 
-    suspend fun <T : EntityCoreVal> saveEntityHistCo(entity: T) = entityTemplate.insert(entity).awaitSingle()
+    suspend fun <T : EntityCore> saveEntityHistCo(entity: T): T = entityTemplate.insert(entity).awaitSingle()
 
     //==================================================================================================================
     fun synchronizeEntityTypes() = measureTimeMillis {
@@ -141,25 +113,5 @@ class EntityDao(
     }.also {
         logger.debug { "synchronizeActionCode: took $it ms" }
     }
-
-//    suspend fun synchronizePrivileges(privilegeGroupEnum: PrivilegeGroupEnum) = measureTimeMillis {
-//        fromIterable(PrivilegeEnum.entries.filter { it.privilegeGroupId() == privilegeGroupEnum }
-//            .map {
-//                Privilege(
-//                    it.getCode(),
-//                    it.privilegeGroupId(),
-//                    it.getValue(),
-//                    it.getPrivilegeCode(),
-//                )
-//            }
-//            .toList())
-//            .publishOn(parallelScheduler)
-//            .noDuplicates({ it.privilegeCode }, { it.privilegeName })
-//            .synchronizeReference(privilegeRepository,
-//                { existItem, preparedItem -> existItem.privilegeId == preparedItem.privilegeId },
-//                { preparedItem -> preparedItem.copy() })
-//    }.also {
-//        logger.debug { "synchronizePrivileges: took $it ms" }
-//    }
 
 }

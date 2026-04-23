@@ -15,7 +15,7 @@ abstract class AbstractApplicationService : AbstractApplicationBean() {
 
     val parallelScheduler: Scheduler by lazy { newParallel(javaClass.simpleName) }
     val boundedElastic: Scheduler by lazy { boundedElastic() }
-    open val env by lazy { findService(ApplicationYmlService::class) }
+    open val env by lazy { findService(AbstractApplicationConfig::class) }
 
     protected val singleScheduler: Scheduler by lazy { newSingle(javaClass.simpleName) }
 

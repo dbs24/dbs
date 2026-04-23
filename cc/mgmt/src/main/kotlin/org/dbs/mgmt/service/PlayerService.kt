@@ -18,10 +18,10 @@ import org.dbs.player.PlayerCore.isClosedPlayer
 import org.dbs.player.PlayerLogin
 import org.dbs.player.PlayerPassword
 import org.dbs.sandbox.service.GrpcSandBoxClientService
-import org.dbs.service.v2.ActionEvent
-import org.dbs.service.v2.EntityCoreVal.Companion.generateNewEntityId
+import org.dbs.service.Extensions.registryEvent
 import org.dbs.spring.core.api.AbstractApplicationService
 import org.springframework.context.ApplicationEventPublisher
+import org.springframework.context.annotation.DependsOn
 import org.springframework.context.annotation.Lazy
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -34,6 +34,7 @@ import org.dbs.mgmt.model.player.Player as ENTITY
 
 @Service
 @Lazy(false)
+@DependsOn("r2dbcPersistenceService")
 class PlayerService(
     val grpcSandBoxClientService: GrpcSandBoxClientService,
     val dao: DAO,
@@ -67,7 +68,7 @@ class PlayerService(
             .switchIfEmpty { createRootPlayer }
 
     suspend fun saveHistory(entity: ENTITY): ENTITY = entity.run {
-        if (!justCreated.value)
+        if (entity.playerId != null)
             r2dbcPersistenceService.saveEntityHistCo(playerFactory.createHist(entity))
                 .let {
                     dao.invalidateCaches(entity.login)
@@ -83,40 +84,33 @@ class PlayerService(
         actionNote: StringNote,
     ): ENTITY = r2dbcPersistenceService.saveEntity(player).awaitSingle()
         .also {
-            eventPublisher.publishEvent(
-                ActionEvent(
-                    entityId = it.playerId,
-                    entityTypeId = it.entityType.entityTypeId,
-                    actionCodeId = actionEnum.actionCodeId,
-                    remoteAddr = remoteAddr,
-                    actionNote = actionNote,
-                )
+            eventPublisher.registryEvent(
+                requireNotNull(it.playerId) { "playerId must be set after save" },
+                it.entityType.entityTypeId,
+                actionEnum.actionCodeId,
+                remoteAddr,
+                actionNote,
             )
         }
 
     private val createRootPlayer: Mono<ENTITY> = runBlocking {
-        generateNewEntityId().toMono()
-            .map { playerFactory.createRootPlayer(it) }
+        playerFactory.createRootPlayer().toMono()
             .flatMap { r2dbcPersistenceService.saveEntity(it) }
             .doOnSuccess { player ->
-                eventPublisher.publishEvent(
-                    ActionEvent(
-                        entityId = player.playerId,
-                        entityTypeId = player.entityType.entityTypeId,
-                        actionCodeId = EA_CREATE_OR_UPDATE_PLAYER.actionCodeId,
-                        remoteAddr = "system",
-                        actionNote = "Root player created",
-                    )
+                eventPublisher.registryEvent(
+                    requireNotNull(player.playerId) { "playerId must be set after save" },
+                    player.entityType.entityTypeId,
+                    EA_CREATE_OR_UPDATE_PLAYER.actionCodeId,
+                    "system",
+                    "Root player created",
                 )
             }
     }
 
     suspend fun createNewPlayer(playerLogin: PlayerLogin): ENTITY =
-        generateNewEntityId()
-            .let {
-                logger.debug { "create new player login: $playerLogin (entityId=$it)" }
-                playerFactory.createNewPlayer(it)
-            }
+        playerFactory.createNewPlayer().also {
+            logger.debug { "create new player login: $playerLogin" }
+        }
 
     suspend fun findPlayerByLogin(playerLogin: PlayerLogin): ENTITY? =
         dao.findPlayerByLoginCo(playerLogin.also { logger.debug { "find player login: $playerLogin" } })
@@ -131,17 +125,14 @@ class PlayerService(
             closeDate = if (isClosedPlayer(status)) now() else player.closeDate,
         ).also {
             dao.invalidateCaches(player.login)
-            it.justCreated.update(player.justCreated.value)
         }
 
     fun setPlayerNewPassword(player: ENTITY, password: PlayerPassword): ENTITY =
         player.copy(password = passwordEncoder.encode(password), modifyDate = now())
             .also {
                 dao.invalidateCaches(player.login)
-                it.justCreated.update(player.justCreated.value)
             }
 
     fun updatePlayer(src: ENTITY, actionNote: StringNote): ENTITY =
         src.copy(modifyDate = now())
-            .also { it.justCreated.update(src.justCreated.value) }
 }

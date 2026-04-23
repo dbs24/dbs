@@ -16,8 +16,7 @@ import org.dbs.goods.UserCore.isClosedUser
 import org.dbs.goods.UserLogin
 import org.dbs.goods.UserPassword
 import org.dbs.goods.service.ApplicationServiceGate.ServicesList.r2dbcPersistenceService
-import org.dbs.service.v2.ActionEvent
-import org.dbs.service.v2.EntityCoreVal.Companion.generateNewEntityId
+import org.dbs.service.Extensions.registryEvent
 import org.dbs.spring.core.api.AbstractApplicationService
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.annotation.Lazy
@@ -58,31 +57,25 @@ class UserService(
             .switchIfEmpty { createRootUser }
 
     suspend fun saveHistory(entity: ENTITY): ENTITY = entity.run {
-        if (!justCreated.value)
-            r2dbcPersistenceService.saveEntityHistCo(userFactory.createHist(entity))
+        userId?.let {
+            r2dbcPersistenceService.saveEntityHistCo(userFactory.createHist(this))
                 .let {
-                    dao.invalidateCaches(entity.login)
-                    entity
+                    dao.invalidateCaches(login)
+                    this
                 }
-        else this
+        } ?: this
     }
 
-    private val createRootUser: Mono<ENTITY> = runBlocking {
-        generateNewEntityId().toMono()
-            .map { userFactory.createRootUser(it) }
-            .flatMap { r2dbcPersistenceService.saveEntity(it) }
+    private val createRootUser: Mono<ENTITY> =
+          r2dbcPersistenceService.saveEntity(userFactory.createRootUser())
             .doOnSuccess { user ->
-                eventPublisher.publishEvent(
-                    ActionEvent(
-                        entityId = user.userId,
-                        entityTypeId = user.entityType.entityTypeId,
-                        actionCodeId = EA_CREATE_OR_UPDATE_USER.actionCodeId,
-                        remoteAddr = "system",
-                        actionNote = "Root user created",
+                eventPublisher.registryEvent(user.userId!!,
+                        user.entityType.entityTypeId,
+                        EA_CREATE_OR_UPDATE_USER.actionCodeId,
+                        "system",
+                        "Root user created",
                     )
-                )
             }
-    }
 
     suspend fun saveUser(
         user: ENTITY,
@@ -91,22 +84,17 @@ class UserService(
         actionNote: StringNote,
     ): ENTITY = r2dbcPersistenceService.saveEntity(user).awaitSingle()
         .also {
-            eventPublisher.publishEvent(
-                ActionEvent(
-                    entityId = it.userId,
-                    entityTypeId = it.entityType.entityTypeId,
-                    actionCodeId = actionEnum.actionCodeId,
-                    remoteAddr = remoteAddr,
-                    actionNote = actionNote,
-                )
+            eventPublisher.registryEvent(it.userId!!,
+                it.entityType.entityTypeId,
+                actionEnum.actionCodeId,
+                remoteAddr,
+                actionNote,
             )
         }
 
-    suspend fun createNewUser(userLogin: UserLogin): ENTITY =
-        generateNewEntityId()
-            .let {
-                logger.debug { "create new user login: $userLogin (entityId=$it)" }
-                userFactory.createNewUser(it)
+    suspend fun createNewUser(userLogin: UserLogin): ENTITY = let {
+                logger.debug { "create new user login: $userLogin" }
+                userFactory.createNewUser(userLogin)
             }
 
     suspend fun findUserByLogin(userLogin: UserLogin): ENTITY? =
@@ -122,13 +110,13 @@ class UserService(
             closeDate = if (isClosedUser(status)) now() else user.closeDate,
         ).also {
             dao.invalidateCaches(user.login)
-            it.justCreated.update(user.justCreated.value)
+            //it.justCreated.update(user.justCreated.value)
         }
 
     fun setUserNewPassword(user: ENTITY, password: UserPassword): ENTITY =
         user.copy(password = passwordEncoder.encode(password), modifyDate = now())
             .also {
                 dao.invalidateCaches(user.login)
-                it.justCreated.update(user.justCreated.value)
+                //it.justCreated.update(user.justCreated.value)
             }
 }

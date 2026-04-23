@@ -1,26 +1,29 @@
 package org.dbs.mgmt.model.lobby
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonTypeInfo
+import org.dbs.consts.EntityId
 import org.dbs.consts.OperDate
 import org.dbs.consts.OperDateNull
 import org.dbs.entity.core.EntityStatusEnum
 import org.dbs.entity.core.EntityTypeEnum
+import org.dbs.entity.core.v2.model.EntityCore
 import org.dbs.lobby.LobbyCode
 import org.dbs.lobby.LobbyCore.EntityTypes.ET_LOBBY
 import org.dbs.lobby.LobbyId
 import org.dbs.lobby.LobbyKind
 import org.dbs.lobby.LobbyName
 import org.dbs.player.PlayerId
-import org.dbs.service.v2.EntityCoreVal
 import org.springframework.data.annotation.Id
-import org.springframework.data.annotation.Transient
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @Table("cc_lobbies")
 data class Lobby(
     @Id
     @Column("lobby_id")
-    val lobbyId: LobbyId,
+    val lobbyId: LobbyId? = null,
 
     @Column("lobby_kind")
     val lobbyKind: LobbyKind,
@@ -43,10 +46,13 @@ data class Lobby(
 
     val closeDate: OperDateNull = null,
 
-) : EntityCoreVal(lobbyId, ET_LOBBY) {
+) : EntityCore {
 
-    @Transient
-    override val entityType: EntityTypeEnum = ET_LOBBY
+    @get:JsonIgnore
+    override val entityId: EntityId? get() = lobbyId
+
+    @get:JsonIgnore
+    val entityType: EntityTypeEnum get() = ET_LOBBY
 
     override fun status() = entityStatus
 }

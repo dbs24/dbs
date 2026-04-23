@@ -1,29 +1,32 @@
 package org.dbs.mgmt.model.player
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 import org.dbs.consts.AnyCode
 import org.dbs.consts.BirthDate
 import org.dbs.consts.CountryIsoCode
 import org.dbs.consts.Email
+import org.dbs.consts.EntityId
 import org.dbs.consts.OperDate
 import org.dbs.consts.OperDateNull
 import org.dbs.consts.Password
 import org.dbs.consts.UriPath
 import org.dbs.entity.core.EntityStatusEnum
 import org.dbs.entity.core.EntityTypeEnum
+import org.dbs.entity.core.v2.model.EntityCore
 import org.dbs.player.PlayerCore.EntityTypes.ET_PLAYER
 import org.dbs.player.PlayerId
 import org.dbs.player.PlayerLogin
-import org.dbs.service.v2.EntityCoreVal
 import org.springframework.data.annotation.Id
-import org.springframework.data.annotation.Transient
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @Table("cc_players")
 data class Player(
     @Id
     @Column("player_id")
-    val playerId: PlayerId,
+    val playerId: PlayerId? = null,
 
     @Column("player_login")
     val login: PlayerLogin,
@@ -68,10 +71,13 @@ data class Player(
 
     val closeDate: OperDateNull = null,
 
-) : EntityCoreVal(playerId, ET_PLAYER) {
+) : EntityCore {
 
-    @Transient
-    override val entityType: EntityTypeEnum = ET_PLAYER
+    @get:JsonIgnore
+    override val entityId: EntityId? get() = playerId
+
+    @get:JsonIgnore
+    val entityType: EntityTypeEnum get() = ET_PLAYER
 
     override fun status() = entityStatus
 }

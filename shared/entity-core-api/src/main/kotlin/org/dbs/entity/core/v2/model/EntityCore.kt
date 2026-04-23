@@ -6,6 +6,6 @@ import java.io.Serializable
 
 interface EntityCore : Serializable {
 
-    val entityId: EntityId
+    val entityId: EntityId?
     fun status(): EntityStatusEnum
 }

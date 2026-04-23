@@ -28,6 +28,7 @@ import org.dbs.consts.SysConst.UsersConsts.ROOT_USER
 import org.dbs.mgmt.MgmtApplication
 import org.dbs.mgmt.config.MgmtConfig
 import org.dbs.mgmt.service.PlayerService
+import org.dbs.service.dao.EntityDao
 import org.dbs.spring.core.api.ServiceLocator.findService
 import org.dbs.test.container.KafkaTestContainer
 import org.dbs.test.container.PostgresR2dbcContainer
@@ -88,6 +89,7 @@ abstract class AbstractChessTest(chessCoreKoTest: ChessKoTest) : AbstractKoTestB
     // Services
     private val jwtSecurityService by lazy { findService(JwtSecurityService::class) }
     val playerService by lazy { findService(PlayerService::class) }
+    val entityDao by lazy { findService(EntityDao::class) }
 
 
     fun getJwtToken(claims: StringMap) =

@@ -2,6 +2,7 @@ package org.dbs.chess24.funcs
 
 import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.nulls.shouldNotBeNull
+import kotlinx.coroutines.flow.firstOrNull
 import org.apache.logging.log4j.kotlin.Logging
 import org.dbs.application.core.service.funcs.LocalDateFuncs.toInt
 import org.dbs.application.core.service.funcs.TestFuncs.generateBirthDateDto
@@ -13,11 +14,13 @@ import org.dbs.application.core.service.funcs.TestFuncs.generateTestPassword811
 import org.dbs.application.core.service.funcs.TestFuncs.generateTestPhone
 import org.dbs.consts.*
 import org.dbs.consts.RestHttpConsts.BEARER
+import org.dbs.entity.core.EntityActionEnum
 import org.dbs.entity.core.v2.status.EntityStatusName
 import org.dbs.mgmt.dao.PlayerDao
 import org.dbs.mgmt.model.player.Player
 import org.dbs.mgmt.service.PlayerService
 import org.dbs.player.PlayerCore.EntityTypes.ET_PLAYER
+import org.dbs.player.PlayerCore.PlayerActionEnum.EA_CREATE_OR_UPDATE_PLAYER
 import org.dbs.player.PlayerPassword
 import org.dbs.player.PlayersConsts.Routes.ROUTE_CREATE_OR_UPDATE_PLAYER
 import org.dbs.player.PlayersConsts.Routes.ROUTE_UPDATE_PLAYER_PASSWORD
@@ -25,6 +28,7 @@ import org.dbs.player.PlayersConsts.Routes.ROUTE_UPDATE_PLAYER_STATUS
 import org.dbs.player.dto.player.*
 import org.dbs.ref.serv.enums.CountryEnum.Companion.getRandomCountry
 import org.dbs.ref.serv.enums.GenderEnum.Companion.getRandomGender
+import org.dbs.service.dao.EntityDao
 import org.dbs.test.ko.WebTestClientFuncs.executePostRequestV2
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import reactor.core.publisher.Mono
@@ -36,6 +40,9 @@ object PlayerFuncs : Logging {
     private suspend fun PlayerDao.playerCount() = playerRepo.count()
     suspend fun PlayerService.playerCount() = dao.playerCount()
     suspend fun AbstractChessTest.playerCount() = playerService.playerCount()
+
+    private suspend fun EntityDao.findByEntityIdAndActionCode(entityId: EntityId, action: EntityActionEnum)
+        = actionRepo.findByEntityIdAndActionCode(entityId, action.actionCodeId)
 
     val playerStatusesNames by lazy { ET_PLAYER.existsEntityStatuses.map { it.entityStatusName } }
 
@@ -93,7 +100,11 @@ object PlayerFuncs : Logging {
 //                it.questionsAmount.shouldBeEqual(body.split(QT_QUESTION).size - 1)
 //                it.answersAmount.shouldBeEqual(body.split(QT_ANS).size - 1)
 
-                playerService.findPlayerByLogin(dto.login).toMono()
+                playerService.findPlayerByLogin(dto.login)?.also {
+                    entityDao.findByEntityIdAndActionCode(requireNotNull(it.playerId), EA_CREATE_OR_UPDATE_PLAYER)
+                        .firstOrNull()
+                        ?: error("action(s) not found for entity: ${it.playerId} ")
+                }.toMono()
                     .switchIfEmpty { error("${dto.login}: unknown Player") }
                     .map { createdPlayer ->
                         logger.debug { "compare Player attrs (${dto.login})" }

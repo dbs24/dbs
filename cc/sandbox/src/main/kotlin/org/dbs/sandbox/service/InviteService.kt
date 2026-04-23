@@ -8,13 +8,11 @@ import org.dbs.consts.StringNote
 import org.dbs.entity.core.EntityActionEnum
 import org.dbs.entity.core.EntityStatusEnum
 import org.dbs.invite.InviteCore.isClosedInvite
-import org.dbs.service.v2.ActionEvent
-import org.dbs.service.v2.EntityCoreVal.Companion.generateNewEntityId
+import org.dbs.service.Extensions.registryEvent
 import org.dbs.service.v2.R2dbcPersistenceService
 import org.dbs.spring.core.api.AbstractApplicationService
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
-import reactor.kotlin.core.publisher.toMono
 import java.time.LocalDateTime.now
 import org.dbs.sandbox.dao.InviteDao as DAO
 import org.dbs.sandbox.model.invite.GameInvite as ENTITY
@@ -28,13 +26,14 @@ class InviteService(
 ) : AbstractApplicationService() {
 
     suspend fun saveHistory(entity: ENTITY): ENTITY = entity.run {
-        if (!justCreated.value)
+        entity.inviteId?.let {
             r2dbcPersistenceService.saveEntityHistCo(inviteFactory.createHist(entity))
                 .let {
                     dao.invalidateCaches(entity.inviteCode)
                     entity
                 }
-        else this
+            this
+        } ?: this
     }
 
     suspend fun saveInvite(
@@ -44,37 +43,30 @@ class InviteService(
         actionNote: StringNote,
     ): ENTITY = r2dbcPersistenceService.saveEntity(invite).awaitSingle()
         .also {
-            eventPublisher.publishEvent(
-                ActionEvent(
-                    entityId = it.inviteId,
-                    entityTypeId = it.entityType.entityTypeId,
-                    actionCodeId = actionEnum.actionCodeId,
-                    remoteAddr = remoteAddr,
-                    actionNote = actionNote,
-                )
+            eventPublisher.registryEvent(it.inviteId!!,
+                it.entityType.entityTypeId,
+                actionEnum.actionCodeId,
+                remoteAddr,
+                actionNote,
             )
         }
 
     fun generateInviteCode() = createRandomString(50)
 
     suspend fun createNewInviteCo(): ENTITY =
-        generateNewEntityId().toMono()
-            .map { newEntityId ->
-                val newInviteCode = generateInviteCode()
-                logger.debug { "create new invite: $newInviteCode (entityId=$newEntityId)" }
-                inviteFactory.createNewInvite(newEntityId, newInviteCode)
-            }.awaitSingle()
+        inviteFactory.createNewInvite(generateInviteCode()).also {
+                logger.debug { "create new invite: ${it.inviteCode}" }
+            }
 
     suspend fun findInviteByCode(inviteCode: EntityCode): ENTITY? =
         dao.findInviteByCode(inviteCode.also { logger.debug { "find invite code: $inviteCode" } })
 
-    fun setInviteNewStatus(invite: ENTITY, status: EntityStatusEnum): ENTITY =
-        invite.copy(
+    fun setInviteNewStatus(invite: ENTITY, status: EntityStatusEnum): ENTITY = invite.copy(
             entityStatus = status,
             modifyDate = now(),
             closeDate = if (isClosedInvite(status)) now() else invite.closeDate,
         ).also {
             dao.invalidateCaches(invite.inviteCode)
-            it.justCreated.update(invite.justCreated.value)
+            //it.justCreated.update(invite.justCreated.value)
         }
 }

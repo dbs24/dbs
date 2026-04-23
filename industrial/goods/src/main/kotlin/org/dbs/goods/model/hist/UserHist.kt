@@ -1,17 +1,18 @@
 package org.dbs.goods.model.hist
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import org.dbs.consts.Email
+import org.dbs.consts.EntityId
 import org.dbs.consts.OperDate
 import org.dbs.consts.OperDateNull
 import org.dbs.consts.Password
 import org.dbs.entity.core.EntityStatusEnum
 import org.dbs.entity.core.EntityTypeEnum
+import org.dbs.entity.core.v2.model.EntityCore
 import org.dbs.goods.UserCore.EntityTypes.ET_USER
 import org.dbs.goods.UserId
 import org.dbs.goods.UserLogin
-import org.dbs.service.v2.EntityCoreVal
 import org.springframework.data.annotation.Id
-import org.springframework.data.annotation.Transient
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
 
@@ -35,7 +36,13 @@ data class UserHist(
     val createDate: OperDate,
     val modifyDate: OperDate,
     val closeDate: OperDateNull = null,
-) : EntityCoreVal(userId, ET_USER) {
-    @Transient override val entityType: EntityTypeEnum = ET_USER
+) : EntityCore {
+
+    @get:JsonIgnore
+    override val entityId: EntityId? get() = userId
+
+    @get:JsonIgnore
+    val entityType: EntityTypeEnum get() = ET_USER
+
     override fun status() = entityStatus
 }

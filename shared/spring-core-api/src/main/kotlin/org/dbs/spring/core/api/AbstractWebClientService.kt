@@ -50,7 +50,7 @@ abstract class AbstractWebClientService : AbstractApplicationService() {
 
     private val serverUri by lazy { LateInitVal<String>() }
     private val initialUri by lazy { LateInitVal<String>() }
-    override val env by lazy { findService(ApplicationYmlService::class) }
+    override val env by lazy { findService(AbstractApplicationConfig::class) }
 
     private val isClientError = Predicate { httpStatusCode: HttpStatusCode ->
         httpStatusCode.value() == NOT_ACCEPTABLE.value()
