@@ -19,15 +19,15 @@ enum ResponseCode {
 }
 
 message ErrorMessage {
-    uint32 code = 100;
-    string message = 200;
+    uint32 code = 1;
+    string message = 2;
 }
 
 message ResponseAnswer {
     ResponseCode responseCode = 1;
-    google.protobuf.Any responseEntity = 100;
-    repeated ErrorMessage errorMessages = 200;
-    optional string errorMessage = 300;
+    google.protobuf.Any responseEntity = 2;
+    repeated ErrorMessage errorMessages = 3;
+    optional string errorMessage = 4;
 }
 
 message MainResponse {

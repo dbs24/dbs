@@ -31,7 +31,6 @@ interface H1h2<H1REQ, H2REQ : GM, H1RES : BODY<T>, H2RES : GM, T : DTO, V : GM> 
     fun convertResponseH2H1(h2: H2RES, h1: H1RES): Mono<H1RES> = buildResponseH1()(h2, h1).toMono()
     fun convertErrors(h2: RA, h1: H1RES) = h1.apply {
         h2.run {
-            error = errorMessage.takeIf { it.isNotEmpty() }
             message = responseCode.name
             this@apply.responseCode = if (responseCode == RC_OK) OC_OK else OC_INVALID_RESPONSE_DATA
             if (hasErrors()) {

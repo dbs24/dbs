@@ -441,7 +441,6 @@ abstract class AbstractGrpcServerService : GrpcServerServiceApi, AbstractApplica
             buildResponseAnswer(respClass, throwable.toString().let {
                 RA.newBuilder()
                     .setResponseCode(RC_INTERNAL_ERROR)
-                    .setErrorMessage(it)
                     .addErrorInfo(it)
                     .build()
             })

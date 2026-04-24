@@ -1,14 +1,11 @@
 package org.dbs.test.core
 
-import org.dbs.consts.SpringCoreConst.EMPTY_HTTP_HEADERS
-import org.dbs.consts.WebClientUriBuilder
-import org.dbs.spring.core.api.EntityInfo
-import org.dbs.spring.core.api.PostRequestBody
 import org.dbs.consts.Arg2Generic
 import org.dbs.consts.RestHttpConsts.ROUTE_URI_LIVENESS
 import org.dbs.consts.RestHttpConsts.SHUTDOWN_REQUEST_CLASS
 import org.dbs.consts.RestHttpConsts.URI_CAN_SHUTDOWN
 import org.dbs.consts.RouteUrl
+import org.dbs.consts.SpringCoreConst.EMPTY_HTTP_HEADERS
 import org.dbs.rest.api.ResponseBody
 import org.dbs.rest.api.ShutdownRequest
 import org.dbs.rest.api.enums.RestOperCodeEnum.Companion.badResponse
@@ -17,6 +14,8 @@ import org.dbs.rest.api.nio.HttpRequestBody
 import org.dbs.rest.api.nio.HttpResponseBody
 import org.dbs.rest.api.nio.RequestDto
 import org.dbs.rest.api.nio.ResponseDto
+import org.dbs.spring.core.api.EntityInfo
+import org.dbs.spring.core.api.PostRequestBody
 import org.dbs.test.core.SysTestConsts.Postgres.failedMsgTemplate
 import org.dbs.test.exception.EmptyCreatedEntityException
 import org.dbs.test.exception.EmptyResponseBodyException
@@ -169,7 +168,6 @@ abstract class AbstractWebTest : AbstractJUnitTest() {
             }
             if (badResponse.test(responseCode)) {
                 logger.error("### - $responseCode")
-                logger.error("### - $error")
                 logger.error("### - $errors")
             }
             require(responseCode == OC_OK) { "Invalid response code ($responseCode), should be $OC_OK" }

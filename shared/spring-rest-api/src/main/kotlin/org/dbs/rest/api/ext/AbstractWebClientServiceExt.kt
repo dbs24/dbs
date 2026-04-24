@@ -4,7 +4,6 @@ import org.dbs.application.core.exception.InternalAppException
 import org.dbs.application.core.service.funcs.Patterns.V4_PATTERN
 import org.dbs.application.core.service.funcs.Patterns.V6_PATTERN
 import org.dbs.consts.RestHttpConsts.URI_LOCALHOST_4_TEST
-import org.dbs.consts.RestHttpConsts.URI_LOCALHOST_DOMAIN
 import org.dbs.consts.SysConst.EMPTY_STRING
 import org.dbs.rest.api.consts.RestApiConst.Headers.allowedIpV4Regex
 import org.dbs.rest.api.consts.RestApiConst.Headers.allowedIpV6Regex
@@ -23,7 +22,7 @@ object AbstractWebClientServiceExt {
                 response.responseEntity
             ) { "responseEntity must not be null if response errors is empty" }.toMono()
         } else {
-            Mono.error(InternalAppException("${response.error}: ${response.errors}"))
+            Mono.error(InternalAppException("${response.errors}"))
         }
     }
 

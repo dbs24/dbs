@@ -299,10 +299,7 @@ object GrpcValidators : Logging {
                     .setMessage("${field.name}: ${error.name}: '$errorMsg'")
                     .build().also {
                         logger.warn { "register custom error: [$it]" }
-                        if (errorMessage == EMPTY_STRING) {
-                            errorMessage = it.message
-                            setResponseCode(responseCode)
-                        }
+
                     })
 
     fun RAB.addErrorInfo(errorMsg: String): RAB =
@@ -312,17 +309,12 @@ object GrpcValidators : Logging {
                 .setMessage(errorMsg)
                 .build().also {
                     logger.warn { "register custom error: [$it]" }
-                    if (errorMessage == EMPTY_STRING) {
-                        errorMessage = errorMsg
-                        setResponseCode(RC_INVALID_REQUEST_DATA)
-                    }
                 })
 
     fun Throwable.buildResponseError() : ResponseAnswer = this.toString().let {
         ResponseAnswer.newBuilder()
             .setResponseCode(RC_INTERNAL_ERROR)
             //.setResponseEntity(responseEntity)
-            .setErrorMessage(it)
             .addErrorInfo(it)
             .build()
     }
@@ -330,7 +322,6 @@ object GrpcValidators : Logging {
     fun RAB.importErrorsIfAny(answer: RA): Boolean = run {
         if (answer.hasErrors()) {
             logger.warn { "assign errors: ${answer.errorMessagesList}" }
-            setErrorMessage(answer.errorMessage)
             answer.errorMessagesList.forEach { addErrorMessages(it) }
             setResponseCode(answer.responseCode)
         }

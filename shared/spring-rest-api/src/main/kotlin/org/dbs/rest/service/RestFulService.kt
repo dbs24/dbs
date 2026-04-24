@@ -120,8 +120,7 @@ class RestFulService : AbstractApplicationService() {
         logger.debug { "▒▒▒ [h1, $path: ${toString2()}]" }
 
         errors.takeIf { it.isNotEmpty() }?.run {
-            error = error?.run { this } ?: first().errorMsg
-            message = error?.run { this } ?: "error"
+            message = "error"
 
             val isSingle = (errorsCount == 1)
             logger.warn(

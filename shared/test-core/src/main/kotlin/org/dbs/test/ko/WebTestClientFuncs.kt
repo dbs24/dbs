@@ -1,12 +1,10 @@
 package org.dbs.test.ko
 
-import org.dbs.consts.SpringCoreConst.EMPTY_HTTP_HEADERS
-import org.dbs.consts.WebClientUriBuilder
-import org.dbs.spring.core.api.EntityInfo
-import org.dbs.spring.core.api.PostRequestBody
 import org.dbs.consts.Arg2Generic
 import org.dbs.consts.RouteUrl
+import org.dbs.consts.SpringCoreConst.EMPTY_HTTP_HEADERS
 import org.dbs.consts.SuspendArg2Generic
+import org.dbs.consts.WebClientUriBuilder
 import org.dbs.rest.api.ResponseBody
 import org.dbs.rest.api.enums.RestOperCodeEnum.Companion.badResponse
 import org.dbs.rest.api.enums.RestOperCodeEnum.OC_OK
@@ -14,6 +12,8 @@ import org.dbs.rest.api.nio.HttpRequestBody
 import org.dbs.rest.api.nio.HttpResponseBody
 import org.dbs.rest.api.nio.RequestDto
 import org.dbs.rest.api.nio.ResponseDto
+import org.dbs.spring.core.api.EntityInfo
+import org.dbs.spring.core.api.PostRequestBody
 import org.dbs.test.core.SysTestConsts.Postgres.failedMsgTemplate
 import org.dbs.test.exception.EmptyCreatedEntityException
 import org.dbs.test.exception.EmptyResponseBodyException
@@ -79,7 +79,6 @@ object WebTestClientFuncs {
             }
             if (badResponse.test(responseCode)) {
                 logger.error("### - $responseCode")
-                logger.error("### - $error")
                 logger.error("### - $errors")
             }
             require(responseCode == OC_OK) { "Invalid response code ($responseCode)" }

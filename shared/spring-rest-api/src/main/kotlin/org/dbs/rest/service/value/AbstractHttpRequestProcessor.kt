@@ -97,7 +97,6 @@ abstract class AbstractHttpRequestProcessor<S : ServerRequest> : AbstractApplica
     fun <V : HttpResponseBody<E>, E : Dto> createAccessDeniedError(classV: KClass<V>, errMsg: String): Mono<V> =
         classV.java.getConstructor().newInstance().apply {
             responseCode = OC_ACCESS_DENIED_ERROR
-            error = errMsg
             message = errMsg
             logger.error(toString())
         }.let { just(it) }
@@ -136,9 +135,6 @@ abstract class AbstractHttpRequestProcessor<S : ServerRequest> : AbstractApplica
                 message = OC_CONNECTION_ERROR.getValue()
             } ?: run {
             responseCode = restOperCodeEnum
-            error = returnErrors2Response.takeIf { it }
-                ?.let { "${throwable::class.java.canonicalName}: ${throwable.message}" }
-                ?: OC_UNKNOWN_ERROR.getValue()
             message = returnErrors2Response.takeIf { it }
                 ?.let { suppressedMsg }
                 ?: OC_UNKNOWN_ERROR.getValue()
