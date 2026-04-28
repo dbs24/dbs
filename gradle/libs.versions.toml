@@ -9,9 +9,9 @@ springKafka = "3.3.14"
 springdoc = "2.8.16"
 
 # Data / Persistence
-redisClients = "7.4.1"
+redisClients = "7.5.0"
 postgres = "42.7.10"
-flyway = "12.4.0"
+flyway = "12.5.0"
 r2dbcPool = "1.0.2.RELEASE"
 r2dbcPostgres = "1.1.1.RELEASE"
 queryDsl = "5.1.0"
@@ -108,7 +108,7 @@ cryptoChecksum = "1.4.0"
 javaGradlePlugin = "1.6.9"
 gradleTestRetryPlugin = "1.6.4"
 diffPlugSpotless = "8.4.0"
-checkstylePlugin="13.4.0"
+checkstylePlugin="13.4.1"
 jacocoPlugin="0.8.14"
 
 [libraries]

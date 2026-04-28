@@ -4,7 +4,7 @@ TASK_START=$(date +%s.%N)
 
 REGEX_TEMPLATE_IGNORE_VERSIONS="((rc-|-rc|rc.|alpha|beta)[0-9]\])|((-rc)\])"
 REGEX_TEMPLATE_SKIP_LIBRARIES="(javax.servlet-api|javax.ws.rs-api|spring-boot-devtools|commons-lang3)"
-REGEX_TEMPLATE_IGNORE_DEFECTIVE_UPDATES="((3.5.13 -> 4.1.0-M4)|(1.5.0 -> 6f774052d1d6923f8af2e0023886d69949b695ee)|(2.8.16 -> 3.0.3)|(3.5.10 -> 4.1.0-M2)|(1.21.4 -> 2.0.4)|(3.3.14 -> 4.1.0-M2)|(3.5.5 -> 4.1.0-M1))"
+REGEX_TEMPLATE_IGNORE_DEFECTIVE_UPDATES="((3.5.13 -> 4.1.0-M4)|(1.5.0 -> 6f774052d1d6923f8af2e0023886d69949b695ee)|(2.8.16 -> 3.0.3)|(3.5.10 -> 4.1.0-M2)|(1.21.4 -> 2.0.4)|(3.3.14 -> 4.1.0-M2)|(3.5.5 -> 4.1.0-M1))|(1.21.4 -> 2.0.5)"
 LINE="#######################################################"
 S1="\x1B[32m"
 S2="\x1B[0m"
