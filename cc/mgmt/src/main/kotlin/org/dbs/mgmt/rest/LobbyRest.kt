@@ -1,6 +1,5 @@
 package org.dbs.mgmt.rest
 
-import org.dbs.mgmt.service.LobbyService
 import org.dbs.mgmt.value.lobby.CreateOrUpdateLobbyValueRequest
 import org.dbs.mgmt.value.lobby.UpdateLobbyStatusValueRequest
 import org.dbs.rest.api.consts.H1_PROCESSOR

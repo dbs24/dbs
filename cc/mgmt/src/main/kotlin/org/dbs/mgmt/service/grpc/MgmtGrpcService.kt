@@ -3,8 +3,10 @@ package org.dbs.mgmt.service.grpc
 import net.devh.boot.grpc.server.service.GrpcService
 import org.dbs.mgmt.client.*
 import org.dbs.mgmt.service.ApplicationServiceGate
+import org.dbs.mgmt.service.grpc.GrpcCreateOrUpdateLobby.createOrUpdateLobbyInternal
 import org.dbs.mgmt.service.grpc.GrpcCreateOrUpdatePlayer.createOrUpdatePlayerInternal
 import org.dbs.mgmt.service.grpc.GrpcGetPlayerCredentials.getPlayerCredentialsInternal
+import org.dbs.mgmt.service.grpc.GrpcUpdateLobbyStatus.updateLobbyStatusInternal
 import org.dbs.mgmt.service.grpc.GrpcUpdatePlayerPassword.updatePlayerPasswordInternal
 import org.dbs.mgmt.service.grpc.GrpcUpdatePlayerStatus.updatePlayerStatusInternal
 import org.dbs.service.AbstractGrpcServerService
@@ -15,7 +17,7 @@ import org.springframework.stereotype.Service
 class MgmtGrpcService : AbstractGrpcServerService(), PublicApplicationBean, ApplicationServiceGate {
 
     @GrpcService
-    inner class AnalystService : PlayerServiceGrpcKt.PlayerServiceCoroutineImplBase(),
+    inner class PlayerService : PlayerServiceGrpcKt.PlayerServiceCoroutineImplBase(),
         PublicApplicationBean {
         override suspend fun getPlayerCredentials(request: PlayerCredentialsRequest) =
             getPlayerCredentialsInternal(request)
@@ -28,6 +30,15 @@ class MgmtGrpcService : AbstractGrpcServerService(), PublicApplicationBean, Appl
 
         override suspend fun updatePlayerPassword(request: UpdatePlayerPasswordRequest) =
             updatePlayerPasswordInternal(request)
+    }
 
+    @GrpcService
+    inner class LobbyService : LobbyServiceGrpcKt.LobbyServiceCoroutineImplBase(),
+        PublicApplicationBean {
+        override suspend fun createOrUpdateLobby(request: CreateOrUpdateLobbyRequest) =
+            createOrUpdateLobbyInternal(request)
+
+        override suspend fun updateLobbyStatus(request: UpdateLobbyStatusRequest) =
+            updateLobbyStatusInternal(request)
     }
 }

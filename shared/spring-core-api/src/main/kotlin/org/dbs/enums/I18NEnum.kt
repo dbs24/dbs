@@ -225,6 +225,10 @@ enum class I18NEnum(
     FLD_INVALID_PLAYER_STATUS("Invalid player status: ({0})"),
     EXIST_PLAYER_LOGIN("Player login already exists"),
     EXIST_PLAYER_EMAIL("Player email already exists"),
+    // LOBBY
+    FLD_UNKNOWN_LOBBY_CODE("Lobby not found, lobby code ({0})"),
+    EXIST_LOBBY_CODE("Lobby code already exists"),
+    FLD_INVALID_LOBBY_STATUS("Invalid lobby status: ({0})"),
     // INVITE
     FLD_UNKNOWN_INVITE_CODE("Invite not found ({0})"),
 

@@ -9,6 +9,7 @@ interface ApplicationServiceGate {
     companion object ServicesList {
         val restFulService by lazy { findService(RestFulService::class) }
         val playerService by lazy { findService(PlayerService::class) }
+        val lobbyService by lazy { findService(LobbyService::class) }
         val mgmtGrpcService by lazy { findService(MgmtGrpcService::class) }
         val r2dbcPersistenceService by lazy { findService(R2dbcPersistenceService::class) }
     }

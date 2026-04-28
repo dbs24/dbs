@@ -499,6 +499,12 @@ enum class Field(private val value: String, private val code: Int) : RefEnum {
     SSS_PLAYER_PHONE("sss.player.phone", 2600110),
     SSS_PLAYER_OLD_LOGIN("sss.player.login.old", 2600111),
     SSS_FEN("sss.fen.value", 2600112),
+    // Lobby
+    //==================================================================================================================
+    SSS_LOBBY("sss.lobby", 2700100),
+    SSS_LOBBY_CODE("sss.lobby.code", 2700101),
+    SSS_LOBBY_STATUS("sss.lobby.status", 2700102),
+    SSS_LOBBY_OLD_CODE("sss.lobby.code.old", 2700103),
     SSS_FEN_DEPTH("sss.fen.depth", 2600113),
     SSS_FEN_TIMEOUT("sss.fen.timeout", 2600114),
 

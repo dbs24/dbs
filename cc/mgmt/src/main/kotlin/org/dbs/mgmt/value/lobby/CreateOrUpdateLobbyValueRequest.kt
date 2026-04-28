@@ -3,18 +3,18 @@ package org.dbs.mgmt.value.lobby
 import org.dbs.grpc.api.H1h2
 import org.dbs.mgmt.service.ApplicationServiceGate.ServicesList.mgmtGrpcService
 import org.dbs.mgmt.service.ApplicationServiceGate.ServicesList.restFulService
-import org.dbs.mgmt.service.grpc.GrpcCreateOrUpdatePlayer.createOrUpdatePlayerInternal
+import org.dbs.mgmt.service.grpc.GrpcCreateOrUpdateLobby.createOrUpdateLobbyInternal
 import org.dbs.rest.api.consts.H1_PROCESSOR
 import org.dbs.rest.service.ServerRequestFuncs.id
 import org.dbs.rest.service.ServerRequestFuncs.ip
 import org.dbs.rest.service.value.GenericRequest
 import org.dbs.rest.service.value.HttpReactivePostRequest
 import org.springframework.web.reactive.function.server.ServerRequest
-import org.dbs.mgmt.service.grpc.h1.convert.CreateOrUpdatePlayerConverter as H1_CONV
-import org.dbs.player.dto.player.CreateOrUpdatePlayerDto as DTO
-import org.dbs.player.dto.player.CreateOrUpdatePlayerRequest as H1_REQ
-import org.dbs.player.dto.player.CreatePlayerResponse as H1_RES
-import org.dbs.player.dto.player.CreatedPlayerDto as OUT_DTO
+import org.dbs.lobby.dto.CreateOrUpdateLobbyDto as DTO
+import org.dbs.lobby.dto.CreateOrUpdateLobbyRequest as H1_REQ
+import org.dbs.lobby.dto.CreateLobbyResponse as H1_RES
+import org.dbs.lobby.dto.CreatedLobbyDto as OUT_DTO
+import org.dbs.mgmt.service.grpc.h1.convert.CreateOrUpdateLobbyConverter as H1_CONV
 
 @JvmInline
 value class CreateOrUpdateLobbyValueRequest<R : ServerRequest>(private val serverRequest: R) :
@@ -22,7 +22,7 @@ value class CreateOrUpdateLobbyValueRequest<R : ServerRequest>(private val serve
 
     override suspend fun buildResponse(processor: H1_PROCESSOR<R>) =
         processor.createResponse(
-        serverRequest,
+            serverRequest,
             H1_REQ::class,
             H1_RES::class
         ) {
@@ -30,7 +30,7 @@ value class CreateOrUpdateLobbyValueRequest<R : ServerRequest>(private val serve
                 restFulService.buildMonoResponse(this, H1_REQ::class)
                 {
                     H1h2.applyH1Converter(H1_CONV::class, it, id())
-                    { with(mgmtGrpcService) { createOrUpdatePlayerInternal(it, ip()) } }
+                    { with(mgmtGrpcService) { createOrUpdateLobbyInternal(it, ip()) } }
                 }
             }
         }
