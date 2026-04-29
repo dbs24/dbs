@@ -10,7 +10,7 @@ server:
   ssl:
     enabled: true
     key-store: classpath:k11dev.tech.jks
-    key-store-password: 123123
+    key-store-password: ${SSL_KEY_STORE_PASSWORD}
     key-store-type: jks
 grpc:
   server:
@@ -31,11 +31,11 @@ spring:
   security:
     user:
       name: user
-      password: 123123
+      password: ${SPRING_SECURITY_USER_PASSWORD}
   r2dbc:
-    username: dev_auth_admin
-    password: 61ab33da324c4f23900c137d8
-    url: r2dbc:postgresql://k11keenetic.ddns.net:5431/dev_auth_db
+    username: ${R2DBC_USERNAME}
+    password: ${R2DBC_PASSWORD}
+    url: ${R2DBC_URL}
     pool:
       enabled: true
       initial-size: 2
@@ -50,7 +50,7 @@ spring:
       host: 127.0.0.1
       port: 6379
       timeout: 2000
-      password: eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+      password: ${REDIS_PASSWORD}
   application:
     name: cm-auth-server
   jackson:
@@ -60,7 +60,7 @@ spring:
     max-in-memory-size: 20MB
   kafka:
     enabled: true
-    bootstrap-servers: kafka-1.k11keenetic.ddns.net:9092,kafka-2.k11keenetic.ddns.net:9093
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
     listener:
       type: batch
     producer:
@@ -151,7 +151,7 @@ config:
       token:
         enabled: true
       name: standard
-      secret-key: ThisIsSecretForJWTHS512ThisIsSecretForJWTHS512
+      secret-key: ${JWT_SECRET_KEY}
       delete-deprecated:
         enabled: true
         expiryDays: 60 # days
@@ -162,14 +162,14 @@ config:
       cc-mgmt:
         enabled: true
         jwt:
-          secret-key: ThisIsSecretForJWTHS512ThisIsSecretForJWTHS512
+          secret-key: ${JWT_SECRET_KEY}
           expiration-time: 500
         refresh-jwt:
           expiration-time: 3600
       industrial:
         enabled: true
         jwt:
-          secret-key: ThisIsSecretForJWTHS512ThisIsSecretForJWTHS512
+          secret-key: ${JWT_SECRET_KEY}
           expiration-time: 500
         refresh-jwt:
           expiration-time: 3600

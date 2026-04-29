@@ -67,8 +67,8 @@ object GrpcCreateOrUpdatePlayer {
                         validateMandatoryField(login, LOGIN_PATTERN, SSS_PLAYER_LOGIN)
                         validateOptionalField(oldLogin, LOGIN_PATTERN, SSS_PLAYER_LOGIN)
                         validateOptionalField(firstName, USER_FIRST_NAME_PATTERN, SSS_PLAYER_FIRST_NAME)
-                        validateOptionalField(middleName, USER_LAST_NAME_PATTERN, SSS_PLAYER_LAST_NAME)
-                        validateOptionalField(lastName, USER_LAST_NAME_PATTERN, SSS_PLAYER_MIDDLE_NAME)
+                        validateOptionalField(middleName, USER_LAST_NAME_PATTERN, SSS_PLAYER_MIDDLE_NAME)
+                        validateOptionalField(lastName, USER_LAST_NAME_PATTERN, SSS_PLAYER_LAST_NAME)
                         validateOptionalEmail(email, SSS_PLAYER_EMAIL)
                         // is update player
                         oldPlayerLogin?.let {
@@ -124,7 +124,7 @@ object GrpcCreateOrUpdatePlayer {
                         val checkNewLogin = oldPlayerLogin?.let { it != login } != false
                         val checkNewEmail = oldPlayerLogin.isNull() || oldEmail?.let { it != email } ?: true
                         if (checkNewLogin) validateNewLogin(login)
-                        if (checkNewEmail) validateNewEmail(email)
+                        if (checkNewEmail && email.isNotBlank()) validateNewEmail(email)
                     }
 
                 //------------------------------------------------------------------------------------------------------

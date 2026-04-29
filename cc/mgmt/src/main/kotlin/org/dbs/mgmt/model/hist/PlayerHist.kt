@@ -1,9 +1,9 @@
 package org.dbs.mgmt.model.hist
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo
 import org.dbs.consts.AnyCode
 import org.dbs.consts.BirthDate
 import org.dbs.consts.CountryIsoCode
+import org.dbs.consts.Email
 import org.dbs.consts.EntityId
 import org.dbs.consts.OperDate
 import org.dbs.consts.OperDateNull
@@ -17,7 +17,6 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @Table("cc_players_hist")
 data class PlayerHist(
     @Id
@@ -31,7 +30,7 @@ data class PlayerHist(
     val login: PlayerLogin,
 
     @Column("email")
-    val email: String?,
+    val email: Email?,
 
     @Column("phone")
     val phone: String?,

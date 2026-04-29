@@ -6,6 +6,7 @@ import org.dbs.mgmt.model.hist.PlayerHist
 import org.dbs.mgmt.model.player.Player
 import org.dbs.player.PlayerCore.EntityStatus.ES_PLAYER_ACTUAL
 import org.dbs.player.PlayerCore.EntityStatus.ES_PLAYER_ANONYMOUS
+import org.dbs.player.PlayerLogin
 import org.dbs.spring.core.api.AbstractApplicationService
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -37,8 +38,8 @@ class PlayerFactory(
         closeDate = null,
     )
 
-    fun createNewPlayer(): ENTITY = ENTITY(
-        login = "",
+    fun createNewPlayer(login: PlayerLogin): ENTITY = ENTITY(
+        login = login,
         firstName = null,
         middleName = null,
         lastName = null,

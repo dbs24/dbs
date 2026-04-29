@@ -1,6 +1,7 @@
 package org.dbs.mgmt.service.grpc
 
 import org.dbs.application.core.api.LateInitVal
+import org.dbs.application.core.service.funcs.Patterns.LOGIN_PATTERN
 import org.dbs.consts.GrpcConsts.ContextKeys.CK_REMOTE_ADDRESS
 import org.dbs.consts.IpAddress
 import org.dbs.entity.core.EntityStatusEnum
@@ -17,6 +18,7 @@ import org.dbs.service.I18NService.Companion.findI18nMessage
 import org.dbs.service.validator.GrpcValidators.addErrorInfo
 import org.dbs.service.validator.GrpcValidators.findEntityStatus
 import org.dbs.service.validator.GrpcValidators.validateEntityUpdateStatus
+import org.dbs.service.validator.GrpcValidators.validateMandatoryField
 import org.dbs.validator.Error.INVALID_ENTITY_ATTR
 import org.dbs.validator.Field.SSS_LOBBY_CODE
 import org.dbs.validator.Field.SSS_LOBBY_STATUS
@@ -46,6 +48,7 @@ object GrpcUpdateLobbyStatus {
 
                 override fun isValidDto() = request.run {
                     with(rab) {
+                        validateMandatoryField(modifiedCode, LOGIN_PATTERN, SSS_LOBBY_CODE)
                         noErrors()
                     }
                 }

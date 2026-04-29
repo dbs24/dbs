@@ -1,7 +1,6 @@
 package org.dbs.mgmt.model.player
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonTypeInfo
 import org.dbs.consts.AnyCode
 import org.dbs.consts.BirthDate
 import org.dbs.consts.CountryIsoCode
@@ -21,7 +20,6 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @Table("cc_players")
 data class Player(
     @Id

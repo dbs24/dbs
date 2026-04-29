@@ -6,7 +6,7 @@ server:
   ssl:
     enabled: true
     key-store: classpath:k11dev.tech.jks
-    key-store-password: 123123
+    key-store-password: ${SSL_KEY_STORE_PASSWORD}
     key-store-type: jks
   servlet:
     context-path: /
@@ -26,7 +26,7 @@ spring:
     proxy-target-class: true
   flyway:
     enabled: true
-    url: jdbc:postgresql://k11keenetic.ddns.net:5431/dev_sandbox_db
+    url: ${FLYWAY_URL}
     user: ${spring.r2dbc.username}
     password: ${spring.r2dbc.password}
     baseline-on-migrate: true
@@ -43,11 +43,11 @@ spring:
   security:
     user:
       name: user
-      password: 123123
+      password: ${SPRING_SECURITY_USER_PASSWORD}
   r2dbc:
-    username: dev_sandbox_admin
-    password: b81ad53345de4a1a8583168f1
-    url: r2dbc:postgresql://k11keenetic.ddns.net:5431/dev_sandbox_db
+    username: ${R2DBC_USERNAME}
+    password: ${R2DBC_PASSWORD}
+    url: ${R2DBC_URL}
     pool:
       enabled: true
       initial-size: 2
@@ -70,7 +70,7 @@ spring:
       host: 127.0.0.1
       port: 6379
       timeout: 2000
-      password: eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+      password: ${REDIS_PASSWORD}
   cache:
     redis:
       time-to-live: 86400
@@ -83,7 +83,7 @@ spring:
   codec:
     max-in-memory-size: 20MB
   kafka:
-    bootstrap-servers: 127.0.0.1:9092,127.0.0.1:9093
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
     listener:
       type: batch
     producer:
@@ -164,7 +164,7 @@ config:
             v3:
               site: 6LdIcqcpAAAAAFGLJd5OIVIgUb-ujHrWud8Mphyo
               #secret: 6Lc1AowpAAAAAJLdoT_YdWHN2kAeTK9LTWvX6hoO
-              secret: 6LemAowpAAAAANJUhJpr5pzufc_vZCNywewt63DJ
+              secret: ${RECAPTCHA_SECRET}
               routes:
                 siteverify: /recaptcha/api/siteverify
   entity:
@@ -189,7 +189,7 @@ config:
       advanced-white-uri-list: /info,/health
     jwt:
       name: standard
-      secret-key: ThisIsSecretForJWTHS512ThisIsSecretForJWTHS512
+      secret-key: ${JWT_SECRET_KEY}
     bucket4j:
       enabled: false
       trusted-ips: localhost

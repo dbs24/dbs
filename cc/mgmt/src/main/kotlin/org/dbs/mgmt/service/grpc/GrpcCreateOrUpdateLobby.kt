@@ -1,9 +1,9 @@
 package org.dbs.mgmt.service.grpc
 
-import kotlinx.coroutines.reactor.awaitSingle
 import org.dbs.api.CommonJobs.JK_SAVE
 import org.dbs.api.JobKey
 import org.dbs.application.core.api.LateInitVal
+import org.dbs.application.core.service.funcs.Patterns.LOGIN_PATTERN
 import org.dbs.consts.EntityCode
 import org.dbs.consts.GrpcConsts.ContextKeys.CK_REMOTE_ADDRESS
 import org.dbs.consts.IpAddress
@@ -23,6 +23,8 @@ import org.dbs.mgmt.service.grpc.GrpcCreateOrUpdateLobby.JobKeyImp.JK_FIND_OR_CR
 import org.dbs.protobuf.core.ResponseCode.RC_INVALID_REQUEST_DATA
 import org.dbs.service.I18NService.Companion.findI18nMessage
 import org.dbs.service.validator.GrpcValidators.addErrorInfo
+import org.dbs.service.validator.GrpcValidators.validateMandatoryField
+import org.dbs.service.validator.GrpcValidators.validateOptionalField
 import org.dbs.validator.Error.INVALID_ENTITY_ATTR
 import org.dbs.validator.Field.SSS_LOBBY_CODE
 import org.dbs.validator.Field.SSS_LOBBY_OLD_CODE
@@ -58,6 +60,8 @@ object GrpcCreateOrUpdateLobby {
                 //======================================================================================================
                 override fun isValidDto() = request.run {
                     with(rab) {
+                        validateMandatoryField(lobbyCode, LOGIN_PATTERN, SSS_LOBBY_CODE)
+                        validateOptionalField(oldLobbyCode, LOGIN_PATTERN, SSS_LOBBY_OLD_CODE)
                         noErrors()
                     }
                 }
@@ -102,13 +106,12 @@ object GrpcCreateOrUpdateLobby {
                                 findI18nMessage(FLD_UNKNOWN_LOBBY_CODE, it)
                             )
                         } ?: lobbyService.createNewLobby(request.lobbyCode)
-                            .awaitSingle()
                             .also { lobby.init(it) }
                 }
 
                 //------------------------------------------------------------------------------------------------------
                 suspend fun saveEntity() = launchJob(JK_SAVE, JK_FIND_OR_CREATE_LOBBY) {
-                    lobbyService.saveHistory(lobby.value).awaitSingle()
+                    lobbyService.saveHistory(lobby.value)
                     saveLobby(updateFromDto(lobby.value))
                 }
 

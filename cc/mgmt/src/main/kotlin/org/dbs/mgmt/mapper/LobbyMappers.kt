@@ -11,6 +11,8 @@ object LobbyMappers {
     fun LobbyService.updateLobby(src: Lobby, srcDto: CreateOrUpdateLobbyRequest): Lobby =
         src.copy(
             lobbyCode = srcDto.lobbyCode.grpcGetOrNull() ?: srcDto.oldLobbyCode,
+            lobbyName = srcDto.lobbyName.grpcGetOrNull() ?: src.lobbyName,
+            lobbyKind = srcDto.lobbyKind.grpcGetOrNull()?.toIntOrNull() ?: src.lobbyKind,
             modifyDate = now(),
         )
 }

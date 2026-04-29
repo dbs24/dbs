@@ -4,7 +4,7 @@ import api.TestConst.PLAYER_TEST_AMOUNT
 import api.TestConst.REPEATED_KOTEST_AMOUNT
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.reactor.awaitSingle
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.reactor.mono
 import org.apache.logging.log4j.kotlin.logger
 import org.dbs.application.core.service.funcs.ServiceFuncs.createCollection
 import org.dbs.application.core.service.funcs.TestFuncs.generateTestPassword811
@@ -49,16 +49,16 @@ class PlayerTests: AbstractChessTest({
             Then(createPlayerCaption) {
                 players
                     .flatMapMany { fromIterable(it) }
-                    .flatMap {
-                        runBlocking {
-                            logger().debug { "try 2 create player: ${it.login}" }
+                    .flatMap { player ->
+                        mono {
+                            logger().debug { "try 2 create player: ${player.login}" }
                             createOrUpdateTestPlayer(
-                                it.login,
-                                it.email!!,
-                                it.login,
-                                it.email
+                                player.login,
+                                player.email!!,
+                                player.login,
+                                player.email
                             )
-                        }
+                        }.flatMap { it }
                     }.count().awaitSingle()
             }
 
@@ -89,14 +89,14 @@ class PlayerTests: AbstractChessTest({
             Then(updatePlayerStatus) {
                 players
                     .flatMapMany { fromIterable(it) }
-                    .flatMap {
-                        runBlocking {
-                            logger().debug { "try 2 update player status: ${it.login}" }
+                    .flatMap { player ->
+                        mono {
+                            logger().debug { "try 2 update player status: ${player.login}" }
                             updatePlayerStatus(
-                                it.login,
+                                player.login,
                                 selectFrom(playerStatusesNames)
                             )
-                        }
+                        }.flatMap { it }
                     }.count().awaitSingle()
             }
         }
@@ -107,15 +107,14 @@ class PlayerTests: AbstractChessTest({
             Then(updatePlayerPassword) {
                 players
                     .flatMapMany { fromIterable(it) }
-                    .flatMap {
-
-                        runBlocking {
-                            logger().debug { "try 2 update player password: ${it.login}" }
+                    .flatMap { player ->
+                        mono {
+                            logger().debug { "try 2 update player password: ${player.login}" }
                             updatePlayerPassword(
-                                it.login,
+                                player.login,
                                 generateTestPassword811(),
                             )
-                        }
+                        }.flatMap { it }
                     }.count().awaitSingle()
             }
         }

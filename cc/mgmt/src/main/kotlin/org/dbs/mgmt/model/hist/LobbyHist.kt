@@ -1,6 +1,5 @@
 package org.dbs.mgmt.model.hist
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo
 import org.dbs.consts.EntityId
 import org.dbs.consts.OperDate
 import org.dbs.consts.OperDateNull
@@ -15,7 +14,6 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @Table("cc_lobbies_hist")
 data class LobbyHist(
     @Id

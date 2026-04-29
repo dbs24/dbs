@@ -4,7 +4,7 @@ server:
   ssl:
     enabled: true
     key-store: classpath:k11dev.tech.jks
-    key-store-password: 123123
+    key-store-password: ${SSL_KEY_STORE_PASSWORD}
     key-store-type: jks
   servlet:
     context-path: /
@@ -24,7 +24,7 @@ spring:
   security:
     user:
       name: user
-      password: 123123
+      password: ${SPRING_SECURITY_USER_PASSWORD}
     repositories:
       enabled: true
   application:
@@ -46,7 +46,7 @@ spring:
     host: mail.k11dev.tech
     port: 465
     username: dev-notif-store@k11dev.tech
-    password: 123Minsk-Notif-dev
+    password: ${MAIL_PASSWORD}
     from: dev-notif-store@k11dev.tech
     retry-attempt-limit: 3
     process-batch-limit: 10
@@ -54,7 +54,7 @@ spring:
   thymeleaf:
     check-template-location: false
   kafka:
-    bootstrap-servers: 127.0.0.1:9092,127.0.0.1:9093
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
     listener:
       type: batch
     producer:

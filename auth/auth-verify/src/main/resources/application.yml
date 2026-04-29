@@ -10,7 +10,7 @@ server:
   ssl:
     enabled: true
     key-store: classpath:k11dev.tech.jks
-    key-store-password: 123123
+    key-store-password: ${SSL_KEY_STORE_PASSWORD}
     key-store-type: jks
 grpc:
   server:
@@ -31,7 +31,7 @@ spring:
   security:
     user:
       name: user
-      password: 123123
+      password: ${SPRING_SECURITY_USER_PASSWORD}
   data:
     redis:
       repositories:
@@ -39,7 +39,7 @@ spring:
       host: 127.0.0.1
       port: 6379
       timeout: 2000
-      password: eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+      password: ${REDIS_PASSWORD}
   application:
     name: cm-verify-server
   jackson:
@@ -49,7 +49,7 @@ spring:
     max-in-memory-size: 20MB
   kafka:
     enabled: true
-    bootstrap-servers: kafka-1.k11dev.tech:9092,kafka-2.k11dev.tech:9093
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
     listener:
       type: batch
     producer:
@@ -131,7 +131,7 @@ config:
       token:
         enabled: true
       name: standard
-      secret-key: ThisIsSecretForJWTHS512ThisIsSecretForJWTHS512
+      secret-key: ${JWT_SECRET_KEY}
       delete-deprecated:
         enabled: true
         expiryDays: 60 # days
@@ -145,7 +145,7 @@ config:
       cc-mgmt:
         enabled: true
         jwt:
-          secret-key: ThisIsSecretForJWTHS512ThisIsSecretForJWTHS512
+          secret-key: ${JWT_SECRET_KEY}
           expiration-time: 500
         refresh-jwt:
           expiration-time: 3600

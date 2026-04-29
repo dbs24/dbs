@@ -21,7 +21,7 @@ object PlayerMappers {
             firstName = dto.firstName.grpcGetOrNull(),
             birthDate = dto.birthDate.toLocalDate(),
             phone = dto.phone.grpcGetOrNull(),
-            password = dto.password.grpcGetOrNull()?.let { passwordEncoder.encode(it) },
+            password = dto.password.grpcGetOrNull()?.let { passwordEncoder.encode(it) } ?: src.password,
             country = dto.country.grpcGetOrNull(),
             gender = dto.gender.grpcGetOrNull(),
             avatar = dto.avatar.grpcGetOrNull(),

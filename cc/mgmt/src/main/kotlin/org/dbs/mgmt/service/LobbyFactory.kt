@@ -1,6 +1,5 @@
 package org.dbs.mgmt.service
 
-import org.dbs.consts.SysConst.EMPTY_STRING
 import org.dbs.lobby.LobbyCore.EntityStatus.ES_LOBBY_ACTUAL
 import org.dbs.mgmt.model.hist.LobbyHist
 import org.dbs.mgmt.model.lobby.Lobby
@@ -12,9 +11,9 @@ object LobbyFactory {
     fun LobbyService.createNewLobby(): ENTITY = ENTITY(
         lobbyId = null,
         ownerId = 0,
-        lobbyCode = EMPTY_STRING,
+        lobbyCode = "",
         lobbyKind = 0,
-        lobbyName = EMPTY_STRING,
+        lobbyName = "",
         entityStatus = ES_LOBBY_ACTUAL,
         createDate = now(),
         modifyDate = now(),

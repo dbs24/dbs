@@ -14,7 +14,6 @@ import org.dbs.service.v2.R2dbcPersistenceService
 import org.dbs.spring.core.api.AbstractApplicationService
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
-import reactor.kotlin.core.publisher.toMono
 import java.time.LocalDateTime.now
 import org.dbs.mgmt.dao.LobbyDao as DAO
 import org.dbs.mgmt.model.lobby.Lobby as ENTITY
@@ -26,16 +25,13 @@ class LobbyService(
     val eventPublisher: ApplicationEventPublisher,
 ) : AbstractApplicationService() {
 
-    fun saveHistory(entity: ENTITY): reactor.core.publisher.Mono<ENTITY> =
-        entity.run {
-            if (entity.lobbyId != null)
-                r2dbcPersistenceService.saveEntityHist(createHist(entity))
-                    .map {
-                        lobbyDao.invalidateCaches(entity.lobbyCode)
-                        this
-                    }
-            else toMono()
-        }
+    suspend fun saveHistory(entity: ENTITY): ENTITY = entity.run {
+        if (entity.lobbyId != null) {
+            r2dbcPersistenceService.saveEntityHist(createHist(entity)).awaitSingle()
+            lobbyDao.invalidateCaches(entity.lobbyCode)
+            entity
+        } else this
+    }
 
     suspend fun saveLobby(
         lobby: ENTITY,
@@ -53,9 +49,9 @@ class LobbyService(
             )
         }
 
-    suspend fun createNewLobby(lobbyLogin: LobbyCode): reactor.core.publisher.Mono<ENTITY> {
+    suspend fun createNewLobby(lobbyLogin: LobbyCode): ENTITY {
         logger.debug { "create new lobby: $lobbyLogin" }
-        return createNewLobby().toMono()
+        return createNewLobby().copy(lobbyCode = lobbyLogin)
     }
 
     suspend fun findLobbyByLogin(lobbyLogin: LobbyCode): ENTITY? =

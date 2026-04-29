@@ -2,7 +2,7 @@ package org.dbs.mgmt.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.reactor.awaitSingle
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.reactor.mono
 import org.apache.logging.log4j.kotlin.logger
 import org.dbs.consts.Email
 import org.dbs.consts.IpAddress
@@ -11,7 +11,6 @@ import org.dbs.consts.SysConst.UsersConsts.ROOT_USER
 import org.dbs.consts.SysConst.UsersConsts.ROOT_USER_PASS
 import org.dbs.entity.core.EntityActionEnum
 import org.dbs.entity.core.EntityStatusEnum
-import org.dbs.ext.FluxFuncs.subscribeMono
 import org.dbs.mgmt.service.ApplicationServiceGate.ServicesList.r2dbcPersistenceService
 import org.dbs.player.PlayerCore.PlayerActionEnum.EA_CREATE_OR_UPDATE_PLAYER
 import org.dbs.player.PlayerCore.isClosedPlayer
@@ -20,12 +19,15 @@ import org.dbs.player.PlayerPassword
 import org.dbs.sandbox.service.GrpcSandBoxClientService
 import org.dbs.service.Extensions.registryEvent
 import org.dbs.spring.core.api.AbstractApplicationService
+import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.annotation.DependsOn
 import org.springframework.context.annotation.Lazy
+import org.springframework.context.event.EventListener
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
+import reactor.core.scheduler.Schedulers
 import reactor.kotlin.core.publisher.switchIfEmpty
 import reactor.kotlin.core.publisher.toMono
 import java.time.LocalDateTime.now
@@ -45,14 +47,21 @@ class PlayerService(
 ) : AbstractApplicationService() {
 
     override fun initialize() = super.initialize().also {
-        runBlocking {
-            getOrCreateDefaultRootPlayer().subscribeMono()
-        }
-
         if (!env.junitMode)
             grpcSandBoxClientService.subscribe2Invites { item ->
                 logger.debug { "receive answer: $item" }
             }
+    }
+
+    @EventListener(ApplicationReadyEvent::class)
+    fun onApplicationReady() {
+        mono { getOrCreateDefaultRootPlayer() }
+            .flatMap { it }
+            .subscribeOn(Schedulers.boundedElastic())
+            .subscribe(
+                { logger.debug { "root player ready: ${it.login}" } },
+                { logger.error("failed to seed root player", it) }
+            )
     }
 
     suspend fun getOrCreateDefaultRootPlayer(): Mono<ENTITY> =
@@ -65,7 +74,7 @@ class PlayerService(
                     toMono()
                 }
             }
-            .switchIfEmpty { createRootPlayer }
+            .switchIfEmpty { buildRootPlayerMono() }
 
     suspend fun saveHistory(entity: ENTITY): ENTITY = entity.run {
         if (entity.playerId != null)
@@ -93,7 +102,7 @@ class PlayerService(
             )
         }
 
-    private val createRootPlayer: Mono<ENTITY> = runBlocking {
+    private fun buildRootPlayerMono(): Mono<ENTITY> =
         playerFactory.createRootPlayer().toMono()
             .flatMap { r2dbcPersistenceService.saveEntity(it) }
             .doOnSuccess { player ->
@@ -105,10 +114,9 @@ class PlayerService(
                     "Root player created",
                 )
             }
-    }
 
     suspend fun createNewPlayer(playerLogin: PlayerLogin): ENTITY =
-        playerFactory.createNewPlayer().also {
+        playerFactory.createNewPlayer(playerLogin).also {
             logger.debug { "create new player login: $playerLogin" }
         }
 

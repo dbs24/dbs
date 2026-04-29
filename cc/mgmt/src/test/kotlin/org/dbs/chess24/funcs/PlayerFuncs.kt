@@ -114,7 +114,7 @@ object PlayerFuncs : Logging {
                                 firstName.shouldBeEqual(this.firstName!!)
                                 lastName.shouldBeEqual(this.lastName!!)
                                 middleName.shouldBeEqual(this.middleName!!)
-                                playerService.passwordEncoder.matches(this.password, password)
+                                playerService.passwordEncoder.matches(password, this.password).shouldBeEqual(true)
                                 birthDate.shouldBeEqual(this.birthDate!!.toInt())
                                 country.shouldBeEqual(this.country!!)
                                 gender.shouldBeEqual(this.gender!!)
@@ -196,7 +196,7 @@ object PlayerFuncs : Logging {
                         matchDto2Entity(dto, it) {
                             with(it) {
                                 login.shouldBeEqual(this.login)
-                                playerService.passwordEncoder.matches(newPassword, this.password)
+                                playerService.passwordEncoder.matches(newPassword, this.password).shouldBeEqual(true)
                             }
                         }
                     } ?: error("${dto.login}: unknown player")).toMono()

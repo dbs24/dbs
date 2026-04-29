@@ -9,6 +9,13 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import org.dbs.consts.RestHttpConsts.HTTP_200_STRING
 import org.dbs.consts.RestHttpConsts.RestQueryParams.QP_STRING_TYPE
+import org.dbs.lobby.LobbyConsts.Routes.ROUTE_CREATE_OR_UPDATE_LOBBY
+import org.dbs.lobby.LobbyConsts.Routes.ROUTE_UPDATE_LOBBY_STATUS
+import org.dbs.lobby.LobbyConsts.Routes.Tags.ROUTE_TAG_LOBBY
+import org.dbs.lobby.dto.CreateLobbyResponse
+import org.dbs.lobby.dto.CreateOrUpdateLobbyRequest
+import org.dbs.lobby.dto.UpdateLobbyStatusRequest
+import org.dbs.lobby.dto.UpdateLobbyStatusResponse
 import org.dbs.player.PlayersConsts.CmQueryParams.QP_PLAYER_LOGIN
 import org.dbs.player.PlayersConsts.Routes.ROUTE_CREATE_OR_UPDATE_PLAYER
 import org.dbs.player.PlayersConsts.Routes.ROUTE_GET_PLAYER_CREDENTIALS
@@ -129,49 +136,49 @@ import kotlin.annotation.AnnotationTarget.FUNCTION
     ),
     // Lobbies
     // =================================================================================================================
-//    RouterOperation(
-//        path = ROUTE_CREATE_OR_UPDATE_LOBBY,
-//        method = [POST],
-//        operation = Operation(
-//            description =
-//            """**Create/update new lobby**
-//            """,
-//            tags = [ROUTE_TAG_LOBBY],
-//            operationId = ROUTE_CREATE_OR_UPDATE_LOBBY,
-//            requestBody = RequestBody(
-//                description = """Lobby attributes""",
-//                content = [Content(schema = Schema(implementation = CreateOrUpdateLobbyRequest::class))]
-//            ),
-//            responses = [
-//                ApiResponse(
-//                    responseCode = HTTP_200_STRING,
-//                    description = "Create/update new lobby",
-//                    content = [Content(schema = Schema(implementation = CreateLobbyResponse::class))]
-//                )
-//            ]
-//        )
-//    ),
-//    RouterOperation(
-//        path = ROUTE_UPDATE_LOBBY_STATUS,
-//        method = [POST],
-//        operation = Operation(
-//            description =
-//            """**update lobby status**
-//            """,
-//            tags = [ROUTE_TAG_LOBBY],
-//            operationId = ROUTE_UPDATE_LOBBY_STATUS,
-//            requestBody = RequestBody(
-//                description = """new lobby status""",
-//                content = [Content(schema = Schema(implementation = UpdateLobbyStatusRequest::class))]
-//            ),
-//            responses = [
-//                ApiResponse(
-//                    responseCode = HTTP_200_STRING,
-//                    description = "new lobby status attributes",
-//                    content = [Content(schema = Schema(implementation = UpdateLobbyStatusResponse::class))]
-//                )
-//            ]
-//        )
-//    ),
+    RouterOperation(
+        path = ROUTE_CREATE_OR_UPDATE_LOBBY,
+        method = [POST],
+        operation = Operation(
+            description =
+            """**Create/update new lobby**
+            """,
+            tags = [ROUTE_TAG_LOBBY],
+            operationId = ROUTE_CREATE_OR_UPDATE_LOBBY,
+            requestBody = RequestBody(
+                description = """Lobby attributes""",
+                content = [Content(schema = Schema(implementation = CreateOrUpdateLobbyRequest::class))]
+            ),
+            responses = [
+                ApiResponse(
+                    responseCode = HTTP_200_STRING,
+                    description = "Create/update new lobby",
+                    content = [Content(schema = Schema(implementation = CreateLobbyResponse::class))]
+                )
+            ]
+        )
+    ),
+    RouterOperation(
+        path = ROUTE_UPDATE_LOBBY_STATUS,
+        method = [POST],
+        operation = Operation(
+            description =
+            """**update lobby status**
+            """,
+            tags = [ROUTE_TAG_LOBBY],
+            operationId = ROUTE_UPDATE_LOBBY_STATUS,
+            requestBody = RequestBody(
+                description = """new lobby status""",
+                content = [Content(schema = Schema(implementation = UpdateLobbyStatusRequest::class))]
+            ),
+            responses = [
+                ApiResponse(
+                    responseCode = HTTP_200_STRING,
+                    description = "new lobby status attributes",
+                    content = [Content(schema = Schema(implementation = UpdateLobbyStatusResponse::class))]
+                )
+            ]
+        )
+    ),
 )
 annotation class SwaggerOpenApiRoutesDefinitions

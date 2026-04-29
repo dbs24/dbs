@@ -143,6 +143,6 @@ Certificates from `certs/k11dev.tech/` (JKS, PEM, private keys) are automaticall
 
 Spring profiles: `development`, `test`, `production`. Secrets (JWT keys, DB URLs, broker URLs) are injected via environment variables.
 
-Other requirements and conventions:
+## Other requirements and conventions:
 
- /ai.conventions/database.md
+ /ai/conventions/database.md
