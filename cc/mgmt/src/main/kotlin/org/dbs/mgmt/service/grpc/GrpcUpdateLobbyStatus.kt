@@ -10,7 +10,6 @@ import org.dbs.ext.ResponseCoProcessor
 import org.dbs.ext.ResponseCoProcessorWrapper
 import org.dbs.ext.executeIternal
 import org.dbs.grpc.ext.ResponseAnswerObj.noErrors
-import org.dbs.lobby.LobbyCore.LobbyActions.EA_UPDATE_LOBBY_STATUS
 import org.dbs.mgmt.model.lobby.Lobby
 import org.dbs.mgmt.service.ApplicationServiceGate.ServicesList.lobbyService
 import org.dbs.protobuf.core.ResponseCode.RC_INVALID_REQUEST_DATA
@@ -94,7 +93,7 @@ object GrpcUpdateLobbyStatus {
                 suspend fun saveEntity() = lobbyService.takeIf { lobby.isInitialized() }
                     ?.apply {
                         val updated = setLobbyNewStatus(lobby.value, newStatus4update.value)
-                        saveLobby(updated, EA_UPDATE_LOBBY_STATUS, remoteAddress, request.toString())
+                        saveLobby(updated)
                     }
 
                 //--------------------------------------------------------------------------------------------------------------

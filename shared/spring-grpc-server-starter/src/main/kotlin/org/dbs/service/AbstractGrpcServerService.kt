@@ -131,7 +131,7 @@ abstract class AbstractGrpcServerService : GrpcServerServiceApi, AbstractApplica
         RA.newBuilder().run {
             runCatching {
                 val resp: RESP
-                measureTimeMillis {
+                //measureTimeMillis {
                     resp = run {
                         val responseEntity: R = CK_INTERCEPTOR_EXCEPTION.get()?.run {
                             addErrorInfo(
@@ -168,12 +168,12 @@ abstract class AbstractGrpcServerService : GrpcServerServiceApi, AbstractApplica
                                 }
                             }
                     }
-                }.also {
-                    logger.logRequest(
-                        it,
-                        ymlConfig.maxTimeExec
-                    ) { "${resp.javaClass.simpleName}: ${responseEntity.value}" }
-                }
+//                }.also {
+//                    logger.logRequest(
+//                        it,
+//                        ymlConfig.maxTimeExec
+//                    ) { "${resp.javaClass.simpleName}: ${responseEntity.value}" }
+//                }
                 resp
             }.getOrElse {
 

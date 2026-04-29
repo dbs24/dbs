@@ -16,14 +16,13 @@ import org.dbs.enums.I18NEnum.*
 import org.dbs.ext.ResponseCoProcessor
 import org.dbs.ext.ResponseCoProcessorWrapper
 import org.dbs.ext.executeIternal
-import org.dbs.grpc.consts.RESP
-import org.dbs.grpc.ext.GrpcNull.grpcGetOrNull
-import org.dbs.grpc.ext.ResponseAnswerObj.noErrors
 import org.dbs.goods.mapper.UserMappers.updateUser
 import org.dbs.goods.model.user.User
 import org.dbs.goods.service.ApplicationServiceGate.ServicesList.userService
 import org.dbs.goods.service.grpc.GrpcCreateOrUpdateUser.JobKeyImp.JK_FIND_OR_CREATE_USER
-import org.dbs.goods.UserCore.UserActionEnum.EA_CREATE_OR_UPDATE_USER
+import org.dbs.grpc.consts.RESP
+import org.dbs.grpc.ext.GrpcNull.grpcGetOrNull
+import org.dbs.grpc.ext.ResponseAnswerObj.noErrors
 import org.dbs.protobuf.core.ResponseCode.RC_INVALID_REQUEST_DATA
 import org.dbs.service.I18NService.Companion.findI18nMessage
 import org.dbs.service.validator.GrpcValidators.addErrorInfo
@@ -116,7 +115,7 @@ object GrpcCreateOrUpdateUser {
 
                 //------------------------------------------------------------------------------------------------------
                 private suspend fun saveUser(user: User): User =
-                    userService.saveUser(user, EA_CREATE_OR_UPDATE_USER, remoteAddress, request.toString())
+                    userService.saveUser(user)
 
                 //------------------------------------------------------------------------------------------------------
                 suspend fun validateNewLogin() =

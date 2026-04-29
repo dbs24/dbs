@@ -12,7 +12,6 @@ import org.dbs.ext.executeIternal
 import org.dbs.grpc.ext.ResponseAnswerObj.noErrors
 import org.dbs.mgmt.model.player.Player
 import org.dbs.mgmt.service.ApplicationServiceGate.ServicesList.playerService
-import org.dbs.player.PlayerCore.PlayerActionEnum.EA_UPDATE_PLAYER_STATUS
 import org.dbs.protobuf.core.ResponseCode.RC_INVALID_REQUEST_DATA
 import org.dbs.service.I18NService.Companion.findI18nMessage
 import org.dbs.service.validator.GrpcValidators.addErrorInfo
@@ -98,7 +97,7 @@ object GrpcUpdatePlayerStatus {
                 suspend fun saveEntity() = playerService.takeIf { player.isInitialized() }
                     ?.apply {
                         val updated = setPlayerNewStatus(player.value, newStatus4update.value)
-                        savePlayer(updated, EA_UPDATE_PLAYER_STATUS, remoteAddress, request.toString())
+                        savePlayer(updated)
                     }
 
                 //--------------------------------------------------------------------------------------------------------------

@@ -9,10 +9,9 @@ import org.dbs.enums.I18NEnum.FLD_UNKNOWN_USER_LOGIN
 import org.dbs.ext.ResponseCoProcessor
 import org.dbs.ext.ResponseCoProcessorWrapper
 import org.dbs.ext.executeIternal
-import org.dbs.grpc.ext.ResponseAnswerObj.noErrors
 import org.dbs.goods.model.user.User
 import org.dbs.goods.service.ApplicationServiceGate.ServicesList.userService
-import org.dbs.goods.UserCore.UserActionEnum.EA_UPDATE_USER_STATUS
+import org.dbs.grpc.ext.ResponseAnswerObj.noErrors
 import org.dbs.protobuf.core.ResponseCode.RC_INVALID_REQUEST_DATA
 import org.dbs.service.I18NService.Companion.findI18nMessage
 import org.dbs.service.validator.GrpcValidators.addErrorInfo
@@ -98,7 +97,7 @@ object GrpcUpdateUserStatus {
                 suspend fun saveEntity() = userService.takeIf { user.isInitialized() }
                     ?.apply {
                         val updated = setUserNewStatus(user.value, newStatus4update.value)
-                        saveUser(updated, EA_UPDATE_USER_STATUS, remoteAddress, request.toString())
+                        saveUser(updated)
                     }
 
                 //--------------------------------------------------------------------------------------------------------------

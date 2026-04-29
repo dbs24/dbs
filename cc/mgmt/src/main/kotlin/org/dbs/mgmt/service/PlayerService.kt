@@ -1,26 +1,22 @@
 package org.dbs.mgmt.service
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.mono
 import org.apache.logging.log4j.kotlin.logger
 import org.dbs.consts.Email
-import org.dbs.consts.IpAddress
 import org.dbs.consts.StringNote
 import org.dbs.consts.SysConst.UsersConsts.ROOT_USER
 import org.dbs.consts.SysConst.UsersConsts.ROOT_USER_PASS
-import org.dbs.entity.core.EntityActionEnum
 import org.dbs.entity.core.EntityStatusEnum
+import org.dbs.ext.SpringFuncs.registryEvent
 import org.dbs.mgmt.service.ApplicationServiceGate.ServicesList.r2dbcPersistenceService
 import org.dbs.player.PlayerCore.PlayerActionEnum.EA_CREATE_OR_UPDATE_PLAYER
 import org.dbs.player.PlayerCore.isClosedPlayer
 import org.dbs.player.PlayerLogin
 import org.dbs.player.PlayerPassword
 import org.dbs.sandbox.service.GrpcSandBoxClientService
-import org.dbs.service.Extensions.registryEvent
 import org.dbs.spring.core.api.AbstractApplicationService
 import org.springframework.boot.context.event.ApplicationReadyEvent
-import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.annotation.DependsOn
 import org.springframework.context.annotation.Lazy
 import org.springframework.context.event.EventListener
@@ -42,8 +38,6 @@ class PlayerService(
     val dao: DAO,
     val passwordEncoder: PasswordEncoder,
     val playerFactory: PlayerFactory,
-    val objectMapper: ObjectMapper,
-    val eventPublisher: ApplicationEventPublisher,
 ) : AbstractApplicationService() {
 
     override fun initialize() = super.initialize().also {
@@ -86,27 +80,13 @@ class PlayerService(
         else this
     }
 
-    suspend fun savePlayer(
-        player: ENTITY,
-        actionEnum: EntityActionEnum,
-        remoteAddr: IpAddress,
-        actionNote: StringNote,
-    ): ENTITY = r2dbcPersistenceService.saveEntity(player).awaitSingle()
-        .also {
-            eventPublisher.registryEvent(
-                requireNotNull(it.playerId) { "playerId must be set after save" },
-                it.entityType.entityTypeId,
-                actionEnum.actionCodeId,
-                remoteAddr,
-                actionNote,
-            )
-        }
+    suspend fun savePlayer(player: ENTITY): ENTITY = r2dbcPersistenceService.saveEntity(player).awaitSingle()
 
     private fun buildRootPlayerMono(): Mono<ENTITY> =
         playerFactory.createRootPlayer().toMono()
             .flatMap { r2dbcPersistenceService.saveEntity(it) }
             .doOnSuccess { player ->
-                eventPublisher.registryEvent(
+                eventPublisher.value.registryEvent(
                     requireNotNull(player.playerId) { "playerId must be set after save" },
                     player.entityType.entityTypeId,
                     EA_CREATE_OR_UPDATE_PLAYER.actionCodeId,

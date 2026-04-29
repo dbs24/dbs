@@ -23,6 +23,7 @@ import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
 import java.io.Closeable
 import kotlin.coroutines.CoroutineContext
+import kotlin.system.measureTimeMillis
 
 @JvmInline
 value class ResponseCoProcessorWrapper<T : GM, B : GMBuilder<B>>(private val responseCoProcessor: ResponseCoProcessor<T, B>) :
@@ -146,15 +147,24 @@ interface ResponseCoProcessor<T : GM, B : GMBuilder<B>> : Closeable, Logging {
     override fun close() { flush() }
 
     suspend fun execute(): B
+
+    fun registryAction(duration: Long) {}
 }
 
-suspend inline fun <T : GM, B : GMBuilder<B>> ResponseCoProcessor<T, B>.executeIternal(action: suspendNoArg): B = run {
-    if (isValidDto()) {
-        action()
-    }
-    finishResponse().also {
-        flush()
-    }
+suspend inline fun <T : GM, B : GMBuilder<B>> ResponseCoProcessor<T, B>.executeIternal(action: suspendNoArg): B  {
+
+    val builder: B
+
+    registryAction(measureTimeMillis {
+        if (isValidDto()) {
+            action()
+        }
+        builder = finishResponse().also {
+            flush()
+        }
+    })
+    return builder
+
 }
 
 @JvmInline

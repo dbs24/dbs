@@ -2,8 +2,6 @@ package org.dbs.entity.core.v2.consts
 
 import org.dbs.entity.core.EntityStatusEnum
 
-typealias ActionCodeId = Int
-typealias EntityTypeId = Int
 typealias EntityTypeName = String
 typealias EntityKindId = Int
 typealias ActionName = String

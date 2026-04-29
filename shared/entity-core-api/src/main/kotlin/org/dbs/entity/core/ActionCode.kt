@@ -1,8 +1,8 @@
 package org.dbs.entity.core
 
-import org.dbs.spring.ref.AbstractRefEntity
+import org.dbs.consts.ActionCodeId
 import org.dbs.consts.ClosedStatus
-import org.dbs.entity.core.v2.consts.ActionCodeId
+import org.dbs.spring.ref.AbstractRefEntity
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table

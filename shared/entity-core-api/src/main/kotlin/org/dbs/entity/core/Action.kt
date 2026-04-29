@@ -1,11 +1,11 @@
 package org.dbs.entity.core
 
+import org.dbs.consts.ActionCodeId
 import org.dbs.consts.ActionId
 import org.dbs.consts.EntityId
+import org.dbs.consts.EntityTypeId
 import org.dbs.consts.OperDate
 import org.dbs.consts.StringNote
-import org.dbs.entity.core.v2.consts.ActionCodeId
-import org.dbs.entity.core.v2.consts.EntityTypeId
 import org.dbs.spring.ref.AbstractRefEntity
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column

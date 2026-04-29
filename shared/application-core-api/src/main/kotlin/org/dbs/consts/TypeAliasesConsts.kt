@@ -66,6 +66,7 @@ typealias EntityStatusShortName = EntityStatusName
 typealias EntityName = String
 typealias EntityPrioritySortingId = Int
 typealias IpAddress = String
+typealias ActionCodeId = Int
 
 typealias CompanyName = String
 typealias CompanyNameNull = String?

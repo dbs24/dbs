@@ -3,15 +3,10 @@ package org.dbs.sandbox.service
 import kotlinx.coroutines.reactor.awaitSingle
 import org.dbs.application.core.service.funcs.StringFuncs.createRandomString
 import org.dbs.consts.EntityCode
-import org.dbs.consts.IpAddress
-import org.dbs.consts.StringNote
-import org.dbs.entity.core.EntityActionEnum
 import org.dbs.entity.core.EntityStatusEnum
 import org.dbs.invite.InviteCore.isClosedInvite
-import org.dbs.service.Extensions.registryEvent
 import org.dbs.service.v2.R2dbcPersistenceService
 import org.dbs.spring.core.api.AbstractApplicationService
-import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime.now
 import org.dbs.sandbox.dao.InviteDao as DAO
@@ -22,7 +17,6 @@ class InviteService(
     val r2dbcPersistenceService: R2dbcPersistenceService,
     val dao: DAO,
     val inviteFactory: InviteFactory,
-    val eventPublisher: ApplicationEventPublisher,
 ) : AbstractApplicationService() {
 
     suspend fun saveHistory(entity: ENTITY): ENTITY = entity.run {
@@ -36,20 +30,7 @@ class InviteService(
         } ?: this
     }
 
-    suspend fun saveInvite(
-        invite: ENTITY,
-        actionEnum: EntityActionEnum,
-        remoteAddr: IpAddress,
-        actionNote: StringNote,
-    ): ENTITY = r2dbcPersistenceService.saveEntity(invite).awaitSingle()
-        .also {
-            eventPublisher.registryEvent(it.inviteId!!,
-                it.entityType.entityTypeId,
-                actionEnum.actionCodeId,
-                remoteAddr,
-                actionNote,
-            )
-        }
+    suspend fun saveInvite(invite: ENTITY): ENTITY = r2dbcPersistenceService.saveEntity(invite).awaitSingle()
 
     fun generateInviteCode() = createRandomString(50)
 

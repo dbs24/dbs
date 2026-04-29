@@ -15,7 +15,6 @@ import org.dbs.ext.executeIternal
 import org.dbs.grpc.consts.RESP
 import org.dbs.grpc.ext.GrpcNull.grpcGetOrNull
 import org.dbs.grpc.ext.ResponseAnswerObj.noErrors
-import org.dbs.lobby.LobbyCore.LobbyActions.EA_CREATE_OR_UPDATE_LOBBY
 import org.dbs.mgmt.mapper.LobbyMappers.updateLobby
 import org.dbs.mgmt.model.lobby.Lobby
 import org.dbs.mgmt.service.ApplicationServiceGate.ServicesList.lobbyService
@@ -84,8 +83,7 @@ object GrpcCreateOrUpdateLobby {
                         .run { lobby4update.init(this) }
 
                 //------------------------------------------------------------------------------------------------------
-                private suspend fun saveLobby(lobby: Lobby): Lobby =
-                    lobbyService.saveLobby(lobby, EA_CREATE_OR_UPDATE_LOBBY, remoteAddress, request.toString())
+                private suspend fun saveLobby(lobby: Lobby): Lobby = lobbyService.saveLobby(lobby)
 
                 //------------------------------------------------------------------------------------------------------
                 suspend fun validateNewLobbyCode() =

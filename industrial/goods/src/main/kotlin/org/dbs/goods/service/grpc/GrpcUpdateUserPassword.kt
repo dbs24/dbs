@@ -9,11 +9,10 @@ import org.dbs.enums.I18NEnum.FLD_UNKNOWN_USER_LOGIN
 import org.dbs.ext.ResponseCoProcessor
 import org.dbs.ext.ResponseCoProcessorWrapper
 import org.dbs.ext.executeIternal
-import org.dbs.grpc.consts.RESP
-import org.dbs.grpc.ext.ResponseAnswerObj.noErrors
 import org.dbs.goods.model.user.User
 import org.dbs.goods.service.ApplicationServiceGate.ServicesList.userService
-import org.dbs.goods.UserCore.UserActionEnum.EA_UPDATE_USER_PASSWORD
+import org.dbs.grpc.consts.RESP
+import org.dbs.grpc.ext.ResponseAnswerObj.noErrors
 import org.dbs.protobuf.core.ResponseCode.RC_INVALID_REQUEST_DATA
 import org.dbs.service.I18NService.Companion.findI18nMessage
 import org.dbs.service.validator.GrpcValidators.addErrorInfo
@@ -81,7 +80,7 @@ object GrpcUpdateUserPassword {
                 suspend fun saveEntity() = userService.takeIf { user.isInitialized() }
                     ?.apply {
                         val updated = setUserNewPassword(user.value, request.newPassword)
-                        saveUser(updated, EA_UPDATE_USER_PASSWORD, remoteAddress, request.toString())
+                        saveUser(updated)
                     }
 
                 //--------------------------------------------------------------------------------------------------------------

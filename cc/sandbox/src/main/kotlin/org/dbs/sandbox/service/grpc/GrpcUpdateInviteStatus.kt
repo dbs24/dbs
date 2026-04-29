@@ -10,7 +10,6 @@ import org.dbs.ext.ResponseCoProcessor
 import org.dbs.ext.ResponseCoProcessorWrapper
 import org.dbs.ext.executeIternal
 import org.dbs.grpc.ext.ResponseAnswerObj.noErrors
-import org.dbs.invite.InviteCore.InviteActionEnum.EA_UPDATE_INVITE_STATUS
 import org.dbs.protobuf.core.ResponseCode.RC_INVALID_REQUEST_DATA
 import org.dbs.sandbox.model.invite.GameInvite
 import org.dbs.sandbox.service.ApplicationServiceGate.ServicesList.inviteService
@@ -92,7 +91,7 @@ object GrpcUpdateInviteStatus {
                 suspend fun saveEntity() = inviteService.takeIf { invite.isInitialized() }
                     ?.apply {
                         val updated = setInviteNewStatus(invite.value, newStatus4update.value)
-                        saveInvite(updated, EA_UPDATE_INVITE_STATUS, remoteAddress, request.toString())
+                        saveInvite(updated)
                     }
 
                 //--------------------------------------------------------------------------------------------------------------

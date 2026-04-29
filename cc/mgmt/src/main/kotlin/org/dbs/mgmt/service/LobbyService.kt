@@ -1,18 +1,13 @@
 package org.dbs.mgmt.service
 
 import kotlinx.coroutines.reactor.awaitSingle
-import org.dbs.consts.IpAddress
-import org.dbs.consts.StringNote
-import org.dbs.entity.core.EntityActionEnum
 import org.dbs.entity.core.EntityStatusEnum
 import org.dbs.lobby.LobbyCode
 import org.dbs.lobby.LobbyCore.isClosedLobby
 import org.dbs.mgmt.service.LobbyFactory.createHist
 import org.dbs.mgmt.service.LobbyFactory.createNewLobby
-import org.dbs.service.Extensions.registryEvent
 import org.dbs.service.v2.R2dbcPersistenceService
 import org.dbs.spring.core.api.AbstractApplicationService
-import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime.now
 import org.dbs.mgmt.dao.LobbyDao as DAO
@@ -22,7 +17,6 @@ import org.dbs.mgmt.model.lobby.Lobby as ENTITY
 class LobbyService(
     val r2dbcPersistenceService: R2dbcPersistenceService,
     val lobbyDao: DAO,
-    val eventPublisher: ApplicationEventPublisher,
 ) : AbstractApplicationService() {
 
     suspend fun saveHistory(entity: ENTITY): ENTITY = entity.run {
@@ -33,21 +27,7 @@ class LobbyService(
         } else this
     }
 
-    suspend fun saveLobby(
-        lobby: ENTITY,
-        actionEnum: EntityActionEnum,
-        remoteAddr: IpAddress,
-        actionNote: StringNote,
-    ): ENTITY = r2dbcPersistenceService.saveEntity(lobby).awaitSingle()
-        .also {
-            eventPublisher.registryEvent(
-                requireNotNull(it.lobbyId) { "lobbyId must be set after save" },
-                it.entityType.entityTypeId,
-                actionEnum.actionCodeId,
-                remoteAddr,
-                actionNote,
-            )
-        }
+    suspend fun saveLobby(lobby: ENTITY): ENTITY = r2dbcPersistenceService.saveEntity(lobby).awaitSingle()
 
     suspend fun createNewLobby(lobbyLogin: LobbyCode): ENTITY {
         logger.debug { "create new lobby: $lobbyLogin" }

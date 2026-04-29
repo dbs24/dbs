@@ -1,11 +1,11 @@
 package org.dbs.entity.core.v2.type
 
 import org.dbs.application.core.service.funcs.ServiceFuncs.createCollection
+import org.dbs.consts.EntityTypeId
 import org.dbs.entity.core.EntityActionEnum
 import org.dbs.entity.core.EntityCacheKeyEnum
 import org.dbs.entity.core.EntityStatusEnum
 import org.dbs.entity.core.EntityTypeEnum
-import org.dbs.entity.core.v2.consts.EntityTypeId
 import org.dbs.entity.core.v2.status.EntityStatusId
 import org.dbs.entity.core.v2.type.EntityCoreInitializer.Companion.EntityCore.entityStatuses
 import org.dbs.entity.core.v2.type.EntityCoreInitializer.Companion.EntityCore.entityTypes

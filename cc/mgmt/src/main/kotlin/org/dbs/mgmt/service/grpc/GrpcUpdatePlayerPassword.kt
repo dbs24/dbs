@@ -13,7 +13,6 @@ import org.dbs.grpc.consts.RESP
 import org.dbs.grpc.ext.ResponseAnswerObj.noErrors
 import org.dbs.mgmt.model.player.Player
 import org.dbs.mgmt.service.ApplicationServiceGate.ServicesList.playerService
-import org.dbs.player.PlayerCore.PlayerActionEnum.EA_UPDATE_PLAYER_PASSWORD
 import org.dbs.protobuf.core.ResponseCode.RC_INVALID_REQUEST_DATA
 import org.dbs.service.I18NService.Companion.findI18nMessage
 import org.dbs.service.validator.GrpcValidators.addErrorInfo
@@ -81,7 +80,7 @@ object GrpcUpdatePlayerPassword {
                 suspend fun saveEntity() = playerService.takeIf { player.isInitialized() }
                     ?.apply {
                         val updated = setPlayerNewPassword(player.value, request.newPassword)
-                        savePlayer(updated, EA_UPDATE_PLAYER_PASSWORD, remoteAddress, request.toString())
+                        savePlayer(updated)
                     }
 
                 //--------------------------------------------------------------------------------------------------------------

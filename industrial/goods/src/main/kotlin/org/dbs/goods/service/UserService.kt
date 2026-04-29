@@ -4,21 +4,17 @@ import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
 import org.apache.logging.log4j.kotlin.logger
 import org.dbs.consts.Email
-import org.dbs.consts.IpAddress
-import org.dbs.consts.StringNote
 import org.dbs.consts.SysConst.UsersConsts.ROOT_USER
 import org.dbs.consts.SysConst.UsersConsts.ROOT_USER_PASS
-import org.dbs.entity.core.EntityActionEnum
 import org.dbs.entity.core.EntityStatusEnum
 import org.dbs.ext.FluxFuncs.subscribeMono
+import org.dbs.ext.SpringFuncs.registryEvent
 import org.dbs.goods.UserCore.UserActionEnum.EA_CREATE_OR_UPDATE_USER
 import org.dbs.goods.UserCore.isClosedUser
 import org.dbs.goods.UserLogin
 import org.dbs.goods.UserPassword
 import org.dbs.goods.service.ApplicationServiceGate.ServicesList.r2dbcPersistenceService
-import org.dbs.service.Extensions.registryEvent
 import org.dbs.spring.core.api.AbstractApplicationService
-import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.annotation.Lazy
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -35,7 +31,6 @@ class UserService(
     val dao: DAO,
     val passwordEncoder: PasswordEncoder,
     val userFactory: UserFactory,
-    val eventPublisher: ApplicationEventPublisher,
 ) : AbstractApplicationService() {
 
     override fun initialize() = super.initialize().also {
@@ -69,7 +64,7 @@ class UserService(
     private val createRootUser: Mono<ENTITY> =
           r2dbcPersistenceService.saveEntity(userFactory.createRootUser())
             .doOnSuccess { user ->
-                eventPublisher.registryEvent(user.userId!!,
+                eventPublisher.value.registryEvent(user.userId!!,
                         user.entityType.entityTypeId,
                         EA_CREATE_OR_UPDATE_USER.actionCodeId,
                         "system",
@@ -77,20 +72,7 @@ class UserService(
                     )
             }
 
-    suspend fun saveUser(
-        user: ENTITY,
-        actionEnum: EntityActionEnum,
-        remoteAddr: IpAddress,
-        actionNote: StringNote,
-    ): ENTITY = r2dbcPersistenceService.saveEntity(user).awaitSingle()
-        .also {
-            eventPublisher.registryEvent(it.userId!!,
-                it.entityType.entityTypeId,
-                actionEnum.actionCodeId,
-                remoteAddr,
-                actionNote,
-            )
-        }
+    suspend fun saveUser(user: ENTITY): ENTITY = r2dbcPersistenceService.saveEntity(user).awaitSingle()
 
     suspend fun createNewUser(userLogin: UserLogin): ENTITY = let {
                 logger.debug { "create new user login: $userLogin" }

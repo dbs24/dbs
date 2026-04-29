@@ -2,9 +2,9 @@ package org.dbs.entity.core.v2.type
 
 import org.apache.logging.log4j.kotlin.Logging
 import org.apache.logging.log4j.kotlin.logger
+import org.dbs.consts.EntityTypeId
 import org.dbs.entity.core.EntityStatusEnum
 import org.dbs.entity.core.EntityTypeEnum
-import org.dbs.entity.core.v2.consts.EntityTypeId
 import org.dbs.entity.core.v2.status.AllowedStatusesRoutes
 import org.dbs.entity.core.v2.status.EntityStatusName
 import org.dbs.entity.core.v2.type.EntityCoreInitializer.Companion.EntityCore.entityStatuses

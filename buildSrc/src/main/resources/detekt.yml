@@ -301,11 +301,6 @@ exceptions:
       - 'RuntimeException'
       - 'Throwable'
 
-formatting:
-  NoEmptyFirstLineInMethodBlock:
-    active: false
-    autoCorrect: false
-
 naming:
   active: true
   BooleanPropertyNaming:

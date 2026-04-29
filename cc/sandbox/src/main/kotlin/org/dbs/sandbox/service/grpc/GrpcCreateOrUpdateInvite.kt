@@ -13,7 +13,6 @@ import org.dbs.ext.ResponseCoProcessorWrapper
 import org.dbs.ext.executeIternal
 import org.dbs.grpc.consts.RESP
 import org.dbs.grpc.ext.ResponseAnswerObj.noErrors
-import org.dbs.invite.InviteCore.InviteActionEnum.EA_CREATE_OR_UPDATE_INVITE
 import org.dbs.protobuf.core.ResponseCode.RC_INVALID_REQUEST_DATA
 import org.dbs.sandbox.mapper.InviteMappers.updateInviteFromDto
 import org.dbs.sandbox.model.invite.GameInvite
@@ -69,7 +68,7 @@ object GrpcCreateOrUpdateInvite {
 
                 //--------------------------------------------------------------------------------------------------------------
                 private suspend fun saveInvite(invite: GameInvite): GameInvite =
-                    inviteService.saveInvite(invite, EA_CREATE_OR_UPDATE_INVITE, remoteAddress, request.toString())
+                    inviteService.saveInvite(invite)
 
                 //--------------------------------------------------------------------------------------------------------------
                 suspend fun findOrCreateInvite() = launchJob(JK_FIND_OR_CREATE_INVITE) {

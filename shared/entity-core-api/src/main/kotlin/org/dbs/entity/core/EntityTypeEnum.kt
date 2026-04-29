@@ -1,8 +1,8 @@
 package org.dbs.entity.core
 
-import org.dbs.entity.core.v2.consts.ActionCodeId
+import org.dbs.consts.ActionCodeId
+import org.dbs.consts.EntityTypeId
 import org.dbs.entity.core.v2.consts.ActionName
-import org.dbs.entity.core.v2.consts.EntityTypeId
 import org.dbs.entity.core.v2.consts.EntityTypeName
 import org.dbs.entity.core.v2.consts.EntityV2Consts.CC_RATE
 import org.dbs.entity.core.v2.consts.EntityV2Consts.ET_RATE

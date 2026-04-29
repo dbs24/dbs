@@ -15,6 +15,7 @@ import org.dbs.consts.IpAddress
 import org.dbs.enums.I18NEnum.*
 import org.dbs.ext.ResponseCoProcessor
 import org.dbs.ext.ResponseCoProcessorWrapper
+import org.dbs.ext.SpringFuncs.registryEvent
 import org.dbs.ext.executeIternal
 import org.dbs.grpc.consts.RESP
 import org.dbs.grpc.ext.GrpcNull.grpcGetOrNull
@@ -24,6 +25,7 @@ import org.dbs.mgmt.model.player.Player
 import org.dbs.mgmt.service.ApplicationServiceGate.ServicesList.playerService
 import org.dbs.mgmt.service.grpc.GrpcCreateOrUpdatePlayer.JobKeyImp.JK_FIND_OR_CREATE_PLAYER
 import org.dbs.player.PlayerCore.PlayerActionEnum.EA_CREATE_OR_UPDATE_PLAYER
+import org.dbs.player.PlayerId
 import org.dbs.protobuf.core.ResponseCode.RC_INVALID_REQUEST_DATA
 import org.dbs.service.I18NService.Companion.findI18nMessage
 import org.dbs.service.validator.GrpcValidators.addErrorInfo
@@ -60,6 +62,7 @@ object GrpcCreateOrUpdatePlayer {
                 private val player by lazy { LateInitVal<Player>("player") }
                 private val player4update by lazy { LateInitVal<Player>("player4update") }
                 private val oldPlayerLogin by lazy { request.oldLogin.grpcGetOrNull() }
+                private var newPlayerId : PlayerId? = null
 
                 //======================================================================================================
                 override fun isValidDto() = request.run {
@@ -116,10 +119,10 @@ object GrpcCreateOrUpdatePlayer {
 
                 //------------------------------------------------------------------------------------------------------
                 private suspend fun savePlayer(player: Player): Player =
-                    playerService.savePlayer(player, EA_CREATE_OR_UPDATE_PLAYER, remoteAddress, request.toString())
+                    playerService.savePlayer(player)
 
                 //------------------------------------------------------------------------------------------------------
-                suspend fun validateNewLogin() =
+                private suspend fun validateNewLogin() =
                     request.apply {
                         val checkNewLogin = oldPlayerLogin?.let { it != login } != false
                         val checkNewEmail = oldPlayerLogin.isNull() || oldEmail?.let { it != email } ?: true
@@ -128,7 +131,7 @@ object GrpcCreateOrUpdatePlayer {
                     }
 
                 //------------------------------------------------------------------------------------------------------
-                suspend fun findOrCreatePlayer() = launchJob(JK_FIND_OR_CREATE_PLAYER) {
+                private suspend fun findOrCreatePlayer() = launchJob(JK_FIND_OR_CREATE_PLAYER) {
                     playerService.findPlayerByLogin(oldPlayerLogin ?: request.login)
                         ?.apply { player.init(this) }
                         ?: oldPlayerLogin?.let {
@@ -144,7 +147,9 @@ object GrpcCreateOrUpdatePlayer {
                 //------------------------------------------------------------------------------------------------------
                 suspend fun saveEntity() = launchJob(JK_SAVE, JK_FIND_OR_CREATE_PLAYER) {
                     playerService.saveHistory(player.value)
-                        .also { savePlayer(updateFromDto(player.value)) }
+                        savePlayer(updateFromDto(player.value))
+                            .apply { newPlayerId = playerId }
+
                 }
 
                 //------------------------------------------------------------------------------------------------------
@@ -155,6 +160,20 @@ object GrpcCreateOrUpdatePlayer {
                 }
 
                 //------------------------------------------------------------------------------------------------------
+
+                override fun registryAction(duration: Long) {
+                    eventPublisher.value.registryEvent(
+                        requireNotNull(newPlayerId ?: player.value.playerId) { "playerId must be set after save" },
+                        player.value.entityType.entityTypeId,
+                        EA_CREATE_OR_UPDATE_PLAYER.actionCodeId,
+                        remoteAddress,
+                        request.toString(),
+                        duration
+                    )
+                }
+
+                //------------------------------------------------------------------------------------------------------
+
                 override val jobsMap by lazy { defaultJobsMap() }
                 override val rab by lazy { it }
                 override val coroutineScope by lazy { defaultCoroutineScope() }

@@ -25,7 +25,7 @@ abstract class AbstractApplicationBean : ApplicationBean, ApplicationEventPublis
         //th.printStackTrace() ?: run { logger.error("### throwable object is invalid") }
 
     }
-    private val eventPublisher by lazy { LateInitVal<ApplicationEventPublisher>() }
+    val eventPublisher by lazy { LateInitVal<ApplicationEventPublisher>() }
 
     override fun setApplicationEventPublisher(applicationEventPublisher: ApplicationEventPublisher) {
         applicationEventPublisher.also {
