@@ -10,7 +10,7 @@ springdoc = "2.8.16"
 
 # Data / Persistence
 redisClients = "7.5.0"
-postgres = "42.7.10"
+postgres = "42.7.11"
 flyway = "12.5.0"
 r2dbcPool = "1.0.2.RELEASE"
 r2dbcPostgres = "1.1.1.RELEASE"
@@ -43,9 +43,9 @@ jakartaAnnotation = "3.0.0"
 jakartaValidation = "4.0.0-M1"
 
 # Jackson
-fasterXmlJacksonDataformat = "2.21.2"
-fasterXmlJacksonDataType = "2.21.2"
-fasterXmlJacksonModule = "2.21.2"
+fasterXmlJacksonDataformat = "2.21.3"
+fasterXmlJacksonDataType = "2.21.3"
+fasterXmlJacksonModule = "2.21.3"
 
 # Testing
 kotest = "6.1.11"
@@ -64,7 +64,7 @@ jbossLogging = "3.6.3.Final"
 jbossMarshalling = "2.3.0"
 
 # Security / Auth
-jwt = "4.5.1"
+jwt = "4.5.2"
 jjwtApi = "0.13.0"
 nimbusJoseJwt = "10.9"
 
@@ -75,7 +75,7 @@ openJdkJmh = "1.37"
 # Other libraries
 yaml = "2.6"
 reflections = "0.10.2"
-swaggerCoreV3 = "2.2.48"
+swaggerCoreV3 = "2.2.49"
 minio = "9.0.0"
 bucket4j = "8.10.1"
 jsoup = "1.22.2"
@@ -102,7 +102,7 @@ reflectoringSpringBootDevtools = "0.0.3"
 springDependencyManagement = "1.1.7"
 springJavadocAggregate = "0.0.1"
 springRelease = "0.20.1"
-swaggerGradlePlugin = "2.2.48"
+swaggerGradlePlugin = "2.2.49"
 johnRengelman = "7.1.2"
 cryptoChecksum = "1.4.0"
 javaGradlePlugin = "1.6.9"

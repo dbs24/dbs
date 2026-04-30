@@ -160,7 +160,6 @@ allprojects {
 
     dependencies {
         checkstyle ("$checkstyleGroup:checkstyle:$checkstylePluginVersion")
-        checkstyle ("group:artifact:version")
         jacocoAgent("$jacocoGroup:$jacocoGroup.agent:$jacocoPluginVersion")
         jacocoAnt("$jacocoGroup:$jacocoGroup.ant:$jacocoPluginVersion")
     }
