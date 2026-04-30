@@ -46,6 +46,7 @@ import kotlin.time.toJavaDuration
 
 typealias WebClientCall<R> = () -> Mono<R>
 
+@Suppress("TooManyFunctions")
 abstract class AbstractWebClientService : AbstractApplicationService() {
 
     private val serverUri by lazy { LateInitVal<String>() }

@@ -18,9 +18,9 @@ class GrpcConfig : Logging {
 
     private fun getServiceInfo(event: GrpcServerStartedEvent): String = run {
         val sb = StringBuilder("\n")
-        event.server.services.forEachIndexed { index, it ->
-            val methodNames = it.methods.map { it.methodDescriptor.bareMethodName }
-            sb.append("service ${index + 1}: ${it.serviceDescriptor.name}; methods: ${methodNames}\n")
+        event.server.services.forEachIndexed { index, service ->
+            val methodNames = service.methods.map { it.methodDescriptor.bareMethodName }
+            sb.append("service ${index + 1}: ${service.serviceDescriptor.name}; methods: ${methodNames}\n")
         }
         sb.toString().dropLast(1)
     }

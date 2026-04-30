@@ -1,7 +1,6 @@
 package org.dbs.service.cache.v2
 
 import org.dbs.consts.EntityId
-import org.dbs.consts.NoArg2Mono
 import org.dbs.consts.SpringCoreConst.PropertiesNames.CONFIG_SPRING_REDIS_INVALIDATE
 import org.dbs.consts.SpringCoreConst.PropertiesNames.SPRING_REDIS_INVALIDATE_HOURS
 import org.dbs.consts.SuspendNoArg2Generic
@@ -18,17 +17,14 @@ import org.dbs.service.cache.redis.RedisEntityTemplate
 import org.dbs.service.cache.v2.EntityCacheService.CacheKeyCoreEnum.CC_ENTITY_ID
 import org.dbs.spring.core.api.AbstractApplicationService
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.data.redis.cache.RedisCacheManager
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 import java.util.concurrent.TimeUnit.HOURS
 
 @Service
 @Suppress(UNCHECKED_CAST)
 class EntityCacheService<V : EntityCore>(
-    redisEntityTemplate: RedisEntityTemplate<V>,
-    redisCacheManager: RedisCacheManager) :
+    redisEntityTemplate: RedisEntityTemplate<V>) :
     AbstractApplicationService(), CacheService<V> {
     @Suppress(UNCHECKED_CAST)
     private val redisUtil by lazy { RedisUtil(redisEntityTemplate) }
@@ -82,12 +78,6 @@ class EntityCacheService<V : EntityCore>(
             deleteValues(entityIds.map { it.cacheKeyMask() })
         }
 
-    private fun getEntityInternal(cacheKey: EntityCacheKeyEnum, code: String, func: NoArg2Mono<V>): Mono<V> =
-        getCachedEntity(cacheKey, code)?.toMono() ?: run {
-            logger.debug("heavy loading ($cacheKey: entity/code='$code')")
-            heavyLoad(cacheKey, code, func)
-        }
-
     private suspend fun getEntityInternalCo(
         cacheKey: EntityCacheKeyEnum,
         code: String,
@@ -97,22 +87,6 @@ class EntityCacheService<V : EntityCore>(
         heavyLoadCo(cacheKey, code, func)
     }
 
-
-    private fun getCachedEntity(cacheKey: EntityCacheKeyEnum, code: String): V? =
-        try {
-            redisUtil.run {
-                logger.debug { "load cache[${cacheKey.cacheCode}], entity/code: [$code]" }
-
-                getGenericValue(code.cacheKeyMask(cacheKey))
-                    ?.also {
-                        logger.debug("found in cache: '$it' (${cacheKey.cacheCode}], entity/code: [$code])")
-                    }
-            }
-        } catch (th: Throwable) {
-            logger.warn { "getCachedEntity($cacheKey, $code): $th" }
-            invalidateCaches(code, cacheKey)
-            null
-        }
 
     private suspend fun getCachedEntityCo(cacheKey: EntityCacheKeyEnum, code: String): V? =
         try {
@@ -126,7 +100,6 @@ class EntityCacheService<V : EntityCore>(
         } catch (th: Throwable) {
             logger.warn { "getCachedEntityCo($cacheKey, $code): $th" }
             invalidateCaches(code, cacheKey)
-            th.printStackTrace()
             null
         }
 
@@ -134,9 +107,6 @@ class EntityCacheService<V : EntityCore>(
         logger.debug("put to cache[${cacheKey}]")
         putValueWithExpireTime(code.cacheKeyMask(cacheKey), entity, invalidateHours, HOURS)
     }
-
-    private inline fun heavyLoad(cacheKey: EntityCacheKeyEnum, code: String, cachedEntity: NoArg2Mono<V>): Mono<V> =
-        cachedEntity().map { it.also { put(cacheKey, code, it) } }
 
     private suspend inline fun heavyLoadCo(
         cacheKey: EntityCacheKeyEnum,

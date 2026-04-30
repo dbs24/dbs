@@ -33,8 +33,7 @@ object AuthServerConsts {
         const val ROUTE_JWT_VERIFY = URI_API + URI_JWT + URI_V1 + URI_VERIFY
     }
 
-    object YmlKeys {
-    }
+    object YmlKeys
 
     object Claims {
         const val CL_JWT_KEY = "JWT_KEY"

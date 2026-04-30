@@ -8,7 +8,6 @@ import org.dbs.consts.SpringCoreConst.PropertiesNames.NETWORK_CORS_ALLOWED_CREDE
 import org.dbs.consts.SpringCoreConst.PropertiesNames.NETWORK_CORS_ALLOWED_HEADERS
 import org.dbs.consts.SpringCoreConst.PropertiesNames.NETWORK_CORS_ALLOWED_METHODS
 import org.dbs.consts.SpringCoreConst.PropertiesNames.NETWORK_CORS_MAX_AGE
-import org.dbs.consts.SpringCoreConst.PropertiesNames.SECURITY_ROUTES_ENABLED
 import org.dbs.consts.SpringCoreConst.PropertiesNames.VALUE_NETWORK_CORS_ALLOWED_ADDITIONAL_PATH
 import org.dbs.consts.SpringCoreConst.PropertiesNames.YML_CORS_CONFIG_ENABLED
 import org.dbs.consts.SysConst.EMPTY_STRING
@@ -50,6 +49,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.system.measureTimeMillis
 
 
+@Suppress("UnusedPrivateMember")
 abstract class AbstractWebSecurityConfig(private val appUriPrefix: String? = STRING_NULL) : MainApplicationConfig() {
 
     private val securityWebFilterChainConfig by lazy { LateInitVal<SecurityWebFilterChainConfig>("securityWebFilterChainConfig") }
@@ -86,9 +86,6 @@ abstract class AbstractWebSecurityConfig(private val appUriPrefix: String? = STR
 
     @Value("\${$NETWORK_CORS_MAX_AGE:$STRING_ONE}")
     private val corsMaxAge = 1L
-
-    @Value("\${$SECURITY_ROUTES_ENABLED:$STRING_FALSE}")
-    private val enableSecurityRoutes = false
 
     private val allowedOriginsDefault = setOf("http://127.0.0.1:8080")
 

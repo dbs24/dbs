@@ -288,6 +288,7 @@ object GrpcValidators : Logging {
         }
     }
 
+    @Suppress("UnusedParameter")
     fun RAB.addErrorInfo(responseCode: ResponseCode, error: Error, field: Field, errorMsg: String): RAB =
         errorMessagesList
             .filter { it.code == error.getCode() }

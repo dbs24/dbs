@@ -38,7 +38,10 @@ class GoogleApiClientService : AbstractWebClientService() {
     fun verifyUserResponse(responseToken: String): Mono<Boolean> = run {
         if (devMode) true.toMono() else
             webClientExecute(siteVerifyUrl, Void::class.java, SiteVerifyResponse::class.java, {
-                logger.debug { "$googleServer$siteVerifyUrl[secretKey=${secretV3.last15()}, responseToken=${responseToken.firstAndLast15()}]" }
+                logger.debug {
+                    "$googleServer$siteVerifyUrl[secretKey=${secretV3.last15()}, " +
+                        "responseToken=${responseToken.firstAndLast15()}]"
+                }
                 it.queryParam(QP_SECRET, secretV3)
                     .queryParam(QP_TOKEN_RESPONSE, responseToken)
             }).map {

@@ -15,19 +15,10 @@ class LogMaskingConverter(val name1: String, val style: String) : LogEventPatter
     override fun format(event: LogEvent, outputMessage: StringBuilder) {
         val message: String = event.getMessage().getFormattedMessage()
         var maskedMessage = message
+        @Suppress("TooGenericExceptionCaught", "SwallowedException")
         try {
             maskedMessage = mask(message)
         } catch (e: Exception) {
-//            System.out.println(
-//                TODO("Cannot convert element"),
-//                TODO("Cannot convert element"),
-//                Failed,
-//                TODO("Cannot convert element"),
-//                While,
-//                TODO("Cannot convert element"),
-//                Masking,
-//                TODO("Cannot convert element")
-//            )
             maskedMessage = message
         }
         outputMessage.append(maskedMessage)
@@ -57,9 +48,9 @@ class LogMaskingConverter(val name1: String, val style: String) : LogEventPatter
     }
 
     companion object {
-        private val CARD_NUMBER_REGEX: String = "([0-9]{16})"
+        private const val CARD_NUMBER_REGEX: String = "([0-9]{16})"
         private val CARD_NUMBER_PATTERN: Pattern = Pattern.compile(CARD_NUMBER_REGEX)
-        private val CARD_NUMBER_REPLACEMENT_REGEX: String = "XXXXXXXXXXXXXXXX"
+        private const val CARD_NUMBER_REPLACEMENT_REGEX: String = "XXXXXXXXXXXXXXXX"
 //        fun newInstance(options: Array<String?>?): org.dbs.ext.LogMaskingConverter {
 //            return org.dbs.ext.LogMaskingConverter(
 //                TODO("Cannot convert element"),

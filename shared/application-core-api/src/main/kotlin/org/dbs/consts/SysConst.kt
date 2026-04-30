@@ -89,7 +89,7 @@ object SysConst {
     val MAX_DATE_INT = LocalDate.of(2100, Month.JANUARY, 1).toInt()
 
     val BOOLEAN_NULL: BooleanNull = null
-    val BOOLEAN_DEFAULT: Boolean = false
+    const val BOOLEAN_DEFAULT: Boolean = false
 
     object HotSpotConsts {
         const val VM_XSS = "ThreadStackSize"

@@ -151,7 +151,6 @@ object TestFuncs {
     private const val LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     private const val LETTERS_DIGITS = "$LETTERS$DIGITS"
     private val ucRow = LETTERS_DIGITS.toCharArray()
-    private val lcRow = LETTERS_DIGITS.lowercase().toCharArray()
     val ucLettersRow = LETTERS.toCharArray()
     val lcLettersRow = LETTERS.lowercase().toCharArray()
     fun generateTestString(strLength: Int, symbols: CharArray = ucRow) = let {

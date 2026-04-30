@@ -104,7 +104,9 @@ class InternalPropertyStorageImpl<T>(
 
     //==================================================================================================================
     override fun init(assignedValue: T): T = assignedValue.also {
-        require(readOnlyValue === EMPTYOBJECT) { "Property '${propertyName}' already initialized [${readOnlyValue}], newValue=[$assignedValue]" }
+        require(readOnlyValue === EMPTYOBJECT) {
+            "Property '${propertyName}' already initialized [${readOnlyValue}], newValue=[$assignedValue]"
+        }
         readOnlyValue = it
     }
 

@@ -143,10 +143,6 @@ class RestFulService : AbstractApplicationService() {
 
     //==========================================================================
 
-    protected fun foundStdEntityServiceMsg(clazz: Class<*>, entityId: EntityId?, extMessage: String?) =
-        "${clazz.simpleName}: ${entityId?.run { "found" } ?: "create new"} " +
-                "entity ${printEntityId(entityId)} $extMessage"
-
     fun foundStdEntityServiceMsg(clazz: Class<*>, entityCode: String) =
         "${clazz.simpleName}: found entity '$entityCode'"
 

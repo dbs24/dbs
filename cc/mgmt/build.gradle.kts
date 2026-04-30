@@ -30,7 +30,7 @@ plugins {
     id("org.springframework.boot")
     kotlin("jvm")
     kotlin("plugin.spring")
-    id("io.gitlab.arturbosch.detekt")
+    //id("io.gitlab.arturbosch.detekt")  // already applied in root allprojects
     //id("org.graalvm.buildtools.native")
 }
 

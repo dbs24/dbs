@@ -1,8 +1,16 @@
 package org.dbs.ext
 
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart.LAZY
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.ThreadContextElement
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
 import org.apache.logging.log4j.kotlin.Logging
 import org.dbs.api.CommonJobs.JK_EMPTY_JOB
 import org.dbs.api.JobKey
@@ -29,6 +37,7 @@ import kotlin.system.measureTimeMillis
 value class ResponseCoProcessorWrapper<T : GM, B : GMBuilder<B>>(private val responseCoProcessor: ResponseCoProcessor<T, B>) :
     ResponseCoProcessor<T, B> by responseCoProcessor
 
+@Suppress("TooManyFunctions")
 interface ResponseCoProcessor<T : GM, B : GMBuilder<B>> : Closeable, Logging {
 
     val jobsMap: MutableMap<JobKey, Job>
@@ -47,6 +56,7 @@ interface ResponseCoProcessor<T : GM, B : GMBuilder<B>> : Closeable, Logging {
     private fun Set<JobKey>.key2job() =
         let { it.filter { it != JK_EMPTY_JOB }.map { jobsMap[it] ?: error("job '$it' not found in dependencyJob") } }
 
+    @Suppress("ReturnCount")
     suspend fun launchJob(
         jobKey: JobKey,
         dependencyJobKey: Set<JobKey>,

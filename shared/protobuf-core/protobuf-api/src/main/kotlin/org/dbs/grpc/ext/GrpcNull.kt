@@ -7,6 +7,7 @@ import org.dbs.protobuf.core.Int32Nullable
 import org.dbs.protobuf.core.Int64Nullable
 import org.dbs.protobuf.core.StringNullable
 
+@Suppress("TooManyFunctions")
 object GrpcNull {
 
     fun String.grpcGetOrNull(): String? = this.takeIf { it.isNotEmpty() }

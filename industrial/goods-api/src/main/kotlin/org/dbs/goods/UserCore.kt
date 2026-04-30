@@ -8,7 +8,9 @@ import org.dbs.entity.core.EntityCacheKeyEnum
 import org.dbs.entity.core.EntityStatusEnum
 import org.dbs.entity.core.EntityTypeEnum
 import org.dbs.entity.core.v2.consts.ClosedEntity
-import org.dbs.goods.UserCore.EntityStatus.*
+import org.dbs.goods.UserCore.EntityStatus.ES_USER_ACTUAL
+import org.dbs.goods.UserCore.EntityStatus.ES_USER_BANNED
+import org.dbs.goods.UserCore.EntityStatus.ES_USER_CLOSED
 import org.dbs.goods.UserCore.EntityTypes.ET_USER
 import org.dbs.entity.core.v2.consts.EntityV2Consts.CacheKeyId.CC_CODE
 import org.dbs.entity.core.v2.consts.EntityV2Consts.CacheKeyId.CC_ID

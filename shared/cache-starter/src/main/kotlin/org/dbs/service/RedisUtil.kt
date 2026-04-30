@@ -1,15 +1,11 @@
 package org.dbs.service
 
 import org.dbs.spring.core.api.AbstractApplicationService
-import org.springframework.data.redis.core.HashOperations
-import org.springframework.data.redis.core.ListOperations
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.redis.core.ValueOperations
 import java.util.concurrent.TimeUnit
 
 class RedisUtil<K, V>(private val redisTemplate: RedisTemplate<K, V>) : AbstractApplicationService() {
-    private val hashOperation: HashOperations<K, Any, V> = redisTemplate.opsForHash()
-    private val listOperation: ListOperations<K, V> = redisTemplate.opsForList()
     private val valueOperations: ValueOperations<K, V> = redisTemplate.opsForValue()
 
     fun putValue(key: K & Any, value: V & Any) = value.apply { valueOperations[key] = this }

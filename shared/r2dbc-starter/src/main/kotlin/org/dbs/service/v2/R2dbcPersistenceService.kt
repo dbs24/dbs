@@ -23,7 +23,6 @@ import org.dbs.spring.core.api.AbstractApplicationService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.DependsOn
 import org.springframework.context.annotation.Lazy
-import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.stereotype.Service
 import org.springframework.transaction.ReactiveTransactionManager
 import org.springframework.transaction.annotation.EnableTransactionManagement
@@ -36,7 +35,6 @@ import reactor.core.publisher.Mono
 @EnableTransactionManagement
 @DependsOn("flywayInitializer")
 class R2dbcPersistenceService(
-    private val databaseClient: DatabaseClient,
     private val entityDao: EntityDao,
     private val reactiveTransactionManager: ReactiveTransactionManager,
     private val cacheService: EntityCacheService<out EntityCore>,

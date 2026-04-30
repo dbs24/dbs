@@ -2,7 +2,6 @@ package org.dbs.service.dao
 
 import kotlinx.coroutines.reactor.awaitSingle
 import org.dbs.application.core.service.funcs.ServiceFuncs.createCollection
-import org.dbs.consts.SysConst.EMPTY_STRING
 import org.dbs.entity.core.ActionCode
 import org.dbs.entity.core.EntityStatus
 import org.dbs.entity.core.EntityType
@@ -19,7 +18,6 @@ import org.dbs.service.repo.ActionRepo
 import org.dbs.service.repo.EntityStatusRepository
 import org.dbs.service.repo.EntityTypeRepository
 import org.dbs.spring.core.api.DaoAbstractApplicationService
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Lazy
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 import org.springframework.stereotype.Service
@@ -37,9 +35,6 @@ class EntityDao(
     private val actionCodeRepository: ActionCodeRepository,
     val actionRepo: ActionRepo,
 ) : DaoAbstractApplicationService() {
-
-    @Value("\${spring.application.name}")
-    private val applicationName = EMPTY_STRING
 
     fun <T : EntityCore> saveEntity(entity: T): Mono<T> =
         if (entity.entityId == null)

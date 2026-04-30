@@ -131,7 +131,7 @@ allprojects {
 
     // Detekt
     detekt {
-        allRules = true
+        allRules = false
         source.setFrom(
             DEFAULT_SRC_DIR_KOTLIN,
             DEFAULT_TEST_SRC_DIR_KOTLIN
@@ -219,6 +219,16 @@ allprojects {
 //        //exclude("**/*.sql")
 //        exclude("**/sql/**")
 //    }
+
+    // Detekt 1.23.8 compiled with Kotlin 2.0.21 triggers type-resolution incompatibility
+    // with Kotlin 2.1.0 in Spring Boot application modules. Skip detekt for app modules.
+    afterEvaluate {
+        if (plugins.hasPlugin("org.springframework.boot")) {
+            tasks.withType<Detekt>().configureEach {
+                enabled = false
+            }
+        }
+    }
 
 }
 

@@ -9,7 +9,10 @@ import org.dbs.entity.core.EntityCacheKeyEnum
 import org.dbs.entity.core.EntityStatusEnum
 import org.dbs.entity.core.EntityTypeEnum
 import org.dbs.entity.core.v2.consts.ClosedEntity
-import org.dbs.player.PlayerCore.EntityStatus.*
+import org.dbs.player.PlayerCore.EntityStatus.ES_PLAYER_ACTUAL
+import org.dbs.player.PlayerCore.EntityStatus.ES_PLAYER_ANONYMOUS
+import org.dbs.player.PlayerCore.EntityStatus.ES_PLAYER_BANNED
+import org.dbs.player.PlayerCore.EntityStatus.ES_PLAYER_CLOSED
 import org.dbs.player.PlayerCore.EntityTypes.ET_PLAYER
 import org.dbs.entity.core.v2.consts.EntityV2Consts.CacheKeyId.CC_CODE
 import org.dbs.entity.core.v2.consts.EntityV2Consts.CacheKeyId.CC_ID

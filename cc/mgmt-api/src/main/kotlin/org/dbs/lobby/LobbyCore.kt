@@ -19,7 +19,9 @@ import org.dbs.entity.core.v2.type.Application.CHESS
 import org.dbs.entity.core.v2.type.EntityCoreInitializer
 import org.dbs.entity.core.v2.type.EntityTypeExtension.registerAllowedStatusesChanges
 import org.dbs.lobby.LobbyConsts.Names.LOBBY
-import org.dbs.lobby.LobbyCore.EntityStatus.*
+import org.dbs.lobby.LobbyCore.EntityStatus.ES_LOBBY_ACTUAL
+import org.dbs.lobby.LobbyCore.EntityStatus.ES_LOBBY_CLOSED
+import org.dbs.lobby.LobbyCore.EntityStatus.ES_LOBBY_PLAY
 import org.dbs.lobby.LobbyCore.EntityTypes.ET_LOBBY
 
 object LobbyCore : EntityCoreInitializer {

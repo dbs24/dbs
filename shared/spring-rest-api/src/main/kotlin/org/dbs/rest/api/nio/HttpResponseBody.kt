@@ -85,7 +85,9 @@ abstract class HttpResponseBody<T : ResponseDto>(private val requestId: RequestI
         }
     }
 
-    fun toString2() = "code='${runCatching { responseCode }.getOrNull()}', message='${runCatching { message }.getOrNull()}', errors=$errors, execTimeMillis=$execTimeMillis, ${javaClass.simpleName}($responseEntity), requestId=$requestId"
+    fun toString2() = "code='${runCatching { responseCode }.getOrNull()}', " +
+        "message='${runCatching { message }.getOrNull()}', " +
+        "errors=$errors, execTimeMillis=$execTimeMillis, ${javaClass.simpleName}($responseEntity), requestId=$requestId"
 
     companion object {
         @java.io.Serial

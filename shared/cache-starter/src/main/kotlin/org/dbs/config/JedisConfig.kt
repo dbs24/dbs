@@ -72,11 +72,6 @@ class JedisConfig(
 
     private fun lettuceCfg() = LettuceClientConfiguration.builder().build()
 
-    private fun redisCacheConfiguration() = RedisCacheConfiguration
-        .defaultCacheConfig()
-        .entryTtl(Duration.ofHours(4))
-        .usePrefix()
-
     @Bean
     fun redisCacheManager(factory: LettuceConnectionFactory, objectMapper: ObjectMapper): RedisCacheManager =
         RedisCacheManager.builder(factory)
