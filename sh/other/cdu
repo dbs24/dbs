@@ -30,7 +30,7 @@ progress_indicator &
 indicator_pid=$!
 
 # Здесь запускается ваш длительный процесс
-RESULT=$(gradle dependencyUpdates | \
+RESULT=$(./gradlew dependencyUpdates | \
   grep ' -> '  | \
   grep -E -i -v "$REGEX_TEMPLATE_IGNORE_VERSIONS|$REGEX_TEMPLATE_SKIP_LIBRARIES|$REGEX_TEMPLATE_IGNORE_DEFECTIVE_UPDATES" | \
   sort -u)

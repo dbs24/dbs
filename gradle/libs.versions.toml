@@ -1,6 +1,6 @@
 [versions]
 # Spring Boot
-springBoot = "3.5.13"
+springBoot = "3.5.14"
 springBootSession = "3.5.5"
 springBootData = "3.5.10"
 springCloud = "3.1.4"
