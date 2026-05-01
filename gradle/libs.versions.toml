@@ -30,7 +30,7 @@ reactorKotlinExtensions = "1.3.0"
 blockhoundJunitPlatform = "1.0.16.RELEASE"
 
 # gRPC / Protobuf
-grpc = "1.80.0"
+grpc = "1.81.0"
 grpcKotlinStub = "1.5.0"
 grpcGateway = "2.91.0"
 grpcServerSpringBoot = "3.1.0.RELEASE"

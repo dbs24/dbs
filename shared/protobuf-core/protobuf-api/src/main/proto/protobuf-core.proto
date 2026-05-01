@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package org.dbs.protobuf.core;
+
+import "google/protobuf/any.proto";
+option java_package = "org.dbs.protobuf.core";
+option java_multiple_files = true;
+
+enum MessageType {
+    MT_INFO = 0x0;
+    MT_ERROR = 0x100;
+    MT_WARN = 0x200;
+}
+
+message ResponseMessage {
+    MessageType messageType = 1;
+    uint32 code = 2;
+    string message = 3;
+}
