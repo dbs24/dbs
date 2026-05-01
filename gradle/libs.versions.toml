@@ -86,7 +86,7 @@ deviceDetector = "1.0.10"
 stripePayments = "24.24.0"
 googleGson = "2.11.0"
 neatChess = "1.0"
-apacheCommonsCollections4 = "4.5.0-M2"
+apacheCommonsCollections4 = "4.5.0"
 
 # Plugin versions (duplicated in gradle.properties for pluginManagement)
 intellijPlugin = "1.17.4"
