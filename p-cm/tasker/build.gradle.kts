@@ -67,9 +67,9 @@ dependencies {
     implementation(libs.spring.security)
     implementation(libs.spring.starter)
     implementation(libs.neatchess)
-    implementation(platform(libs.kotlin.bom))
-    implementation(platform(libs.log4j.bom))
-    implementation(platform(libs.spring.dependencies))
+    implementation(enforcedPlatform(libs.kotlin.bom))
+    implementation(enforcedPlatform(libs.log4j.bom))
+    implementation(enforcedPlatform(libs.spring.dependencies))
 
     testApi(libs.coroutines.test)
     testApi(libs.kotest.assertions.core)
@@ -81,7 +81,7 @@ dependencies {
     testApi(libs.reactor.test)
     testApi(libs.spring.starter.test)
     testApi(libs.testcontainers.junit.jupiter)
-    testApi(platform(libs.kotest.bom))
+    testApi(enforcedPlatform(libs.kotest.bom))
 
     compileOnly(libs.kotlin.noarg)
     compileOnly(libs.kotlin.osgi.bundle)

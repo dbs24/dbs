@@ -90,10 +90,10 @@ dependencies {
     implementation(libs.spring.webflux)
     implementation(libs.springdoc.openapi.webflux.ui)
     implementation(libs.swagger.annotations)
-    implementation(platform(libs.grpc.bom))
-    implementation(platform(libs.kotlin.bom))
-    implementation(platform(libs.log4j.bom))
-    implementation(platform(libs.spring.dependencies))
+    implementation(enforcedPlatform(libs.grpc.bom))
+    implementation(enforcedPlatform(libs.kotlin.bom))
+    implementation(enforcedPlatform(libs.log4j.bom))
+    implementation(enforcedPlatform(libs.spring.dependencies))
     implementation(project(CM_ANALYST_PROTO_API))
     implementation(project(PROTOBUF_API_SRC))
 
@@ -110,7 +110,7 @@ dependencies {
     testApi(libs.testcontainers.junit.jupiter)
     testApi(libs.testcontainers.postgresql)
     testApi(libs.grpc.testing)
-    testApi(platform(libs.kotest.bom))
+    testApi(enforcedPlatform(libs.kotest.bom))
 
     compileOnly(libs.kotlin.noarg)
     compileOnly(libs.kotlin.osgi.bundle)

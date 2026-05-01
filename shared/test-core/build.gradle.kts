@@ -15,7 +15,7 @@ dependencies {
     api(project(SPRING_CORE_API))
     api(project(SPRING_REST_API))
 
-    implementation(platform(libs.kotest.bom))
+    implementation(enforcedPlatform(libs.kotest.bom))
     implementation(libs.testcontainers)
     implementation(libs.testcontainers.junit.jupiter)
     implementation(libs.spring.json)

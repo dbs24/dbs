@@ -27,7 +27,7 @@ dependencies {
     implementation(libs.grpc.protoc.kotlin)
     implementation(libs.grpc.kotlin.stub)
     implementation(libs.grpc.gen)
-    implementation(platform(libs.protobuf.bom))
+    implementation(enforcedPlatform(libs.protobuf.bom))
     protobuf(project(PROTOBUF_API_SRC))
 }
 

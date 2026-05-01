@@ -52,7 +52,7 @@ dependencies {
     testImplementation(project(TEST_CORE))
 
     implementation(kotlin(STD_LIB))
-    implementation(platform(libs.kotlin.bom))
+    implementation(enforcedPlatform(libs.kotlin.bom))
     implementation(libs.reactor.netty)
     implementation(libs.spring.json)
     implementation(libs.spring.starter)
@@ -80,16 +80,16 @@ dependencies {
     implementation(libs.kotlin.gradle.plugin)
     implementation(libs.kotlin.script.runtime)
 
-    implementation(platform(libs.kotlin.bom))
-    implementation(platform(libs.log4j.bom))
-    implementation(platform(libs.spring.dependencies))
+    implementation(enforcedPlatform(libs.kotlin.bom))
+    implementation(enforcedPlatform(libs.log4j.bom))
+    implementation(enforcedPlatform(libs.spring.dependencies))
 
     implementation(libs.log4j.api.kotlin)
     implementation(libs.bucket4j.core)
 
     implementation(libs.grpc.kotlin.stub)
     implementation(libs.grpc.server.spring.boot)
-    implementation(platform(libs.grpc.bom))
+    implementation(enforcedPlatform(libs.grpc.bom))
     implementation(project(OUT_OF_SERVICE_PROTO_API))
     implementation(project(PROTOBUF_API_SRC))
 
@@ -106,7 +106,7 @@ dependencies {
     testApi(libs.testcontainers.junit.jupiter)
     testApi(libs.testcontainers.postgresql)
     testApi(libs.grpc.testing)
-    testApi(platform(libs.kotest.bom))
+    testApi(enforcedPlatform(libs.kotest.bom))
 
     compileOnly(libs.kotlin.noarg)
     compileOnly(libs.kotlin.reflect)

@@ -215,6 +215,21 @@ allprojects {
         google()
     }
 
+    // Enforce TOML-specified versions in every subproject:
+    // - failOnVersionConflict  : build fails when two different versions of the same library are requested
+    // - failOnDynamicVersions  : reject '+', 'latest.*', '[1,)' ranges — only pinned versions allowed
+    // - failOnChangingVersions : reject SNAPSHOT / LATEST.RELEASE — only immutable releases allowed
+    configurations.all {
+        resolutionStrategy {
+            failOnVersionConflict()
+            failOnDynamicVersions()
+            failOnChangingVersions()
+            preferProjectModules()
+            cacheDynamicVersionsFor(600, "seconds")
+            cacheChangingModulesFor(0, "seconds")
+        }
+    }
+
 //    tasks.withType<AbstractCopyTask>().configureEach {
 //        //exclude("**/*.sql")
 //        exclude("**/sql/**")
@@ -238,8 +253,8 @@ dependencies {
     implementation(kotlin(STDLIB))
     kapt("org.springframework.boot:spring-boot-configuration-processor")
     // spring boot dependencies
-    implementation(platform(libs.kotlin.bom))
-    implementation(platform(libs.spring.dependencies))
+    implementation(enforcedPlatform(libs.kotlin.bom))
+    implementation(enforcedPlatform(libs.spring.dependencies))
     //implementation enforcedPlatform(libs.spring.dependencies)
 
     // spring
@@ -316,11 +331,11 @@ dependencies {
     implementation(libs.kotlin.test.junit)
 
     // protobuf
-    implementation(platform(libs.protobuf.bom))
+    implementation(enforcedPlatform(libs.protobuf.bom))
     implementation(libs.protobuf.java)
 
     // grpc
-    implementation(platform(libs.grpc.bom))
+    implementation(enforcedPlatform(libs.grpc.bom))
     implementation(libs.grpc.server.autoconfigure)
     implementation(libs.grpc.api)
     implementation(libs.grpc.gateway)
@@ -378,6 +393,8 @@ dependencies {
         all {
             resolutionStrategy {
                 failOnVersionConflict()
+                failOnDynamicVersions()
+                failOnChangingVersions()
                 preferProjectModules()
                 // cache dynamic versions for 10 minutes
                 cacheDynamicVersionsFor(600, "seconds")

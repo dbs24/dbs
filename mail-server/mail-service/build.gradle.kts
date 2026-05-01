@@ -31,7 +31,7 @@ dependencies {
     api(project(KAFKA_API))
     testImplementation(project(TEST_CORE))
 
-    implementation(platform(libs.kotlin.bom))
+    implementation(enforcedPlatform(libs.kotlin.bom))
     implementation(libs.reactor.netty)
     implementation(libs.spring.json)
     implementation(libs.spring.starter)
@@ -59,7 +59,7 @@ dependencies {
     implementation(libs.log4j.api.kotlin)
     implementation(libs.bucket4j.core)
 
-    testApi(platform(libs.kotest.bom))
+    testApi(enforcedPlatform(libs.kotest.bom))
     testApi(libs.spring.starter.test)
     testApi(libs.testcontainers.junit.jupiter)
     testApi(libs.testcontainers.postgresql)
