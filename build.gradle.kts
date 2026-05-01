@@ -252,11 +252,10 @@ dependencies {
     // kotlin
     implementation(kotlin(STDLIB))
     kapt("org.springframework.boot:spring-boot-configuration-processor")
-    // spring boot dependencies
     implementation(enforcedPlatform(libs.kotlin.bom))
+    implementation(enforcedPlatform(libs.coroutines.bom))
+    // spring boot dependencies
     implementation(enforcedPlatform(libs.spring.dependencies))
-    //implementation enforcedPlatform(libs.spring.dependencies)
-
     // spring
     implementation(libs.spring.boot) { exclude(springExcStarterLogging) }
     implementation(libs.spring.starter) { exclude(springExcStarterLogging) }

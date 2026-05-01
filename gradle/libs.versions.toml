@@ -17,8 +17,8 @@ r2dbcPostgres = "1.1.1.RELEASE"
 queryDsl = "5.1.0"
 
 # Kotlin
-kotlin = "2.1.0"
-kotlinx = "1.10.2"
+kotlin = "2.2.21"
+kotlinx-coroutines = "1.10.2"
 kotlinxLincheck = "2.39"
 kotlinSerialization = "1.11.0"
 
@@ -231,11 +231,12 @@ kotlin-test-junit     = { module = "org.jetbrains.kotlin:kotlin-test-junit",    
 kotlin-jacoco         = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin",  version.ref = "kotlin" }
 
 # Kotlinx Coroutines
-coroutines-core     = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core",      version.ref = "kotlinx" }
-coroutines-core-jvm = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm",  version.ref = "kotlinx" }
-coroutines-reactor  = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactor",   version.ref = "kotlinx" }
-coroutines-reactive = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactive",  version.ref = "kotlinx" }
-coroutines-test     = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test",      version.ref = "kotlinx" }
+coroutines-bom = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-bom", version.ref = "kotlinx-coroutines" }
+coroutines-core     = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core",      version.ref = "kotlinx-coroutines" }
+coroutines-core-jvm = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm",  version.ref = "kotlinx-coroutines" }
+coroutines-reactor  = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactor",   version.ref = "kotlinx-coroutines" }
+coroutines-reactive = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactive",  version.ref = "kotlinx-coroutines" }
+coroutines-test     = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test",      version.ref = "kotlinx-coroutines" }
 lincheck            = { module = "org.jetbrains.kotlinx:lincheck",                     version.ref = "kotlinxLincheck" }
 kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinSerialization" }
 
