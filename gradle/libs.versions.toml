@@ -69,7 +69,7 @@ jjwtApi = "0.13.0"
 nimbusJoseJwt = "10.9"
 
 # Observability
-micrometerPrometheus = "1.17.0-M3"
+micrometerPrometheus = "1.16.5"
 openJdkJmh = "1.37"
 
 # Other libraries
@@ -108,7 +108,7 @@ cryptoChecksum = "1.4.0"
 javaGradlePlugin = "1.6.9"
 gradleTestRetryPlugin = "1.6.4"
 diffPlugSpotless = "8.4.0"
-checkstylePlugin="13.4.1"
+checkstylePlugin="13.4.2"
 jacocoPlugin="0.8.14"
 
 [libraries]
