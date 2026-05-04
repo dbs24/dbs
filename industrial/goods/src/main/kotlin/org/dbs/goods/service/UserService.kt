@@ -65,7 +65,7 @@ class UserService(
           r2dbcPersistenceService.saveEntity(userFactory.createRootUser())
             .doOnSuccess { user ->
                 eventPublisher.value.registryEvent(user.userId!!,
-                        user.entityType.entityTypeId,
+                        user.entityType().entityTypeId,
                         EA_CREATE_OR_UPDATE_USER.actionCodeId,
                         "system",
                         "Root user created",

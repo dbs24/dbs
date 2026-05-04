@@ -33,16 +33,15 @@ data class UserHist(
     val password: Password?,
     @Column("status_id")
     val entityStatus: EntityStatusEnum,
-    val createDate: OperDate,
-    val modifyDate: OperDate,
-    val closeDate: OperDateNull = null,
+    override val createDate: OperDate,
+    override val modifyDate: OperDate,
+    override val closeDate: OperDateNull = null,
 ) : EntityCore {
 
     @get:JsonIgnore
     override val entityId: EntityId? get() = userId
 
-    @get:JsonIgnore
-    val entityType: EntityTypeEnum get() = ET_USER
+    override fun entityType() = ET_USER
 
     override fun status() = entityStatus
 }

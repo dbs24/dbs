@@ -164,7 +164,7 @@ object GrpcCreateOrUpdatePlayer {
                 override fun registryAction(duration: Long) {
                     eventPublisher.value.registryEvent(
                         requireNotNull(newPlayerId ?: player.value.playerId) { "playerId must be set after save" },
-                        player.value.entityType.entityTypeId,
+                        player.value.entityType().entityTypeId,
                         EA_CREATE_OR_UPDATE_PLAYER.actionCodeId,
                         remoteAddress,
                         request.toString(),

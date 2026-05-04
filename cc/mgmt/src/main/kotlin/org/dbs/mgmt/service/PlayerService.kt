@@ -88,7 +88,7 @@ class PlayerService(
             .doOnSuccess { player ->
                 eventPublisher.value.registryEvent(
                     requireNotNull(player.playerId) { "playerId must be set after save" },
-                    player.entityType.entityTypeId,
+                    player.entityType().entityTypeId,
                     EA_CREATE_OR_UPDATE_PLAYER.actionCodeId,
                     "system",
                     "Root player created",
@@ -110,7 +110,7 @@ class PlayerService(
         player.copy(
             entityStatus = status,
             modifyDate = now(),
-            closeDate = if (isClosedPlayer(status)) now() else player.closeDate,
+            closeDate = if (isClosedPlayer(status)) now() else null,
         ).also {
             dao.invalidateCaches(player.login)
         }

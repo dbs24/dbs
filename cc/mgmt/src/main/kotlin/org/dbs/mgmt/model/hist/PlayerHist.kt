@@ -10,7 +10,9 @@ import org.dbs.consts.OperDateNull
 import org.dbs.consts.Password
 import org.dbs.consts.UriPath
 import org.dbs.entity.core.EntityStatusEnum
+import org.dbs.entity.core.EntityTypeEnum
 import org.dbs.entity.core.v2.model.EntityCore
+import org.dbs.player.PlayerCore.EntityTypes.ET_PLAYER
 import org.dbs.player.PlayerId
 import org.dbs.player.PlayerLogin
 import org.springframework.data.annotation.Id
@@ -63,15 +65,17 @@ data class PlayerHist(
     @Column("status_id")
     val entityStatus: EntityStatusEnum,
 
-    val createDate: OperDate,
+    override val createDate: OperDate,
 
-    val modifyDate: OperDate,
+    override val modifyDate: OperDate,
 
-    val closeDate: OperDateNull = null,
+    override val closeDate: OperDateNull = null,
 
 ) : EntityCore {
 
     override val entityId: EntityId get() = playerId
+
+    override fun entityType() = ET_PLAYER
 
     override fun status() = entityStatus
 }

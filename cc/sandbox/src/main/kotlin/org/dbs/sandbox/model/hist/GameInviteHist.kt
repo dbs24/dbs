@@ -36,19 +36,18 @@ data class GameInviteHist(
     @Column("status_id")
     val entityStatus: EntityStatusEnum,
 
-    val createDate: OperDate,
+    override val createDate: OperDate,
 
-    val modifyDate: OperDate,
+    override val modifyDate: OperDate,
 
-    val closeDate: OperDateNull = null,
+    override val closeDate: OperDateNull = null,
 
     ) : EntityCore {
 
     @get:JsonIgnore
     override val entityId: EntityId? get() = inviteId
 
-    @get:JsonIgnore
-    val entityType: EntityTypeEnum get() = ET_INVITE
+    override fun entityType() = ET_INVITE
 
     override fun status() = entityStatus
 }

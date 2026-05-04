@@ -6,6 +6,7 @@ import org.dbs.consts.OperDateNull
 import org.dbs.entity.core.EntityStatusEnum
 import org.dbs.entity.core.v2.model.EntityCore
 import org.dbs.lobby.LobbyCode
+import org.dbs.lobby.LobbyCore.EntityTypes.ET_LOBBY
 import org.dbs.lobby.LobbyId
 import org.dbs.lobby.LobbyKind
 import org.dbs.lobby.LobbyName
@@ -38,15 +39,17 @@ data class LobbyHist(
     @Column("status_id")
     val entityStatus: EntityStatusEnum,
 
-    val createDate: OperDate,
+    override val createDate: OperDate,
 
-    val modifyDate: OperDate,
+    override val modifyDate: OperDate,
 
-    val closeDate: OperDateNull = null,
+    override val closeDate: OperDateNull = null,
 
 ) : EntityCore {
 
     override val entityId: EntityId get() = lobbyId
+
+    override fun entityType() = ET_LOBBY
 
     override fun status() = entityStatus
 }
