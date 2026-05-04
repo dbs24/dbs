@@ -24,55 +24,30 @@ data class Player(
     @Id
     @Column("player_id")
     val playerId: PlayerId? = null,
-
     @Column("player_login")
     val login: PlayerLogin,
-
-    @Column("email")
     val email: Email?,
-
-    @Column("phone")
     val phone: String?,
-
-    @Column("first_name")
     val firstName: String?,
-
-    @Column("middle_name")
     val middleName: String?,
-
-    @Column("last_name")
     val lastName: String?,
-
-    @Column("birth_date")
     val birthDate: BirthDate?,
-
     @Column("password_hash")
     val password: Password?,
-
     val country: CountryIsoCode?,
-
     val gender: AnyCode?,
-
     @Column("avatar_path")
     val avatar: UriPath?,
-
     @Column("small_avatar_path")
     val smallAvatar: UriPath?,
-
     @Column("status_id")
     val entityStatus: EntityStatusEnum,
 
     override val createDate: OperDate,
-
     override val modifyDate: OperDate,
-
     override val closeDate: OperDateNull = null,
 
 ) : EntityCore {
-
-    init {
-        validateEntityCore()
-    }
 
     @get:JsonIgnore
     override val entityId: EntityId? get() = playerId

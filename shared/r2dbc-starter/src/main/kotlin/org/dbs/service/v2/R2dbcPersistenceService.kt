@@ -17,12 +17,19 @@ import org.dbs.entity.core.v2.type.EntityCoreInitializer.Companion.EntityCore.en
 import org.dbs.entity.core.v2.type.EntityCoreInitializer.Companion.EntityCore.entityTypes
 import org.dbs.ext.FluxFuncs.noDuplicates
 import org.dbs.ext.FluxFuncs.subscribeMono
+import org.dbs.service.EntityCoreFuncs.validateEntityCore
 import org.dbs.service.cache.v2.EntityCacheService
 import org.dbs.service.dao.EntityDao
 import org.dbs.spring.core.api.AbstractApplicationService
+import org.reactivestreams.Publisher
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.DependsOn
 import org.springframework.context.annotation.Lazy
+import org.springframework.data.r2dbc.mapping.OutboundRow
+import org.springframework.data.r2dbc.mapping.event.AfterConvertCallback
+import org.springframework.data.r2dbc.mapping.event.BeforeSaveCallback
+import org.springframework.data.relational.core.sql.SqlIdentifier
+import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import org.springframework.transaction.ReactiveTransactionManager
 import org.springframework.transaction.annotation.EnableTransactionManagement
@@ -133,4 +140,28 @@ class R2dbcPersistenceService(
     }
 
     fun doOnError(throwable: Throwable) = log(throwable) { "Persistence exception ($throwable)" }
+}
+
+// actual in dev-test mode
+@Component
+class EntityCoreValidationListener : AfterConvertCallback<EntityCore>, BeforeSaveCallback<EntityCore> {
+
+    // Runs after loading from DB
+    override fun onAfterConvert(entity: EntityCore, table: SqlIdentifier): Publisher<EntityCore> {
+        validateIfAnnotated(entity)
+        return Mono.just(entity)
+    }
+
+    private fun validateIfAnnotated(entity: EntityCore) {
+      entity.validateEntityCore()
+    }
+
+    override fun onBeforeSave(
+        entity: EntityCore,
+        row: OutboundRow,
+        table: SqlIdentifier
+    ): Publisher<EntityCore> {
+        validateIfAnnotated(entity)
+        return Mono.just(entity)
+    }
 }
