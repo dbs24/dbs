@@ -669,7 +669,7 @@ object GrpcValidators : Logging {
         entity: AE,
         newEntityStatus: EntityStatusEnum,
         field: Field
-    ) = entity.status().isAllowedStatusUpdate(newEntityStatus).apply {
+    ) = entity.status.isAllowedStatusUpdate(newEntityStatus).apply {
         if (this.isNotEmpty())
             addErrorInfo(
                 RC_INVALID_REQUEST_DATA,

@@ -81,7 +81,7 @@ object GrpcGetPlayerCredentials {
                 override suspend fun finishResponse(): ENT.Builder = finish(ENT.newBuilder()) {
                     it.setPlayerLogin(player.value.login)
                         .setPlayerPassword(player.value.password)
-                        .setPlayerStatus(player.value.status().entityStatusName)
+                        .setPlayerStatus(player.value.status.entityStatusName)
                 }
 
                 //------------------------------------------------------------------------------------------------------

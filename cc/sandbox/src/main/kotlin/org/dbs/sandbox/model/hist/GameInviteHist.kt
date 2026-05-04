@@ -6,7 +6,6 @@ import org.dbs.consts.EntityId
 import org.dbs.consts.OperDate
 import org.dbs.consts.OperDateNull
 import org.dbs.entity.core.EntityStatusEnum
-import org.dbs.entity.core.EntityTypeEnum
 import org.dbs.entity.core.v2.model.EntityCore
 import org.dbs.invite.InviteCore.EntityTypes.ET_INVITE
 import org.dbs.invite.InviteId
@@ -47,7 +46,9 @@ data class GameInviteHist(
     @get:JsonIgnore
     override val entityId: EntityId? get() = inviteId
 
-    override fun entityType() = ET_INVITE
+    @get:JsonIgnore
+    override val type get() = ET_INVITE
 
-    override fun status() = entityStatus
+    @get:JsonIgnore
+    override val status get() = entityStatus
 }

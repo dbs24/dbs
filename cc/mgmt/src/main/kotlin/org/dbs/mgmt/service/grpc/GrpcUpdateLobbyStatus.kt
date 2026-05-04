@@ -55,7 +55,7 @@ object GrpcUpdateLobbyStatus {
                 //--------------------------------------------------------------------------------------------------
                 private fun validateNewLobbyStatus() {
                     rab.findEntityStatus(
-                        lobby.value.entityType(),
+                        lobby.value.type,
                         request.status,
                         SSS_LOBBY_STATUS
                     ) { newStatus4update.init(it) }

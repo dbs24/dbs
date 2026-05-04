@@ -1,5 +1,6 @@
 package org.dbs.mgmt.model.hist
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import org.dbs.consts.EntityId
 import org.dbs.consts.OperDate
 import org.dbs.consts.OperDateNull
@@ -47,9 +48,12 @@ data class LobbyHist(
 
 ) : EntityCore {
 
+    @get:JsonIgnore
     override val entityId: EntityId get() = lobbyId
 
-    override fun entityType() = ET_LOBBY
+    @get:JsonIgnore
+    override val type get() = ET_LOBBY
 
-    override fun status() = entityStatus
+    @get:JsonIgnore
+    override val status get() = entityStatus
 }

@@ -77,7 +77,9 @@ data class Player(
     @get:JsonIgnore
     override val entityId: EntityId? get() = playerId
 
-    override fun entityType() = ET_PLAYER
+    @get:JsonIgnore
+    override val type get() = ET_PLAYER
 
-    override fun status() = entityStatus
+    @get:JsonIgnore
+    override val status get() = entityStatus
 }

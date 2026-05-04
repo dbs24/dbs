@@ -10,15 +10,15 @@ import java.io.Serializable
 interface EntityCore : Serializable {
 
     val entityId: EntityId?
-    fun status(): EntityStatusEnum
-    fun entityType(): EntityTypeEnum
+    val status: EntityStatusEnum
+    val type: EntityTypeEnum
     val createDate: OperDate
     val modifyDate: OperDate
     val closeDate: OperDateNull
 
     fun validateEntityCore() {
-        require(status().entityType == entityType()) {
-            "entityId: $entityId, status ${status()} belongs to ${status().entityType}, but entity type is ${entityType()}"
+        require(status.entityType == type) {
+            "entityId: $entityId, status $status belongs to ${status.entityType}, but entity type is $type"
         }
 
         closeDate?.apply {
@@ -32,4 +32,5 @@ interface EntityCore : Serializable {
         }
 
     }
+
 }

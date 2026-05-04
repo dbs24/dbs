@@ -38,8 +38,10 @@ data class User(
     @get:JsonIgnore
     override val entityId: EntityId? get() = userId
 
-    override fun entityType() = ET_USER
+    @get:JsonIgnore
+    override val type get() = ET_USER
 
-    override fun status() = entityStatus
+    @get:JsonIgnore
+    override val status get() = entityStatus
 }
 

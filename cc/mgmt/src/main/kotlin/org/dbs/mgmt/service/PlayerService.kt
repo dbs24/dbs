@@ -88,7 +88,7 @@ class PlayerService(
             .doOnSuccess { player ->
                 eventPublisher.value.registryEvent(
                     requireNotNull(player.playerId) { "playerId must be set after save" },
-                    player.entityType().entityTypeId,
+                    player.type.entityTypeId,
                     EA_CREATE_OR_UPDATE_PLAYER.actionCodeId,
                     "system",
                     "Root player created",

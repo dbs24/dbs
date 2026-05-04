@@ -1,5 +1,6 @@
 package org.dbs.mgmt.model.hist
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import org.dbs.consts.AnyCode
 import org.dbs.consts.BirthDate
 import org.dbs.consts.CountryIsoCode
@@ -10,7 +11,6 @@ import org.dbs.consts.OperDateNull
 import org.dbs.consts.Password
 import org.dbs.consts.UriPath
 import org.dbs.entity.core.EntityStatusEnum
-import org.dbs.entity.core.EntityTypeEnum
 import org.dbs.entity.core.v2.model.EntityCore
 import org.dbs.player.PlayerCore.EntityTypes.ET_PLAYER
 import org.dbs.player.PlayerId
@@ -73,9 +73,12 @@ data class PlayerHist(
 
 ) : EntityCore {
 
+    @get:JsonIgnore
     override val entityId: EntityId get() = playerId
 
-    override fun entityType() = ET_PLAYER
+    @get:JsonIgnore
+    override val type get() = ET_PLAYER
 
-    override fun status() = entityStatus
+    @get:JsonIgnore
+    override val status get() = entityStatus
 }

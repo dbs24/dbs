@@ -58,7 +58,7 @@ object GrpcUpdateUserStatus {
                 //--------------------------------------------------------------------------------------------------
                 private fun validateNewUserStatus() {
                     rab.findEntityStatus(
-                        user.value.entityType(),
+                        user.value.type,
                         request.status,
                         SSS_USER_STATUS
                     ) { newStatus4update.init(it) }

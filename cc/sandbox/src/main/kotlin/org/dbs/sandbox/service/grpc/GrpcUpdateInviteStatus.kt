@@ -53,7 +53,7 @@ object GrpcUpdateInviteStatus {
                 //--------------------------------------------------------------------------------------------------
                 private fun validateNewInviteStatus() {
                     rab.findEntityStatus(
-                        invite.value.entityType(),
+                        invite.value.type,
                         request.status,
                         SSS_INVITE_STATUS
                     ) { newStatus4update.init(it) }

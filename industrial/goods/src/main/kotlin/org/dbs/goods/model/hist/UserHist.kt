@@ -7,7 +7,6 @@ import org.dbs.consts.OperDate
 import org.dbs.consts.OperDateNull
 import org.dbs.consts.Password
 import org.dbs.entity.core.EntityStatusEnum
-import org.dbs.entity.core.EntityTypeEnum
 import org.dbs.entity.core.v2.model.EntityCore
 import org.dbs.goods.UserCore.EntityTypes.ET_USER
 import org.dbs.goods.UserId
@@ -41,7 +40,9 @@ data class UserHist(
     @get:JsonIgnore
     override val entityId: EntityId? get() = userId
 
-    override fun entityType() = ET_USER
+    @get:JsonIgnore
+    override val type get() = ET_USER
 
-    override fun status() = entityStatus
+    @get:JsonIgnore
+    override val status get() = entityStatus
 }

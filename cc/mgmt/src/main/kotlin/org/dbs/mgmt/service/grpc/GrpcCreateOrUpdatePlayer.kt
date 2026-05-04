@@ -156,7 +156,7 @@ object GrpcCreateOrUpdatePlayer {
                 override suspend fun finishResponse(): ENT.Builder = finish(JK_SAVE, ENT.newBuilder()) {
                     it.setPlayerLogin(player4update.value.login)
                         .setEmail(player4update.value.email)
-                        .setStatus(player4update.value.status().entityStatusName)
+                        .setStatus(player4update.value.status.entityStatusName)
                 }
 
                 //------------------------------------------------------------------------------------------------------
@@ -164,7 +164,7 @@ object GrpcCreateOrUpdatePlayer {
                 override fun registryAction(duration: Long) {
                     eventPublisher.value.registryEvent(
                         requireNotNull(newPlayerId ?: player.value.playerId) { "playerId must be set after save" },
-                        player.value.entityType().entityTypeId,
+                        player.value.type.entityTypeId,
                         EA_CREATE_OR_UPDATE_PLAYER.actionCodeId,
                         remoteAddress,
                         request.toString(),

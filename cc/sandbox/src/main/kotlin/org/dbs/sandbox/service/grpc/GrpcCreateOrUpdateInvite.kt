@@ -99,7 +99,7 @@ object GrpcCreateOrUpdateInvite {
                     with(invite4Update.value) {
                         it.setInviteCode(inviteCode)
                             .setPlayerLogin(playerLogin)
-                            .setStatus(invite4Update.value.status().entityStatusName)
+                            .setStatus(invite4Update.value.status.entityStatusName)
                     }
                 }
 

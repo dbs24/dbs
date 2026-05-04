@@ -150,7 +150,7 @@ object GrpcCreateOrUpdateUser {
                 override suspend fun finishResponse(): ENT.Builder = finish(JK_SAVE, ENT.newBuilder()) {
                     it.setUserLogin(user4Update.value.login)
                         .setEmail(user4Update.value.email)
-                        .setStatus(user4Update.value.status().entityStatusName)
+                        .setStatus(user4Update.value.status.entityStatusName)
                 }
 
                 //------------------------------------------------------------------------------------------------------

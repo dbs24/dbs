@@ -5,7 +5,6 @@ import org.dbs.consts.EntityId
 import org.dbs.consts.OperDate
 import org.dbs.consts.OperDateNull
 import org.dbs.entity.core.EntityStatusEnum
-import org.dbs.entity.core.EntityTypeEnum
 import org.dbs.entity.core.v2.model.EntityCore
 import org.dbs.lobby.LobbyCode
 import org.dbs.lobby.LobbyCore.EntityTypes.ET_LOBBY
@@ -46,6 +45,8 @@ data class Lobby(
 
     @get:JsonIgnore
     override val entityId: EntityId? get() = lobbyId
-    override fun entityType() = ET_LOBBY
-    override fun status() = entityStatus
+    @get:JsonIgnore
+    override val type get() = ET_LOBBY
+    @get:JsonIgnore
+    override val status get() = entityStatus
 }
