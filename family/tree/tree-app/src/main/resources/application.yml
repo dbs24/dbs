@@ -57,7 +57,7 @@ spring:
     repositories:
       enabled: true
   application:
-    name: cc-mgmt
+    name: family-tree
   jackson:
     serialization:
       fail-on-empty-beans: false

@@ -73,6 +73,3 @@ GRPC SSL enabled             : ${grpc.server.security.enabled}
 GRPC cert                    : ${grpc.server.security.certificateChain:n/a}
 GRPC cert key                : ${grpc.server.security.privateKey:n/a}
 ------------------------------------------------------------
-GRPC Sandbox client host     : ${config.grpc.cc-sandbox.server.host}
-GRPC Sandbox client port     : ${config.grpc.cc-sandbox.server.port}
-------------------------------------------------------------

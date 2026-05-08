@@ -3,7 +3,9 @@ package org.dbs.ext
 import io.grpc.Grpc
 import io.grpc.Metadata
 import io.grpc.Metadata.ASCII_STRING_MARSHALLER
+import io.grpc.Metadata.BINARY_BYTE_MARSHALLER
 import io.grpc.ServerCall
+import org.dbs.application.core.service.funcs.StringFuncs.ends
 import org.dbs.consts.GrpcConsts.MetadataKeys.GRPC_USER_AGENT
 import org.dbs.consts.GrpcConsts.MetadataKeys.X_REAL_IP
 import org.dbs.consts.IpAddress
@@ -33,17 +35,20 @@ object GrpcFuncs {
     fun Metadata.log() = "Metadata: ${
         keys().map {
             "$it: ${
-                this[Metadata.Key.of(it, ASCII_STRING_MARSHALLER)]
+                if (it.ends("-bin"))
+                    this[Metadata.Key.of(it, BINARY_BYTE_MARSHALLER)]
+                else
+                    this[Metadata.Key.of(it, ASCII_STRING_MARSHALLER)]
             }"
         }
     }"
 
-    fun <T: Any> RAB.fmStart(f: NoArg2Mono<T>): MonoRAB = f().map { this }
+    fun <T : Any> RAB.fmStart(f: NoArg2Mono<T>): MonoRAB = f().map { this }
 
-    fun <T: Any> MonoRAB.fmInTransaction(f: NoArg2Mono<T>): MonoRAB =
+    fun <T : Any> MonoRAB.fmInTransaction(f: NoArg2Mono<T>): MonoRAB =
         flatMap { rab -> rab.inTransaction { f().map { rab } } }
 
-    fun <T: Any> MonoRAB.fmRab(f: NoArg2Mono<T>): MonoRAB = flatMap { rab -> f().map { rab } }
+    fun <T : Any> MonoRAB.fmRab(f: NoArg2Mono<T>): MonoRAB = flatMap { rab -> f().map { rab } }
 
     fun MonoRAB.fmFinish(f: NoArg2Unit): MonoRAB = map { rab -> f(); rab }
 
@@ -56,7 +61,8 @@ object GrpcFuncs {
         (headers[X_REAL_IP]?.replace(allowedIpV4Regex, EMPTY_STRING)
             ?: attributes[Grpc.TRANSPORT_ATTR_REMOTE_ADDR]?.toString())
             ?.let {
-                return@let it.ipAddress() }
+                return@let it.ipAddress()
+            }
             ?.also {
                 require(it.isValidIp())
                 { "$grpcProcedure: ${findI18nMessage(GRPC_REMOTE_ADDRESS_IS_NOT_ASSIGNED, it)} " }
@@ -64,8 +70,8 @@ object GrpcFuncs {
 
     fun <ReqT, RespT> ServerCall<ReqT, RespT>.getUserAgent(grpcProcedure: String, headers: Metadata): IpAddress =
         headers[GRPC_USER_AGENT]?.also {
-                    require(it.length>0)
-                } ?: error("$grpcProcedure: ${findI18nMessage(I18NEnum.GRPC_USER_AGENT_IS_NOT_ASSIGNED)} ")
-        //} ?: "fakedUserAgent"
+            require(it.length > 0)
+        } ?: error("$grpcProcedure: ${findI18nMessage(I18NEnum.GRPC_USER_AGENT_IS_NOT_ASSIGNED)} ")
+    //} ?: "fakedUserAgent"
 
 }

@@ -15,6 +15,7 @@ import org.dbs.consts.SpringCoreConst.PropertiesNames.NOT_AVAILABLE
 import org.dbs.consts.SysConst.EMPTY_STRING
 
 typealias MK = Metadata.Key<String>
+typealias MKB = Metadata.Key<ByteArray>
 typealias CTX = Context
 typealias CKC = Context.Key<Claims>
 typealias CKS = Context.Key<String>

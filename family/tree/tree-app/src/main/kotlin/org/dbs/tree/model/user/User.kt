@@ -31,6 +31,7 @@ data class User(
     val birthDate: BirthDate?,
     @Column("password_hash")
     val password: Password?,
+    @Column("status_id")
     val entityStatus: EntityStatusEnum,
 
     override val createDate: OperDate,

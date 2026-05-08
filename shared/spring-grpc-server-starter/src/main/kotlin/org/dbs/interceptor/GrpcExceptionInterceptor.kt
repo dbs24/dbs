@@ -10,6 +10,7 @@ import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor
 import org.apache.logging.log4j.kotlin.Logging
 import org.dbs.consts.IpAddress
 import org.dbs.consts.MK
+import org.dbs.consts.MKB
 import org.dbs.ext.GrpcFuncs.getProcedureName
 import org.dbs.ext.GrpcFuncs.getRemoteAddress
 import org.dbs.ext.GrpcFuncs.getUserAgent
@@ -23,19 +24,23 @@ class GrpcExceptionInterceptor : ServerInterceptor, Logging {
 
         val metadata = Metadata()
 
+        logger.error(e.toString())
+        e.printStackTrace()
+
         return when (e) {
             is ValidationException -> {
 
                 e.errors.forEachIndexed { i, err ->
-                    metadata.put(MK.of("error-$i-bin", Metadata.BINARY_BYTE_MARSHALLER),
+                    metadata.put(
+                        MKB.of("error-$i-bin", Metadata.BINARY_BYTE_MARSHALLER),
                         "${err.error}: ${err.field}: ${err.errorMsg}".toByteArray())
                 }
                 Status.INVALID_ARGUMENT.withDescription("Validation failed").withCause(e) to metadata
             }
             else -> {
 
-                metadata.put(MK.of("internal-error", Metadata.BINARY_BYTE_MARSHALLER), e.toString().toByteArray())
-                Status.INTERNAL.withDescription("Internal server error: ${e.toString()}").withCause(e.cause) to metadata
+                metadata.put(MKB.of("internal-error-bin", Metadata.BINARY_BYTE_MARSHALLER), e.toString().toByteArray())
+                Status.INTERNAL.withDescription("Internal server error: ${e.toString()}").withCause(e) to metadata
             }
         }.also {
             metadata.log()
