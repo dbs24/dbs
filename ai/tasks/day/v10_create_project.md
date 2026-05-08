@@ -18,7 +18,7 @@ Preferred stack:
 - spring boot
 - flayWay
 - grpc
-- postgres (r2dbc)
+- postgres (r2dbc, CoroutineCrudRepository)
 - koTest
 
 
@@ -27,7 +27,9 @@ Preferred stack:
 
 Following entities should be created
 
-| Entity          | Description             |
-|:----------------|:------------------------|
-| data class User | Customer of application |
+
+#### User
+
+
+#### UserGroup
 

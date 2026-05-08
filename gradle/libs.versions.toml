@@ -140,6 +140,7 @@ spring-thymeleaf                  = { module = "org.springframework.boot:spring-
 spring-log4j2                     = { module = "org.springframework.boot:spring-boot-starter-log4j2",                    version.ref = "springBoot" }
 spring-starter-test               = { module = "org.springframework.boot:spring-boot-starter-test",                     version.ref = "springBoot" }
 spring-starter-test-autoconfigure = { module = "org.springframework.boot:spring-boot-test-autoconfigure",               version.ref = "springBoot" }
+spring-aop                          = { module = "org.springframework.boot:spring-boot-starter-aop",                    version.ref = "springBoot" }
 
 # Spring Session
 spring-redis-session = { module = "org.springframework.session:spring-session-data-redis", version.ref = "springBootSession" }

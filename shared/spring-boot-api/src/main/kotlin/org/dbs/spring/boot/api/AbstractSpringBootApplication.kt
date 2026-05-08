@@ -258,8 +258,7 @@ abstract class AbstractSpringBootApplication : Logging {
             args: Array<String>,
             springBootClass: KClass<T>,
             bi: BannerInititializer
-        ) =
-            runSpringBootApplication(args, springBootClass, EMPTY_INITIALIZATION, bi)
+        ) =  runSpringBootApplication(args, springBootClass, EMPTY_INITIALIZATION, bi)
 
         private fun <T : Any> runSpringBootApplication(
             args: Array<String>,

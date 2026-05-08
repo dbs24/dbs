@@ -137,6 +137,13 @@ object Dependencies {
         const val CC_SANDBOX_PROTO_API = "$CC_SANDBOX_FLD:$CC_SANDBOX-proto-api"
         const val CC_SANDBOX_API = "$CC_SANDBOX_FLD:$CC_SANDBOX-api"
 
+        // ft
+        const val CC_TREE = "tree"
+        private const val CC_FAMILY_FLD = ":family:$CC_TREE"
+        const val CC_TREE_GRPC_CLIENT = "$CC_FAMILY_FLD:$CC_TREE-grpc-client"
+        const val CC_TREE_PROTO_API = "$CC_FAMILY_FLD:$CC_TREE-proto-api"
+        const val CC_TREE_API = "$CC_FAMILY_FLD:$CC_TREE-api"
+
         // proto
         private const val PROTOBUF_CORE = "protobuf-core"
         const val PROTOBUF_API = "protobuf-$API"

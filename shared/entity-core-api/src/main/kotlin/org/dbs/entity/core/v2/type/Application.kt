@@ -4,5 +4,6 @@ enum class Application(val applicationName: String) {
     CORE("core"),
     CHESS("chess-mgmt"),
     SAND_BOX("sandbox"),
-    INDUSTRIAL("industrial")
+    INDUSTRIAL("industrial"),
+    FAMILY_TREE("family-tree"),
 }

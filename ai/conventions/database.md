@@ -11,3 +11,8 @@
 - **SQL Scripts:** All constraints must be explicitly named in SQL migration scripts.
 
 Erroneous key names should be suggested for correction when creating the migration script.
+
+# R2DBC repositories
+
+- new database repositories should inherit interface **CoroutineCrudRepository**
+- new repository functions should stand as suspend

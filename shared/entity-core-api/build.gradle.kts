@@ -11,6 +11,7 @@ dependencies {
 
     implementation(libs.kotlin.stdlib.jdk8)
     implementation(libs.spring.data.r2dbc)
+    implementation(libs.spring.aop)
     implementation(libs.log4j.api.kotlin)
 
 }
