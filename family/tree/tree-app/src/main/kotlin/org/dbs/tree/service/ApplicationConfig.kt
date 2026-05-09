@@ -1,4 +1,4 @@
-package org.dbs.mgmt.service
+package org.dbs.tree.service
 
 import org.dbs.spring.core.api.AbstractApplicationConfig
 import org.dbs.spring.core.api.ReferencesConfig

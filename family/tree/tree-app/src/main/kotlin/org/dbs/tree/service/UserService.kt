@@ -8,6 +8,7 @@ import org.dbs.entity.core.EntityStatusEnum
 import org.dbs.entity.core.v2.model.LogEntityAction
 import org.dbs.spring.core.api.AbstractApplicationService
 import org.dbs.tree.validator.ValidateDto
+import org.dbs.user.UserCore.EntityStatus.ES_USER_ANONYMOUS
 import org.dbs.user.UserCore.isClosedUser
 import org.dbs.user.UserLogin
 import org.dbs.user.UserPassword
@@ -34,14 +35,27 @@ class UserService(
 
     @EventListener(ApplicationReadyEvent::class)
     fun onApplicationReady() {
-        runBlocking { findUserByLogin(ROOT_USER) ?: dao.createUser(userFactory.createRootUser()) }
+        runBlocking { findUserByLogin(ROOT_USER) ?: dao.saveUser(userFactory.createRootUser()) }
     }
 
     @ValidateDto
     @LogEntityAction("EA_CREATE_OR_UPDATE_USER")
     suspend fun createOrUpdateUser(request: CreateOrUpdateUserDto): ENTITY {
-        //executeEntityAction( applicationEventPublisher, EA_CREATE_OR_UPDATE_USER  ) {
-        TODO()
+
+        val updatedUser = dao.findUserByLogin(request.login) ?: createNewUser(request.login)
+        val isNewUser = request.oldLogin == null
+        val modifyDate = now()
+
+        return dao.saveUser(updatedUser.copy(
+            email = request.email,
+            firstName = request.firstName,
+            lastName = request.lastName,
+            entityStatus = ES_USER_ANONYMOUS.takeIf { isNewUser } ?: updatedUser.status,
+            createDate = modifyDate.takeIf { isNewUser } ?: updatedUser.createDate,
+            modifyDate = modifyDate,
+            closeDate = updatedUser.closeDate
+        ))
+
     }
 
     suspend fun createNewUser(userLogin: UserLogin): ENTITY =

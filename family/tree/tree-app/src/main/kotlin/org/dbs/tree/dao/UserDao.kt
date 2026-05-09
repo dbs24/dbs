@@ -19,7 +19,7 @@ class UserDao(
     val entityCacheService: EntityCacheService<ENTITY>,
 ) : DaoAbstractApplicationService() {
 
-    suspend fun createUser(user: User) : User = userRepo.save(user)
+    suspend fun saveUser(user: User) : User = userRepo.save(user)
 
     suspend fun findUserByLogin(login: Login): ENTITY? =
         entityCacheService.getEntity(CC_USER_LOGIN, login) {

@@ -13,4 +13,7 @@ data class ErrorInfo(val error: Error, val field: Field, val errorMsg: String) {
         val noErrors = MutableCollection<ErrorInfo>::isEmpty
         val noCollectionsErrors = Collection<ErrorInfo>::isEmpty
     }
+
+    fun toErrString(): String = "$error: $field: $errorMsg"
+
 }

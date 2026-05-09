@@ -22,6 +22,7 @@ enum class I18NEnum(
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // COMMON
+    FLD_INVALID_VALUE("Invalid Field value"),
     FLD_INVALID_USER_PASSWORD("Invalid user password"),
     INVALID_LOGIN_OR_PASSWORD("Invalid login or password"),
     ENTITY_NOT_FOUND_BY_CODE("Entity not found by code (%s)"),

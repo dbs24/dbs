@@ -57,7 +57,6 @@ import java.util.stream.Stream
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
-
 abstract class AbstractSpringBootApplication : Logging {
 
     @Value("\${config.security.secured-params:password,username}")

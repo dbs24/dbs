@@ -9,7 +9,6 @@ import io.grpc.Status
 import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor
 import org.apache.logging.log4j.kotlin.Logging
 import org.dbs.consts.IpAddress
-import org.dbs.consts.MK
 import org.dbs.consts.MKB
 import org.dbs.ext.GrpcFuncs.getProcedureName
 import org.dbs.ext.GrpcFuncs.getRemoteAddress
@@ -33,7 +32,7 @@ class GrpcExceptionInterceptor : ServerInterceptor, Logging {
                 e.errors.forEachIndexed { i, err ->
                     metadata.put(
                         MKB.of("error-$i-bin", Metadata.BINARY_BYTE_MARSHALLER),
-                        "${err.error}: ${err.field}: ${err.errorMsg}".toByteArray())
+                        err.toErrString().toByteArray())
                 }
                 Status.INVALID_ARGUMENT.withDescription("Validation failed").withCause(e) to metadata
             }

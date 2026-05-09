@@ -1,4 +1,4 @@
-package org.dbs.mgmt
+package org.dbs.tree
 
 import org.dbs.consts.GrpcConsts.GRPC_SET
 import org.dbs.consts.SecurityConsts.Cors.CORS_CONFIG_SET

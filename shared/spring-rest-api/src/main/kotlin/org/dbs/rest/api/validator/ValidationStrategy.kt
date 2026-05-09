@@ -11,7 +11,7 @@ interface ValidationStrategy<T: RequestDto>: Logging {
 
     val supportedClass: KClass<T>
 
-    suspend fun validateInternal(action: (MutableCollection<ErrorInfo>) -> Unit) {
+    fun validateInternal(action: (MutableCollection<ErrorInfo>) -> Unit) {
         createCollection<ErrorInfo>().apply {
             action(this)
             if (isNotEmpty()) {
@@ -21,6 +21,6 @@ interface ValidationStrategy<T: RequestDto>: Logging {
         }
     }
 
-    suspend fun validate(request: T)
+    fun validate(request: T)
 
 }

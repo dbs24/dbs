@@ -1,8 +1,11 @@
 package org.dbs.service.dao
 
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.reactor.awaitSingle
 import org.dbs.application.core.service.funcs.ServiceFuncs.createCollection
+import org.dbs.consts.EntityId
 import org.dbs.entity.core.ActionCode
+import org.dbs.entity.core.EntityActionEnum
 import org.dbs.entity.core.EntityStatus
 import org.dbs.entity.core.EntityType
 import org.dbs.entity.core.v2.model.EntityCore
@@ -36,6 +39,14 @@ class EntityDao(
     val actionRepo: ActionRepo,
 ) : DaoAbstractApplicationService() {
 
+    suspend fun findByEntityIdAndActionCode(entityId: EntityId, action: EntityActionEnum) =
+        actionRepo.findByEntityIdAndActionCode(entityId, action.actionCodeId)
+
+    suspend fun requireActions(entityId: EntityId, action: EntityActionEnum) {
+        findByEntityIdAndActionCode(entityId, action).firstOrNull()
+            ?: error("action(s) not found for entity: $entityId ")
+    }
+
     fun <T : EntityCore> saveEntity(entity: T): Mono<T> =
         if (entity.entityId == null)
             entityTemplate.insert(entity)
@@ -61,49 +72,56 @@ class EntityDao(
             .map { EntityType(it.entityTypeId.toInt(), it.entityTypeName, it.module.name) }
             .publishOn(parallelScheduler)
             .noDuplicates({ it.entityTypeId }, { it.entityTypeName })
-            .synchronizeReference(entityTypeRepository,
+            .synchronizeReference(
+                entityTypeRepository,
                 { existItem, preparedItem -> existItem.id == preparedItem.id },
                 { preparedItem -> preparedItem.copy() })
 
         // validate database
-        entityTypeRepository.findAll().validateDb {
-            rec -> entityTypes.count { rec.entityTypeId==it.entityTypeId.toInt()  } == 1 }.count().subscribeMono()
+        entityTypeRepository.findAll()
+            .validateDb { rec -> entityTypes.count { rec.entityTypeId == it.entityTypeId.toInt() } == 1 }.count()
+            .subscribeMono()
     }
         .also {
             logger.debug { "synchronizeEntityTypes: took $it ms" }
         }
 
 
-        fun synchronizeEntityStatuses() = measureTimeMillis {
-            // validate and save all entity types
-            fromIterable(entityStatuses)
-                .map { EntityStatus(it.entityStatusId, it.entityType.entityTypeId, it.entityStatusName ) }
-                .publishOn(parallelScheduler)
-                .noDuplicates({ it.entityStatus })
-                .synchronizeReference(entityStatusRepository,
-                    { existItem, preparedItem -> existItem.id == preparedItem.id },
-                    { preparedItem -> preparedItem.copy() })
+    fun synchronizeEntityStatuses() = measureTimeMillis {
+        // validate and save all entity types
+        fromIterable(entityStatuses)
+            .map { EntityStatus(it.entityStatusId, it.entityType.entityTypeId, it.entityStatusName) }
+            .publishOn(parallelScheduler)
+            .noDuplicates({ it.entityStatus })
+            .synchronizeReference(
+                entityStatusRepository,
+                { existItem, preparedItem -> existItem.id == preparedItem.id },
+                { preparedItem -> preparedItem.copy() })
 
-            // validate database
-            entityStatusRepository.findAll().validateDb {
-                    rec -> entityStatuses.count { rec.entityStatus == it.entityStatusId  } == 1 }.count().subscribeMono()
+        // validate database
+        entityStatusRepository.findAll()
+            .validateDb { rec -> entityStatuses.count { rec.entityStatus == it.entityStatusId } == 1 }.count()
+            .subscribeMono()
+    }
+        .also {
+            logger.debug { "synchronizeEntityStatuses: took $it ms" }
         }
-            .also {
-                logger.debug { "synchronizeEntityStatuses: took $it ms" }
-            }
-//
+
+    //
 //
     fun synchronizeActionCodes() = measureTimeMillis {
         fromIterable(entityActionEnums)
-            .map { ActionCode(it.actionCodeId, it.actionName, it.actionName, false ) }
+            .map { ActionCode(it.actionCodeId, it.actionName, it.actionName, false) }
             .noDuplicates({ it.actionCode }, { it.actionName }, { it.appName })
-            .synchronizeReference(actionCodeRepository,
+            .synchronizeReference(
+                actionCodeRepository,
                 { existItem, preparedItem -> existItem.actionCode == preparedItem.actionCode },
                 { preparedItem -> preparedItem.copy() })
 
         // validate database
-        actionCodeRepository.findAll().validateDb {
-                rec -> entityActionEnums.count { rec.actionCode == it.actionCodeId  } == 1 }.count().subscribeMono()
+        actionCodeRepository.findAll()
+            .validateDb { rec -> entityActionEnums.count { rec.actionCode == it.actionCodeId } == 1 }.count()
+            .subscribeMono()
 
     }.also {
         logger.debug { "synchronizeActionCode: took $it ms" }

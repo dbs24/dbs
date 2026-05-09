@@ -27,6 +27,8 @@ dependencies {
     implementation(libs.spring.webflux)
     implementation(libs.kotlin.test.junit)
     implementation(libs.log4j.api.kotlin)
+    implementation(libs.grpc.kotlin.stub)
+    implementation(libs.grpc.server.spring.boot)
     implementation(libs.kotest.blockhound)
     testApi(libs.blockhound.junit.platform)
 

@@ -1,4 +1,4 @@
-package org.dbs.mgmt.config
+package org.dbs.tree.config
 
 import org.dbs.config.MainApplicationConfig
 import org.dbs.consts.SpringCoreConst.Beans.DEFAULT_PROXY_BEANS_VAL
@@ -44,6 +44,7 @@ import org.springframework.boot.autoconfigure.web.reactive.ReactiveMultipartAuto
 import org.springframework.boot.autoconfigure.web.reactive.function.client.ClientHttpConnectorAutoConfiguration
 import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.EnableAspectJAutoProxy
 
 
 @EnableAutoConfiguration(exclude = [
@@ -89,4 +90,5 @@ import org.springframework.context.annotation.Configuration
     AuditEventsEndpointAutoConfiguration::class,
 ])
 @Configuration(proxyBeanMethods = DEFAULT_PROXY_BEANS_VAL)
+@EnableAspectJAutoProxy(proxyTargetClass = true)
 class TreeConfig : MainApplicationConfig()

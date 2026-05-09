@@ -1,4 +1,4 @@
-package org.dbs.mgmt.rest
+package org.dbs.tree.rest
 
 import org.dbs.rest.api.consts.H1_PROCESSOR
 import org.springframework.stereotype.Service

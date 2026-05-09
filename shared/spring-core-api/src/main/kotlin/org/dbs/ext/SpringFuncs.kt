@@ -5,6 +5,9 @@ import org.dbs.consts.EntityId
 import org.dbs.consts.EntityTypeId
 import org.dbs.consts.IpAddress
 import org.dbs.consts.StringNote
+import org.dbs.validator.Error
+import org.dbs.validator.ErrorInfo
+import org.dbs.validator.Field
 import org.springframework.context.ApplicationEventPublisher
 
 object SpringFuncs {
@@ -29,6 +32,11 @@ object SpringFuncs {
                 userId = userId
             )
         )
+
+    fun String.fromErrString(): ErrorInfo {
+        val (error, field, errorMsg) = split(": ", limit = 3)
+        return ErrorInfo(Error.valueOf(error), Field.valueOf(field), errorMsg)
+    }
 
 }
 

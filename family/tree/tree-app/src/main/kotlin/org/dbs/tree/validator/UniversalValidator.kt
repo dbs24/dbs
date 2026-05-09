@@ -1,14 +1,17 @@
 package org.dbs.tree.validator
 
+import org.apache.logging.log4j.kotlin.Logging
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect
+import org.aspectj.lang.reflect.MethodSignature
 import org.dbs.rest.api.nio.RequestDto
 import org.dbs.rest.api.validator.ValidationStrategy
 import org.dbs.validator.Error
 import org.dbs.validator.ErrorInfo.Companion.create
 import org.dbs.validator.Field
 import org.dbs.validator.exception.ValidationException
+import org.springframework.context.annotation.Lazy
 import org.springframework.core.Ordered.HIGHEST_PRECEDENCE
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
@@ -21,13 +24,19 @@ annotation class ValidateDto
 @Aspect
 @Component
 @Order(HIGHEST_PRECEDENCE)
+@Lazy(false)
 class UniversalValidator(
     val strategies: List<ValidationStrategy<*>>
-) {
+) : Logging {
     private val strategyMap by lazy { strategies.associateBy { it.supportedClass } as Map<KClass<*>, ValidationStrategy<RequestDto>> }
 
-    @Around("@annotation(validateDto)")
-    suspend fun validateUserDto(joinPoint: ProceedingJoinPoint, validateDto: ValidateDto): Any? {
+    @Around("@annotation(org.dbs.tree.validator.ValidateDto)")
+    fun validateDto(joinPoint: ProceedingJoinPoint): Any {
+
+        val method = (joinPoint.signature as MethodSignature).method
+        val isSuspend = method.parameterCount > 0 &&
+                method.parameterTypes.last().name == "kotlin.coroutines.Continuation"
+        val debugInfo by lazy {"method: ${method.name}, isSuspend: $isSuspend, parameters: ${method.parameterCount}"}
 
         val requestDto: RequestDto = joinPoint.args.find { arg ->
             strategyMap.keys.any { klass -> klass.isInstance(arg) }
@@ -36,10 +45,12 @@ class UniversalValidator(
                 listOf(
                     create(
                         Error.GENERAL_ERROR, Field.UNKNOWN_FIELD,
-                        "No validatable DTO found in method arguments"
+                        "No validatable DTO found in method arguments ($debugInfo)"
                     )
                 )
             )
+
+        logger.debug { "validate dto: $requestDto ($debugInfo)" }
 
         requestDto.apply {
             val strategy = strategyMap[this::class]
@@ -47,15 +58,13 @@ class UniversalValidator(
                     listOf(
                         create(
                             Error.GENERAL_ERROR, Field.UNKNOWN_FIELD,
-                            "No validator found for ${requestDto::class.simpleName}"
+                            "No validator found for ${requestDto::class.simpleName} ($debugInfo)"
                         )
                     )
                 )
-            strategy.validate(this as RequestDto)
+            strategy.validate(this)
+
         }
         return joinPoint.proceed()
-
     }
 }
-
-

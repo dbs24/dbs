@@ -1,4 +1,4 @@
-package org.dbs.mgmt.config
+package org.dbs.tree.config
 
 import org.dbs.service.PostgresR2dbcConfiguration
 import org.dbs.service.convert.EntityStatusReadConverter

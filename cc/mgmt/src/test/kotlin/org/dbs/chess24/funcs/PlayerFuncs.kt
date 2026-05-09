@@ -12,9 +12,16 @@ import org.dbs.application.core.service.funcs.TestFuncs.generateTestLogin
 import org.dbs.application.core.service.funcs.TestFuncs.generateTestName
 import org.dbs.application.core.service.funcs.TestFuncs.generateTestPassword811
 import org.dbs.application.core.service.funcs.TestFuncs.generateTestPhone
-import org.dbs.consts.*
+import org.dbs.consts.AnyCode
+import org.dbs.consts.BirthDateDto
+import org.dbs.consts.CountryIsoCode
+import org.dbs.consts.Email
+import org.dbs.consts.EmailNull
+import org.dbs.consts.EntityCode
+import org.dbs.consts.EntityCodeNull
+import org.dbs.consts.Phone
 import org.dbs.consts.RestHttpConsts.BEARER
-import org.dbs.entity.core.EntityActionEnum
+import org.dbs.consts.UriPath
 import org.dbs.entity.core.v2.status.EntityStatusName
 import org.dbs.mgmt.dao.PlayerDao
 import org.dbs.mgmt.model.player.Player
@@ -25,10 +32,17 @@ import org.dbs.player.PlayerPassword
 import org.dbs.player.PlayersConsts.Routes.ROUTE_CREATE_OR_UPDATE_PLAYER
 import org.dbs.player.PlayersConsts.Routes.ROUTE_UPDATE_PLAYER_PASSWORD
 import org.dbs.player.PlayersConsts.Routes.ROUTE_UPDATE_PLAYER_STATUS
-import org.dbs.player.dto.player.*
+import org.dbs.player.dto.player.CreateOrUpdatePlayerDto
+import org.dbs.player.dto.player.CreateOrUpdatePlayerRequest
+import org.dbs.player.dto.player.CreatePlayerResponse
+import org.dbs.player.dto.player.UpdatePlayerPasswordDto
+import org.dbs.player.dto.player.UpdatePlayerPasswordRequest
+import org.dbs.player.dto.player.UpdatePlayerPasswordResponse
+import org.dbs.player.dto.player.UpdatePlayerStatusDto
+import org.dbs.player.dto.player.UpdatePlayerStatusRequest
+import org.dbs.player.dto.player.UpdatePlayerStatusResponse
 import org.dbs.ref.serv.enums.CountryEnum.Companion.getRandomCountry
 import org.dbs.ref.serv.enums.GenderEnum.Companion.getRandomGender
-import org.dbs.service.dao.EntityDao
 import org.dbs.test.ko.WebTestClientFuncs.executePostRequestV2
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import reactor.core.publisher.Mono
@@ -40,9 +54,6 @@ object PlayerFuncs : Logging {
     private suspend fun PlayerDao.playerCount() = playerRepo.count()
     suspend fun PlayerService.playerCount() = dao.playerCount()
     suspend fun AbstractChessTest.playerCount() = playerService.playerCount()
-
-    private suspend fun EntityDao.findByEntityIdAndActionCode(entityId: EntityId, action: EntityActionEnum)
-        = actionRepo.findByEntityIdAndActionCode(entityId, action.actionCodeId)
 
     val playerStatusesNames by lazy { ET_PLAYER.existsEntityStatuses.map { it.entityStatusName } }
 

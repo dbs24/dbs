@@ -1,8 +1,20 @@
-package org.dbs.tree.funcs
+package org.dbs.test.ko
 
 import api.TestConst.SQL_TEST_DB_NAME
 import api.TestConst.SQL_TEST_DB_USER
-import org.dbs.component.JwtSecurityService
+import com.google.protobuf.GeneratedMessage
+import io.grpc.ManagedChannel
+import io.grpc.ManagedChannelBuilder
+import io.grpc.Metadata
+import io.grpc.Status
+import io.grpc.StatusException
+import io.grpc.protobuf.StatusProto
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.extensions.spring.SpringExtension
+import io.kotest.matchers.shouldBe
+import net.devh.boot.grpc.server.config.GrpcServerProperties
+import org.apache.logging.log4j.kotlin.Logging
 import org.dbs.consts.SpringCoreConst.PropertiesNames.BUCKET_4J_ENABLED
 import org.dbs.consts.SpringCoreConst.PropertiesNames.DEFAULT_SYS_CURRENCY
 import org.dbs.consts.SpringCoreConst.PropertiesNames.DEFAULT_SYS_CURRENCY_VALUE
@@ -18,40 +30,30 @@ import org.dbs.consts.SpringCoreConst.PropertiesNames.SPRINGDOC_API_DOCS_ENABLED
 import org.dbs.consts.SpringCoreConst.PropertiesNames.SPRINGDOC_SWAGGER_ENABLED
 import org.dbs.consts.SpringCoreConst.PropertiesNames.SPRING_R2DBC_URL
 import org.dbs.consts.SpringCoreConst.PropertiesNames.YML_CORS_CONFIG_ENABLED
-import org.dbs.consts.StringMap
-import org.dbs.consts.SuspendNoArg2Mono
-import org.dbs.consts.SysConst.EMPTY_STRING
-import org.dbs.consts.SysConst.LongConsts.MAX_EXPIRY_TIME
 import org.dbs.consts.SysConst.STRING_FALSE
 import org.dbs.consts.SysConst.STRING_TRUE
-import org.dbs.consts.SysConst.UsersConsts.ROOT_USER
-import org.dbs.spring.core.api.ServiceLocator.findService
+import org.dbs.ext.SpringFuncs.fromErrString
 import org.dbs.test.container.KafkaTestContainer
 import org.dbs.test.container.PostgresR2dbcContainer
 import org.dbs.test.container.RedisTestContainer
 import org.dbs.test.core.SysTestConsts.Grpc.GRPC_RANDOM_SERVER_PORT
 import org.dbs.test.core.SysTestConsts.Postgres.TEST_PG_R2DBC_IMAGE_TAG
-import org.dbs.test.ko.AbstractKoTestBehaviorSpec
-import org.dbs.tree.TreeApplication
-import org.dbs.tree.config.TreeConfig
+import org.dbs.validator.ErrorInfo
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation
 import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import org.junit.jupiter.api.TestMethodOrder
-import org.springframework.beans.factory.annotation.Value
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
-import org.springframework.context.annotation.Import
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.TestPropertySource
-
-typealias TreeKoTest = AbstractTreeTest.() -> Unit
+import java.util.concurrent.TimeUnit
 
 @TestPropertySource(
     properties = [
+        "grpc.server.port=0",
+        "grpc.server.security.enabled=false",
         "$JUNIT_MODE=true",
         "$KOTEST_MODE=true",
         "$SERVER_SSL_ENABLED=$SERVER_SSL_DISABLED",
@@ -66,61 +68,80 @@ typealias TreeKoTest = AbstractTreeTest.() -> Unit
         "$DEFAULT_SYS_CURRENCY=$DEFAULT_SYS_CURRENCY_VALUE"
     ]
 )
-
 @ContextConfiguration
-@SpringBootTest(
-    webEnvironment = RANDOM_PORT,
-    classes = [TreeApplication::class]
-)
-@Import(TreeConfig::class)
-@TestInstance(PER_CLASS)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(OrderAnnotation::class)
 @AutoConfigureWebTestClient
-abstract class AbstractTreeTest(treeCoreKoTest: TreeKoTest) : AbstractKoTestBehaviorSpec() {
+abstract class BaseGrpcSpec : StringSpec(), Logging {
+
+    @Autowired
+    lateinit var grpcServerProperties: GrpcServerProperties
+
+    override val extensions = listOf(SpringExtension)
+
+    protected lateinit var channel: ManagedChannel
+
     init {
-        this.treeCoreKoTest()
+        beforeSpec {
+            val port = grpcServerProperties.port
+
+            require (port > 0) { "gRPC server port is not assigned! Current port: $port. Check if gRPC server started." }
+
+            logger.info(" gRPC test server port: $port")
+
+            channel = ManagedChannelBuilder
+                .forAddress("localhost", port)
+                .usePlaintext()
+                .build()
+            initStubs(channel)
+        }
+
+        afterSpec {
+            channel.shutdown().awaitTermination(2, TimeUnit.SECONDS)
+        }
+
+        beforeTest {
+            //clearDatabase()
+        }
     }
 
-    @Value("\${$JWT_SECRET_KEY}")
-    private val secretKey = EMPTY_STRING
+    suspend fun getErrorsFromStub(getExceptionFunc: suspend () -> GeneratedMessage): Collection<ErrorInfo> {
 
-    // Services
-    private val jwtSecurityService by lazy { findService(JwtSecurityService::class) }
-//    val playerService by lazy { findService(PlayerService::class) }
-//    val entityDao by lazy { findService(EntityDao::class) }
+        val exception = shouldThrow<StatusException> {
+            getExceptionFunc()
+        }
 
+        // 1. Конвертируем исключение в Proto Status
+        val rpcStatus = StatusProto.fromThrowable(exception) ?: error("No RPC status found")
 
-    fun getJwtToken(claims: StringMap) =
-        jwtSecurityService.generateJwt(
-            this.javaClass.packageName,
-            claims,
-            3600, // seconds
-            jwtSecurityService.buildKey(secretKey)
-        )
+        logger.info { "rpcStatus: $rpcStatus.m" }
 
-    val managerJwt by lazy {
-        jwtSecurityService
-            .generateJwt(
-                javaClass.packageName,
-                mapOf(ROOT_USER to ROOT_USER),
-                MAX_EXPIRY_TIME,
-                jwtSecurityService.buildKey(secretKey)
-            )
+        rpcStatus.message shouldBe "Validation failed"
+
+        // 1. Проверяем основной статус
+        exception.status.code shouldBe Status.Code.INVALID_ARGUMENT
+
+        // 2. Извлекаем trailers (metadata)
+        val trailers = Status.trailersFromThrowable(exception) ?: error("No trailers found in exception")
+
+        // 3. Собираем все значения ошибок в список
+        return trailers.keys()
+            .filter { it.startsWith("error-") }
+            .map { keyName ->
+                val key = io.grpc.Metadata.Key.of(keyName, Metadata.BINARY_BYTE_MARSHALLER)
+                String(trailers.get(key) ?: byteArrayOf()).fromErrString()
+            }
+
     }
 
-    override suspend fun <T> runTest(testRunner: SuspendNoArg2Mono<T>) = run {
-        validatePostgresContainer()
-        runTestWithResult(testRunner)
-    }
+    // Методы расширения для конкретных тестов
+    abstract fun initStubs(channel: ManagedChannel)
 
     companion object {
 
         val postgresR2dbcContainer = PostgresR2dbcContainer(SQL_TEST_DB_NAME, SQL_TEST_DB_USER)
         private val kafkaTestContainer = KafkaTestContainer()
         private val redisTestContainer = RedisTestContainer()
-        //private val mailTestContainer = MailServerTestContainer()
-        //private val actorsTestContainer = ActorsServerTestContainer()
-        //private val authServerTestContainer = AuthServerTestContainer()
 
         @JvmStatic
         @DynamicPropertySource
@@ -128,13 +149,6 @@ abstract class AbstractTreeTest(treeCoreKoTest: TreeKoTest) : AbstractKoTestBeha
             postgresR2dbcContainer.overrideApplicationProperties(dynamicPropertyRegistry)
             kafkaTestContainer.overrideApplicationProperties(dynamicPropertyRegistry)
             redisTestContainer.overrideApplicationProperties(dynamicPropertyRegistry)
-            //mailTestContainer.overrideApplicationProperties(dynamicPropertyRegistry)
-            //actorsTestContainer.overrideApplicationProperties(dynamicPropertyRegistry)
-            //authServerTestContainer.overrideApplicationProperties(dynamicPropertyRegistry)
         }
     }
-
-    fun validatePostgresContainer() =
-        require(postgresR2dbcContainer.dbPgContainer.isRunning) { "Postgres is not running" }
-
 }
