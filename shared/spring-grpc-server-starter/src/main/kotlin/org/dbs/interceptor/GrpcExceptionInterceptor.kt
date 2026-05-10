@@ -22,7 +22,6 @@ class GrpcExceptionInterceptor : ServerInterceptor, Logging {
     private fun translateException(e: Throwable): Pair<Status, Metadata> {
 
         val metadata = Metadata()
-
         logger.error(e.toString())
         e.printStackTrace()
 

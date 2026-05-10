@@ -11,6 +11,8 @@ import org.dbs.tree.config.TreeConfig
 import org.dbs.tree.repo.user.UserRepo
 import org.dbs.user.UserCore.EntityStatus.ES_USER_ANONYMOUS
 import org.dbs.user.UserCore.UserActionEnum.EA_CREATE_OR_UPDATE_USER
+import org.dbs.validator.Error
+import org.dbs.validator.Field
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
@@ -24,6 +26,7 @@ typealias Stub = UserServiceGrpcKt.UserServiceCoroutineStub
     classes = [TreeApplication::class]
 )
 @Import(TreeConfig::class)
+@Suppress("unused")
 class UsersGrpcTests : BaseGrpcSpec() {
 
     @Autowired
@@ -60,19 +63,20 @@ class UsersGrpcTests : BaseGrpcSpec() {
             val userId: Long = user?.userId!!
             userId shouldNotBe null
 
-            entityDao.requireActions(userId,EA_CREATE_OR_UPDATE_USER)
+            entityDao.requireActions(userId, EA_CREATE_OR_UPDATE_USER)
         }
 
-        "Success: Create invalid user via gRPC network call" {
+        "Success: Try to create invalid user via gRPC network call" {
             val request = REQ.newBuilder()
                 .setLogin("")
                 .build()
 
-            val errorList = getErrorsFromStub {
-                userStub.createOrUpdateUser(request)
-            }
-
-            logger.info { " ##### errorList: $errorList" }
+            suspend { userStub.createOrUpdateUser(request) }
+               .shouldFailWithValidation()
+               .shouldContainErrors (
+                    Error.INVALID_DTO_ATTR to Field.SSS_LOGIN_USER,
+                    Error.INVALID_DTO_ATTR to Field.SSS_LOGIN_USER,
+                )
 
         }
     }

@@ -34,8 +34,14 @@ object SpringFuncs {
         )
 
     fun String.fromErrString(): ErrorInfo {
-        val (error, field, errorMsg) = split(": ", limit = 3)
-        return ErrorInfo(Error.valueOf(error), Field.valueOf(field), errorMsg)
+//        val (error, field, errorMsg) = split(": ", limit = 3)
+//        return ErrorInfo(Error.valueOf(error), Field.valueOf(field), errorMsg)
+        val parts = this.split(": ", limit = 3)
+        return ErrorInfo(
+            error = Error.valueOf(parts[0]),
+            field = Field.valueOf(parts[1]),
+            errorMsg = parts.getOrNull(2) ?: ""
+        )
     }
 
 }

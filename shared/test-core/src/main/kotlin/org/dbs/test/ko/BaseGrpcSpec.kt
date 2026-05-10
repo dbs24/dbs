@@ -2,14 +2,14 @@ package org.dbs.test.ko
 
 import api.TestConst.SQL_TEST_DB_NAME
 import api.TestConst.SQL_TEST_DB_USER
-import com.google.protobuf.GeneratedMessage
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import io.grpc.Metadata
 import io.grpc.Status
 import io.grpc.StatusException
-import io.grpc.protobuf.StatusProto
-import io.kotest.assertions.throwables.shouldThrow
+import io.grpc.StatusRuntimeException
+import io.kotest.assertions.throwables.shouldThrowAny
+import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.shouldBe
@@ -38,7 +38,9 @@ import org.dbs.test.container.PostgresR2dbcContainer
 import org.dbs.test.container.RedisTestContainer
 import org.dbs.test.core.SysTestConsts.Grpc.GRPC_RANDOM_SERVER_PORT
 import org.dbs.test.core.SysTestConsts.Postgres.TEST_PG_R2DBC_IMAGE_TAG
+import org.dbs.validator.Error
 import org.dbs.validator.ErrorInfo
+import org.dbs.validator.Field
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestMethodOrder
@@ -105,33 +107,25 @@ abstract class BaseGrpcSpec : StringSpec(), Logging {
         }
     }
 
-    suspend fun getErrorsFromStub(getExceptionFunc: suspend () -> GeneratedMessage): Collection<ErrorInfo> {
+    suspend fun <T> (suspend () -> T).shouldFailWithValidation(): ErrorBox {
+        val ex = shouldThrowAny { this.invoke() }
 
-        val exception = shouldThrow<StatusException> {
-            getExceptionFunc()
+        // Проверяем, что это именно gRPC ошибка
+        if (ex !is StatusException && ex !is StatusRuntimeException) {
+            throw ex
         }
 
-        // 1. Конвертируем исключение в Proto Status
-        val rpcStatus = StatusProto.fromThrowable(exception) ?: error("No RPC status found")
+        val trailers = Status.trailersFromThrowable(ex)
+            ?: error("Expected gRPC trailers with errors, but got none")
 
-        logger.info { "rpcStatus: $rpcStatus.m" }
-
-        rpcStatus.message shouldBe "Validation failed"
-
-        // 1. Проверяем основной статус
-        exception.status.code shouldBe Status.Code.INVALID_ARGUMENT
-
-        // 2. Извлекаем trailers (metadata)
-        val trailers = Status.trailersFromThrowable(exception) ?: error("No trailers found in exception")
-
-        // 3. Собираем все значения ошибок в список
-        return trailers.keys()
+        val errors = trailers.keys()
             .filter { it.startsWith("error-") }
             .map { keyName ->
-                val key = io.grpc.Metadata.Key.of(keyName, Metadata.BINARY_BYTE_MARSHALLER)
-                String(trailers.get(key) ?: byteArrayOf()).fromErrString()
+                val key = Metadata.Key.of(keyName, Metadata.BINARY_BYTE_MARSHALLER)
+                String(trailers.get(key)!!).fromErrString()
             }
 
+        return ErrorBox(errors)
     }
 
     // Методы расширения для конкретных тестов
@@ -149,6 +143,18 @@ abstract class BaseGrpcSpec : StringSpec(), Logging {
             postgresR2dbcContainer.overrideApplicationProperties(dynamicPropertyRegistry)
             kafkaTestContainer.overrideApplicationProperties(dynamicPropertyRegistry)
             redisTestContainer.overrideApplicationProperties(dynamicPropertyRegistry)
+        }
+    }
+}
+
+@JvmInline
+value class ErrorBox(val errors: Collection<ErrorInfo>) {
+
+    fun shouldContainErrors(vararg expected: Pair<Error, Field>): ErrorBox = apply {
+        expected.forEach { (error, field) ->
+            withClue("Expected error ($error, $field) not found. Present errors: $errors") {
+                errors.any { it.error == error && it.field == field } shouldBe true
+            }
         }
     }
 }
