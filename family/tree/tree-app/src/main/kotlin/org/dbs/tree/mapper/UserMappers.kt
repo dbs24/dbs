@@ -16,15 +16,15 @@ object UserMappers {
 
     fun CreateOrUpdateUserRequest.toUserDoMain(): CreateOrUpdateUserDto =
         CreateOrUpdateUserDto(
-            oldLogin = oldLogin,
+            oldLogin = oldLogin.grpcGetOrNull(),
             login = login,
-            oldEmail = oldEmail,
+            oldEmail = oldEmail.grpcGetOrNull(),
             email = email,
             password = password,
-            firstName =  firstName,
-            middleName = firstName,
-            lastName = lastName,
-            phone = phone
+            firstName =  firstName.grpcGetOrNull(),
+            middleName = firstName.grpcGetOrNull(),
+            lastName = lastName.grpcGetOrNull(),
+            phone = phone.grpcGetOrNull()
         )
 
     fun User.toUserProto() : CreateOrUpdateUserResponse = CreateOrUpdateUserResponse.newBuilder()

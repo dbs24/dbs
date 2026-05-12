@@ -1,6 +1,5 @@
 package org.dbs.service.dao
 
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.reactor.awaitSingle
 import org.dbs.application.core.service.funcs.ServiceFuncs.createCollection
 import org.dbs.consts.EntityId
@@ -41,11 +40,6 @@ class EntityDao(
 
     suspend fun findByEntityIdAndActionCode(entityId: EntityId, action: EntityActionEnum) =
         actionRepo.findByEntityIdAndActionCode(entityId, action.actionCodeId)
-
-    suspend fun requireActions(entityId: EntityId, action: EntityActionEnum) {
-        findByEntityIdAndActionCode(entityId, action).firstOrNull()
-            ?: error("action(s) not found for entity: $entityId ")
-    }
 
     fun <T : EntityCore> saveEntity(entity: T): Mono<T> =
         if (entity.entityId == null)

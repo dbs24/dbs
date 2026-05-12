@@ -11,14 +11,14 @@ springdoc = "2.8.16"
 # Data / Persistence
 redisClients = "7.5.0"
 postgres = "42.7.11"
-flyway = "12.5.0"
+flyway = "12.6.0"
 r2dbcPool = "1.0.2.RELEASE"
 r2dbcPostgres = "1.1.1.RELEASE"
 queryDsl = "5.1.0"
 
 # Kotlin
 kotlin = "2.2.21"
-kotlinx-coroutines = "1.10.2"
+kotlinx-coroutines = "1.11.0"
 kotlinxLincheck = "2.39"
 kotlinSerialization = "1.11.0"
 
@@ -32,7 +32,7 @@ blockhoundJunitPlatform = "1.0.16.RELEASE"
 # gRPC / Protobuf
 grpc = "1.81.0"
 grpcKotlinStub = "1.5.0"
-grpcGateway = "2.91.0"
+grpcGateway = "2.92.0"
 grpcServerSpringBoot = "3.1.0.RELEASE"
 grpcServerSpringBootAutoconfigure = "2.15.0.RELEASE"
 grpcSpringBoot = "4.5.10"

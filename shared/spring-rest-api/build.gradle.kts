@@ -32,6 +32,7 @@ dependencies {
     implementation(libs.coroutines.core)
     implementation(libs.coroutines.core.jvm)
     implementation(libs.coroutines.reactor)
+    implementation(libs.spring.aop)
 
     compileOnly(libs.spring.data.r2dbc)
     compileOnly(libs.bucket4j.core)

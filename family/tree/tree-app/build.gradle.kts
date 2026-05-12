@@ -90,7 +90,6 @@ dependencies {
     implementation(libs.spring.security)
     implementation(libs.spring.starter)
     implementation(libs.spring.webflux)
-    implementation(libs.spring.aop)
     implementation(libs.springdoc.openapi.webflux.ui)
     implementation(libs.swagger.annotations)
     implementation(enforcedPlatform(libs.protobuf.bom))

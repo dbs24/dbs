@@ -22,6 +22,7 @@ dependencies {
     implementation(libs.testcontainers.postgresql)
     implementation(libs.testcontainers.kafka)
     implementation(libs.testcontainers.r2dbc)
+    implementation(libs.spring.data.r2dbc)
     implementation(libs.spring.starter.test)
     implementation(libs.spring.starter.test.autoconfigure)
     implementation(libs.spring.webflux)
@@ -33,6 +34,7 @@ dependencies {
     testApi(libs.blockhound.junit.platform)
 
     implementation(libs.kotest.assertions.core)
+    implementation(libs.kotlin.reflect)
     implementation(libs.kotest.runner.junit5.jvm)
     implementation(libs.kotest.runner.junit5)
     implementation(libs.kotest.engine)

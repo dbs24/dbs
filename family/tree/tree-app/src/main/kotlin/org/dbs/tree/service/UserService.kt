@@ -6,8 +6,8 @@ import org.dbs.consts.StringNote
 import org.dbs.consts.SysConst.UsersConsts.ROOT_USER
 import org.dbs.entity.core.EntityStatusEnum
 import org.dbs.entity.core.v2.model.LogEntityAction
+import org.dbs.rest.validation.ValidateDto
 import org.dbs.spring.core.api.AbstractApplicationService
-import org.dbs.tree.validator.ValidateDto
 import org.dbs.user.UserCore.EntityStatus.ES_USER_ANONYMOUS
 import org.dbs.user.UserCore.isClosedUser
 import org.dbs.user.UserLogin
@@ -19,6 +19,7 @@ import org.springframework.context.annotation.Lazy
 import org.springframework.context.event.EventListener
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime.now
 import org.dbs.tree.dao.UserDao as DAO
 import org.dbs.tree.model.user.User as ENTITY
@@ -40,19 +41,19 @@ class UserService(
 
     @ValidateDto
     @LogEntityAction("EA_CREATE_OR_UPDATE_USER")
+    @Transactional
     suspend fun createOrUpdateUser(request: CreateOrUpdateUserDto): ENTITY {
 
         val updatedUser = dao.findUserByLogin(request.login) ?: createNewUser(request.login)
         val isNewUser = request.oldLogin == null
-        val modifyDate = now()
 
         return dao.saveUser(updatedUser.copy(
             email = request.email,
             firstName = request.firstName,
             lastName = request.lastName,
+            password = passwordEncoder.encode(request.password),
             entityStatus = ES_USER_ANONYMOUS.takeIf { isNewUser } ?: updatedUser.status,
-            createDate = modifyDate.takeIf { isNewUser } ?: updatedUser.createDate,
-            modifyDate = modifyDate,
+            modifyDate = if (!isNewUser) now() else updatedUser.modifyDate,
             closeDate = updatedUser.closeDate
         ))
 

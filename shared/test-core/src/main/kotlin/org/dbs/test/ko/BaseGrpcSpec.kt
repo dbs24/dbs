@@ -32,6 +32,8 @@ import org.dbs.consts.SpringCoreConst.PropertiesNames.SPRING_R2DBC_URL
 import org.dbs.consts.SpringCoreConst.PropertiesNames.YML_CORS_CONFIG_ENABLED
 import org.dbs.consts.SysConst.STRING_FALSE
 import org.dbs.consts.SysConst.STRING_TRUE
+import org.dbs.entity.core.EntityActionEnum
+import org.dbs.entity.core.v2.model.EntityCore
 import org.dbs.ext.SpringFuncs.fromErrString
 import org.dbs.test.container.KafkaTestContainer
 import org.dbs.test.container.PostgresR2dbcContainer
@@ -46,11 +48,17 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
+import org.springframework.r2dbc.core.DatabaseClient
+import org.springframework.r2dbc.core.awaitOne
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.TestPropertySource
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
+import kotlin.reflect.KClass
+import kotlin.reflect.KProperty1
+import kotlin.reflect.full.memberProperties
 
 @TestPropertySource(
     properties = [
@@ -79,6 +87,9 @@ abstract class BaseGrpcSpec : StringSpec(), Logging {
     @Autowired
     lateinit var grpcServerProperties: GrpcServerProperties
 
+    @Autowired
+    lateinit var databaseClient: DatabaseClient
+
     override val extensions = listOf(SpringExtension)
 
     protected lateinit var channel: ManagedChannel
@@ -87,7 +98,7 @@ abstract class BaseGrpcSpec : StringSpec(), Logging {
         beforeSpec {
             val port = grpcServerProperties.port
 
-            require (port > 0) { "gRPC server port is not assigned! Current port: $port. Check if gRPC server started." }
+            require(port > 0) { "gRPC server port is not assigned! Current port: $port. Check if gRPC server started." }
 
             logger.info(" gRPC test server port: $port")
 
@@ -126,6 +137,70 @@ abstract class BaseGrpcSpec : StringSpec(), Logging {
             }
 
         return ErrorBox(errors)
+    }
+
+    private val fieldsCache by lazy { ConcurrentHashMap<KClass<*>, Set<String>>() }
+    private val ignoredTechnicalFields by lazy { setOf("type", "status") }
+
+    // Вспомогательный класс для связки свойства и проверки
+    class PropertyValidator<T, V>(
+        val property: KProperty1<T, V>,
+        val assertion: T.(V) -> Unit
+    )
+
+    // Инфиксная функция для синтаксиса: User::login verify { it shouldBe "admin" }
+    infix fun <T, V> KProperty1<T, V>.verify(assertion: T.(V) -> Unit) =
+        PropertyValidator(this, assertion)
+
+    suspend fun <T : EntityCore> verifyModifiedEntity(
+        entity: T?,
+        actionEnum: EntityActionEnum,
+        vararg validators: PropertyValidator<T, *>
+    ) {
+        val nonNullEntity = entity ?: error("entity not found")
+
+        with(nonNullEntity) {
+            val entityId = entityId ?: error("entityId is null")
+            val entityClass = this::class
+
+            // 1. Проверка полноты тестов (Expected vs Provided)
+            val expectedFieldNames = fieldsCache.getOrPut(entityClass) {
+                // Берем свойства из конструктора, так как они определяют состояние в БД
+                entityClass.memberProperties.map { it.name }.toSet() - ignoredTechnicalFields
+            }
+
+            val providedFieldNames = validators.map { it.property.name }.toSet()
+
+            val missingFields = expectedFieldNames - providedFieldNames
+            require(missingFields.isEmpty()) {
+                "Missing tests for fields in ${entityClass.simpleName}: $missingFields"
+            }
+
+            val unknownFields = providedFieldNames - expectedFieldNames
+            require(unknownFields.isEmpty()) {
+                "Unknown fields in validators for ${entityClass.simpleName}: $unknownFields"
+            }
+
+            // 2. Выполнение проверок
+            validators.forEach { v ->
+                val value = v.property.get(this)
+                // Запускаем лямбду: 'this' будет сущностью, 'it' (первый аргумент) — значением поля
+                (v as PropertyValidator<T, Any?>).assertion(this, value)
+            }
+
+            // 3. Проверка записи события в БД (core_actions)
+            val count = databaseClient.sql(
+                "SELECT count(*) as cnt FROM core_actions WHERE entity_id = :E AND action_code = :AC"
+            )
+                .bind("E", entityId)
+                .bind("AC", actionEnum.actionCodeId)
+                .map { row, _ -> row.get("cnt", Int::class.java) ?: 0 }
+                .awaitOne()
+
+            require(count > 0) {
+                "Action record not found (entity: $entityId, action: $actionEnum)"
+            }
+        }
     }
 
     // Методы расширения для конкретных тестов

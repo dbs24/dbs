@@ -1,4 +1,4 @@
-package org.dbs.rest.api.validator
+package org.dbs.rest.validation
 
 import org.apache.logging.log4j.kotlin.Logging
 import org.dbs.application.core.service.funcs.ServiceFuncs.createCollection

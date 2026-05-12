@@ -1,0 +1,29 @@
+rm dbs.zip 2>/dev/null
+
+zip -r dbs .\
+  -x "*/.gradle/*" \
+  -x "*/.idea/*" \
+  -x "*/.kotlin/*" \
+  -x "*/build/*" \
+  -x "*/out/*" \
+  -x "*/target/*" \
+  -x "*/sh/*" \
+  -x "./.kotlin/*" \
+  -x "./.claude/*" \
+  -x "./build/*" \
+  -x "./.git/*" \
+  -x "./.idea/*" \
+  -x "./.gradle/*" \
+  -x "./sh/*" \
+  -x "./ai/*" \
+  -x "./certs/*" \
+  -x "./doc/*" \
+  -x "*.jar" -x "*/*.jar" \
+  -x "*.jks" \
+  -x "**.*.pem" \
+  -x "**.swp" \
+  -x "**.txt" \
+  -x "**.md" \
+
+
+

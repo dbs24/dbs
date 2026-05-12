@@ -1,6 +1,7 @@
 package org.dbs.tree.model.user
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonProperty
 import org.dbs.consts.BirthDate
 import org.dbs.consts.Email
 import org.dbs.consts.EntityId
@@ -30,6 +31,7 @@ data class User(
     val lastName: String?,
     val birthDate: BirthDate?,
     @Column("password_hash")
+    @get:JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     val password: Password?,
     @Column("status_id")
     val entityStatus: EntityStatusEnum,

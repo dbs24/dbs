@@ -32,19 +32,21 @@ class UserFactory(
         closeDate = null,
     )
 
-    fun createNewUser(login: UserLogin): ENTITY = ENTITY(
-        login = login,
-        firstName = null,
-        middleName = null,
-        lastName = null,
-        email = null,
-        phone = null,
-        password = null,
-        birthDate = null,
-        entityStatus = ES_USER_ANONYMOUS,
-        createDate = now(),
-        modifyDate = now(),
-        closeDate = null,
-    )
+    fun createNewUser(login: UserLogin): ENTITY = now().let {
+        ENTITY(
+            login = login,
+            firstName = null,
+            middleName = null,
+            lastName = null,
+            email = null,
+            phone = null,
+            password = null,
+            birthDate = null,
+            entityStatus = ES_USER_ANONYMOUS,
+            createDate = it,
+            modifyDate = it,
+            closeDate = null,
+        )
+    }
 
 }
