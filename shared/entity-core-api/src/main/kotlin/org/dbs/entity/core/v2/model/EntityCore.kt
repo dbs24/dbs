@@ -82,7 +82,7 @@ class EntityActionLoggerAspect(
             is Mono<*> -> {
                 return result.doOnNext {
                     if (it is EntityCore) eventAction(it) else
-                        error( "Unsupported type: ${it::class.java.canonicalName} for @LogEntityAction" )
+                        error( "Unsupported Mono<type>: ${it::class.java.canonicalName} for @LogEntityAction" )
                 }
             }
             is EntityCore -> {

@@ -218,8 +218,8 @@ abstract class AbstractSpringBootApplication : Logging {
         }
 
         // SysEnv
-        appCreateTime.update(buildProperties.time)
-        userApplicationName.update(buildProperties.name)
+        appCreateTime.updateOnce(buildProperties.time)
+        userApplicationName.updateOnce(buildProperties.name)
     }
 
     @Bean

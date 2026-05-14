@@ -36,6 +36,8 @@ class LateInitVal<T : Any>(
 
     fun update(v: T): T = init(v)
 
+    fun updateOnce(v: T): T = if (isNotInitialized()) init(v) else v
+
     fun isInitialized(): Boolean = _internal?.run { true } ?: false
 
     fun isNotInitialized(): Boolean = !isInitialized()

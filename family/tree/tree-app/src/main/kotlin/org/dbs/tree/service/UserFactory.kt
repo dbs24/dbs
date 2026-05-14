@@ -11,26 +11,27 @@ import org.springframework.stereotype.Service
 import java.time.LocalDateTime.now
 import org.dbs.tree.model.user.User as ENTITY
 
-
 @Service
 class UserFactory(
     val passwordEncoder: PasswordEncoder
 ) : AbstractApplicationService() {
 
-    fun createRootUser(): ENTITY = ENTITY(
-        login = ROOT_USER,
-        firstName = ROOT_USER,
-        middleName = ROOT_USER,
-        lastName = ROOT_USER,
-        email = null,
-        phone = null,
-        password = passwordEncoder.encode(ROOT_USER_PASS),
-        birthDate = null,
-        entityStatus = ES_USER_ACTUAL,
-        createDate = now(),
-        modifyDate = now(),
-        closeDate = null,
-    )
+    fun createRootUser(): ENTITY = now().let {
+        ENTITY(
+            login = ROOT_USER,
+            firstName = ROOT_USER,
+            middleName = ROOT_USER,
+            lastName = ROOT_USER,
+            email = null,
+            phone = null,
+            password = passwordEncoder.encode(ROOT_USER_PASS),
+            birthDate = null,
+            entityStatus = ES_USER_ACTUAL,
+            createDate = it,
+            modifyDate = it,
+            closeDate = null,
+        )
+    }
 
     fun createNewUser(login: UserLogin): ENTITY = now().let {
         ENTITY(

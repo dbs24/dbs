@@ -8,7 +8,10 @@ import org.dbs.consts.SpringCoreConst.PropertiesNames.SPRING_R2DBC_URL
 import org.dbs.consts.SysConst.ALL_PACKAGES
 import org.dbs.consts.SysConst.EMPTY_STRING
 import org.dbs.consts.SysConst.STRING_TRUE
-import org.dbs.entity.core.*
+import org.dbs.entity.core.EntityActionEnum
+import org.dbs.entity.core.EntityCacheKeyEnum
+import org.dbs.entity.core.EntityStatusEnum
+import org.dbs.entity.core.EntityTypeEnum
 import org.dbs.entity.core.v2.model.EntityCore
 import org.dbs.entity.core.v2.type.EntityCoreInitializer
 import org.dbs.entity.core.v2.type.EntityCoreInitializer.Companion.EntityCore.cacheKeys
@@ -54,6 +57,7 @@ class R2dbcPersistenceService(
     val r2dbcUrl = EMPTY_STRING
 
     fun <T> initCoreEnums(clazz: Class<T>, collection: MutableCollection<T>) {
+        collection.clear()
         createPkgClassesCollection(ALL_PACKAGES, clazz).filter { it.isEnum }
             .forEach {
                 it.enumConstants.forEach {

@@ -1,4 +1,4 @@
-package org.dbs.tree.service.grpc
+package org.dbs.tree.grpc
 
 import net.devh.boot.grpc.server.service.GrpcService
 import org.dbs.tree.client.CreateOrUpdateUserRequest
@@ -10,15 +10,15 @@ import org.dbs.tree.client.UpdateUserStatusResponse
 import org.dbs.tree.client.UserCredentialsRequest
 import org.dbs.tree.client.UserCredentialsResponse
 import org.dbs.tree.client.UserServiceGrpcKt
-import org.dbs.tree.mapper.UserMappers.toUserDoMain
+import org.dbs.tree.mapper.UserMappers.toCommand
 import org.dbs.tree.mapper.UserMappers.toUserProto
 import org.dbs.tree.service.UserService
 
 @GrpcService
-class GrpcUserService(val userService: UserService) : UserServiceGrpcKt.UserServiceCoroutineImplBase() {
+class GrpcUserController(val userService: UserService) : UserServiceGrpcKt.UserServiceCoroutineImplBase() {
 
         override suspend fun createOrUpdateUser(request: CreateOrUpdateUserRequest): CreateOrUpdateUserResponse =
-                userService.createOrUpdateUser(request.toUserDoMain()).toUserProto()
+                userService.createOrUpdateUser(request.toCommand()).toUserProto()
 
         override suspend fun getUserCredentials(request: UserCredentialsRequest): UserCredentialsResponse =
                 TODO()

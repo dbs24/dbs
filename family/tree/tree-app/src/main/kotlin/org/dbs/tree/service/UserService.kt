@@ -8,11 +8,11 @@ import org.dbs.entity.core.EntityStatusEnum
 import org.dbs.entity.core.v2.model.LogEntityAction
 import org.dbs.rest.validation.ValidateDto
 import org.dbs.spring.core.api.AbstractApplicationService
+import org.dbs.tree.model.domain.CreateOrUpdateUserCommand
 import org.dbs.user.UserCore.EntityStatus.ES_USER_ANONYMOUS
 import org.dbs.user.UserCore.isClosedUser
 import org.dbs.user.UserLogin
 import org.dbs.user.UserPassword
-import org.dbs.user.dto.user.CreateOrUpdateUserDto
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.annotation.DependsOn
 import org.springframework.context.annotation.Lazy
@@ -33,7 +33,6 @@ class UserService(
     val userFactory: UserFactory,
 ) : AbstractApplicationService() {
 
-
     @EventListener(ApplicationReadyEvent::class)
     fun onApplicationReady() {
         runBlocking { findUserByLogin(ROOT_USER) ?: dao.saveUser(userFactory.createRootUser()) }
@@ -42,24 +41,24 @@ class UserService(
     @ValidateDto
     @LogEntityAction("EA_CREATE_OR_UPDATE_USER")
     @Transactional
-    suspend fun createOrUpdateUser(request: CreateOrUpdateUserDto): ENTITY {
+    suspend fun createOrUpdateUser(request: CreateOrUpdateUserCommand): ENTITY {
 
-        val updatedUser = dao.findUserByLogin(request.login) ?: createNewUser(request.login)
-        val isNewUser = request.oldLogin == null
+        val updatedUser = if (request.isNewUser) createNewUser(request.login)
+            else (dao.findUserByLogin(request.login) ?: error("User not found (${request.login})"))
 
         return dao.saveUser(updatedUser.copy(
             email = request.email,
             firstName = request.firstName,
             lastName = request.lastName,
             password = passwordEncoder.encode(request.password),
-            entityStatus = ES_USER_ANONYMOUS.takeIf { isNewUser } ?: updatedUser.status,
-            modifyDate = if (!isNewUser) now() else updatedUser.modifyDate,
+            entityStatus = ES_USER_ANONYMOUS.takeIf { request.isNewUser } ?: updatedUser.status,
+            modifyDate = if (!request.isNewUser) now() else updatedUser.modifyDate,
             closeDate = updatedUser.closeDate
         ))
 
     }
 
-    suspend fun createNewUser(userLogin: UserLogin): ENTITY =
+    fun createNewUser(userLogin: UserLogin): ENTITY =
         userFactory.createNewUser(userLogin).also {
             logger.debug { "create new user login: $userLogin" }
         }

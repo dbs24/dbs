@@ -25,7 +25,7 @@ class I18NService : AbstractApplicationService() {
     @Value("\${$SPRING_WEB_LOCALE:$SPRING_WEB_LOCALE_DEF_VAL}")
     fun initDefaultWebLocale(defaultWebLocale: String) {
 
-        systemLocale.update(let {
+        systemLocale.updateOnce(let {
             logger.debug { "defaultWebLocale: $defaultWebLocale" }
 
             require(defaultWebLocale.isValidLocale())

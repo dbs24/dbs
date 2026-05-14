@@ -5,7 +5,7 @@ import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect
 import org.aspectj.lang.reflect.MethodSignature
-import org.dbs.rest.api.nio.RequestDto
+import org.dbs.rest.api.nio.DomainCommand
 import org.dbs.validator.Error
 import org.dbs.validator.ErrorInfo.Companion.create
 import org.dbs.validator.Field
@@ -27,7 +27,7 @@ annotation class ValidateDto
 class UniversalValidator(
     val strategies: List<ValidationStrategy<*>>
 ) : Logging {
-    private val strategyMap by lazy { strategies.associateBy { it.supportedClass } as Map<KClass<*>, ValidationStrategy<RequestDto>> }
+    private val strategyMap by lazy { strategies.associateBy { it.supportedClass } as Map<KClass<*>, ValidationStrategy<DomainCommand>> }
 
     @Around("@annotation(org.dbs.rest.validation.ValidateDto)")
     fun validateDto(joinPoint: ProceedingJoinPoint): Any {
@@ -37,7 +37,7 @@ class UniversalValidator(
                 method.parameterTypes.last().name == "kotlin.coroutines.Continuation"
         val debugInfo by lazy {"method: ${method.name}, isSuspend: $isSuspend, parameters: ${method.parameterCount}"}
 
-        val requestDto: RequestDto = joinPoint.args.filterIsInstance<RequestDto>().firstOrNull()
+        val requestDto: DomainCommand = joinPoint.args.filterIsInstance<DomainCommand>().firstOrNull()
             ?: throw ValidationException(
                 listOf(
                     create(
