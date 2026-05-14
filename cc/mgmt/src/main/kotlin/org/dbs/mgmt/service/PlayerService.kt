@@ -8,7 +8,7 @@ import org.dbs.consts.StringNote
 import org.dbs.consts.SysConst.UsersConsts.ROOT_USER
 import org.dbs.consts.SysConst.UsersConsts.ROOT_USER_PASS
 import org.dbs.entity.core.EntityStatusEnum
-import org.dbs.ext.SpringFuncs.registryEvent
+import org.dbs.ext.SpringFuncs.registryEntityEvent
 import org.dbs.mgmt.service.ApplicationServiceGate.ServicesList.r2dbcPersistenceService
 import org.dbs.player.PlayerCore.PlayerActionEnum.EA_CREATE_OR_UPDATE_PLAYER
 import org.dbs.player.PlayerCore.isClosedPlayer
@@ -86,7 +86,7 @@ class PlayerService(
         playerFactory.createRootPlayer().toMono()
             .flatMap { r2dbcPersistenceService.saveEntity(it) }
             .doOnSuccess { player ->
-                eventPublisher.value.registryEvent(
+                eventPublisher.value.registryEntityEvent(
                     requireNotNull(player.playerId) { "playerId must be set after save" },
                     player.type.entityTypeId,
                     EA_CREATE_OR_UPDATE_PLAYER.actionCodeId,

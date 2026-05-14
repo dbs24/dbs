@@ -8,7 +8,7 @@ import org.dbs.consts.SysConst.UsersConsts.ROOT_USER
 import org.dbs.consts.SysConst.UsersConsts.ROOT_USER_PASS
 import org.dbs.entity.core.EntityStatusEnum
 import org.dbs.ext.FluxFuncs.subscribeMono
-import org.dbs.ext.SpringFuncs.registryEvent
+import org.dbs.ext.SpringFuncs.registryEntityEvent
 import org.dbs.goods.UserCore.UserActionEnum.EA_CREATE_OR_UPDATE_USER
 import org.dbs.goods.UserCore.isClosedUser
 import org.dbs.goods.UserLogin
@@ -64,7 +64,7 @@ class UserService(
     private val createRootUser: Mono<ENTITY> =
           r2dbcPersistenceService.saveEntity(userFactory.createRootUser())
             .doOnSuccess { user ->
-                eventPublisher.value.registryEvent(user.userId!!,
+                eventPublisher.value.registryEntityEvent(user.userId!!,
                         user.type.entityTypeId,
                         EA_CREATE_OR_UPDATE_USER.actionCodeId,
                         "system",

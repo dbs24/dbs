@@ -14,10 +14,15 @@ import org.dbs.ext.GrpcFuncs.getProcedureName
 import org.dbs.ext.GrpcFuncs.getRemoteAddress
 import org.dbs.ext.GrpcFuncs.getUserAgent
 import org.dbs.ext.GrpcFuncs.log
+import org.dbs.ext.IncidentSource
+import org.dbs.ext.SpringFuncs.registryIncidentEvent
 import org.dbs.validator.exception.ValidationException
+import org.springframework.context.ApplicationEventPublisher
 
 @GrpcGlobalServerInterceptor
-class GrpcExceptionInterceptor : ServerInterceptor, Logging {
+class GrpcExceptionInterceptor(
+    private val applicationEventPublisher: ApplicationEventPublisher
+) : ServerInterceptor, Logging {
 
     private fun translateException(e: Throwable): Pair<Status, Metadata> {
 
@@ -37,8 +42,19 @@ class GrpcExceptionInterceptor : ServerInterceptor, Logging {
             }
             else -> {
 
+                val isDevelopment = System.getProperty("spring.profiles.active") == "dev"
+                val incidentMsg = applicationEventPublisher.registryIncidentEvent(
+                    e,
+                    IncidentSource.IS_GRPC,
+                )
+
+                val publicMsg = "Internal server error: ${if (isDevelopment) e.toString() else incidentMsg }"
+
                 metadata.put(MKB.of("internal-error-bin", Metadata.BINARY_BYTE_MARSHALLER), e.toString().toByteArray())
-                Status.INTERNAL.withDescription("Internal server error: ${e.toString()}").withCause(e) to metadata
+                if (isDevelopment)
+                    Status.INTERNAL.withDescription(publicMsg).withCause(e) to metadata
+                else
+                    Status.INTERNAL.withDescription(publicMsg) to metadata
             }
         }.also {
             metadata.log()

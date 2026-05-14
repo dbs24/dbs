@@ -12,10 +12,13 @@ import org.dbs.consts.Email
 import org.dbs.consts.EntityCode
 import org.dbs.consts.GrpcConsts.ContextKeys.CK_REMOTE_ADDRESS
 import org.dbs.consts.IpAddress
-import org.dbs.enums.I18NEnum.*
+import org.dbs.enums.I18NEnum.EXIST_PLAYER_EMAIL
+import org.dbs.enums.I18NEnum.EXIST_PLAYER_LOGIN
+import org.dbs.enums.I18NEnum.FLD_INVALID_PLAYER_PASSWORD
+import org.dbs.enums.I18NEnum.FLD_UNKNOWN_PLAYER_LOGIN
 import org.dbs.ext.ResponseCoProcessor
 import org.dbs.ext.ResponseCoProcessorWrapper
-import org.dbs.ext.SpringFuncs.registryEvent
+import org.dbs.ext.SpringFuncs.registryEntityEvent
 import org.dbs.ext.executeIternal
 import org.dbs.grpc.consts.RESP
 import org.dbs.grpc.ext.GrpcNull.grpcGetOrNull
@@ -33,7 +36,13 @@ import org.dbs.service.validator.GrpcValidators.validateMandatoryField
 import org.dbs.service.validator.GrpcValidators.validateOptionalEmail
 import org.dbs.service.validator.GrpcValidators.validateOptionalField
 import org.dbs.validator.Error.INVALID_ENTITY_ATTR
-import org.dbs.validator.Field.*
+import org.dbs.validator.Field.SSS_PLAYER_EMAIL
+import org.dbs.validator.Field.SSS_PLAYER_FIRST_NAME
+import org.dbs.validator.Field.SSS_PLAYER_LAST_NAME
+import org.dbs.validator.Field.SSS_PLAYER_LOGIN
+import org.dbs.validator.Field.SSS_PLAYER_MIDDLE_NAME
+import org.dbs.validator.Field.SSS_PLAYER_OLD_LOGIN
+import org.dbs.validator.Field.SSS_PLAYER_PASSWORD
 import org.dbs.mgmt.client.CreateOrUpdatePlayerRequest as REQ
 import org.dbs.mgmt.client.CreatedPlayerDto as ENT
 
@@ -162,7 +171,7 @@ object GrpcCreateOrUpdatePlayer {
                 //------------------------------------------------------------------------------------------------------
 
                 override fun registryAction(duration: Long) {
-                    eventPublisher.value.registryEvent(
+                    eventPublisher.value.registryEntityEvent(
                         requireNotNull(newPlayerId ?: player.value.playerId) { "playerId must be set after save" },
                         player.value.type.entityTypeId,
                         EA_CREATE_OR_UPDATE_PLAYER.actionCodeId,

@@ -1,11 +1,14 @@
 package org.dbs.rest.api.exception
 
 import org.apache.logging.log4j.kotlin.Logging
+import org.dbs.ext.IncidentSource
+import org.dbs.ext.SpringFuncs.registryIncidentEvent
 import org.dbs.validator.Error
 import org.dbs.validator.ErrorInfo
 import org.dbs.validator.ErrorInfo.Companion.create
 import org.dbs.validator.Field
 import org.dbs.validator.exception.ValidationException
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -13,7 +16,8 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
 @RestControllerAdvice
-class RestExceptionHandler: Logging {
+class RestExceptionHandler(
+    private val applicationEventPublisher: ApplicationEventPublisher): Logging {
 
     @ExceptionHandler(ValidationException::class)
     @ResponseStatus(BAD_REQUEST)
@@ -23,11 +27,14 @@ class RestExceptionHandler: Logging {
     @ExceptionHandler(Throwable::class)
     @ResponseStatus(INTERNAL_SERVER_ERROR)
     fun handleGenericException(ex: Exception): ValidationErrorResponse {
-        // Логируем полный stack trace для отладки
-        logger.error(ex) { "Unexpected error occurred: ${ex.message}" }
 
         // В production не показываем детали исключения клиенту
         val isDevelopment = System.getProperty("spring.profiles.active") == "dev"
+
+        val incidentMsg =  applicationEventPublisher.registryIncidentEvent(
+            ex,
+            IncidentSource.IS_REST
+        )
 
         return ValidationErrorResponse(
             type = "unknown type",
@@ -36,7 +43,7 @@ class RestExceptionHandler: Logging {
             detail = if (isDevelopment) {
                 "Unexpected error: ${ex.message}"
             } else {
-                "An unexpected error occurred. Please try again later."
+                incidentMsg
             },
             errors = listOf(
                 create(
@@ -44,11 +51,9 @@ class RestExceptionHandler: Logging {
                     field = Field.UNKNOWN_FIELD,
                     errorMsg = if (isDevelopment) {
                         ex.message ?: "Unknown error"
-                    } else {
-                        "Internal server error"
-                    }
+                    } else incidentMsg
                 )
-            )
+            ),
         )
     }
 }

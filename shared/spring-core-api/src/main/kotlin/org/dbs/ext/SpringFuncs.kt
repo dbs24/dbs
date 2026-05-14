@@ -9,10 +9,24 @@ import org.dbs.validator.Error
 import org.dbs.validator.ErrorInfo
 import org.dbs.validator.Field
 import org.springframework.context.ApplicationEventPublisher
+import java.io.PrintWriter
+import java.io.StringWriter
+import java.util.concurrent.atomic.AtomicLong
 
 object SpringFuncs {
 
-    fun ApplicationEventPublisher.registryEvent(
+    val sequence = AtomicLong(0L)
+
+    fun generateIncidentIdAndMsg(e: Throwable): Triple<String, String, String> =
+        (System.currentTimeMillis().toString()+"_"+ sequence.getAndIncrement())
+        .let {
+            e.printStackTrace()
+            val sw = StringWriter()
+            e.printStackTrace(PrintWriter(sw))
+            Triple(it, "An unexpected error occurred. Please contact support with incident ID: $it", sw.toString())
+        }
+
+    fun ApplicationEventPublisher.registryEntityEvent(
         entityId : EntityId,
         entityTypeId: EntityTypeId,
         actionCodeId: ActionCodeId,
@@ -22,7 +36,7 @@ object SpringFuncs {
         userId: EntityId = 1L): Unit =
 
         publishEvent(
-            ActionEvent(
+            EntityActionEvent(
                 entityId = entityId,
                 entityTypeId = entityTypeId,
                 actionCodeId = actionCodeId,
@@ -44,9 +58,26 @@ object SpringFuncs {
         )
     }
 
+    fun ApplicationEventPublisher.registryIncidentEvent(
+        throwable: Throwable,
+        source: IncidentSource): String {
+
+        val (incidentId, incidentMsg, stackTrace) = generateIncidentIdAndMsg(throwable)
+
+        publishEvent(
+            IncidentEvent(
+                incidentId = incidentId,
+                source = source,
+                message = throwable.message ?: incidentMsg,
+                stackTrace = stackTrace
+            )
+        )
+
+        return incidentMsg
+    }
 }
 
-data class ActionEvent(
+data class EntityActionEvent(
     val entityId: EntityId,
     val entityTypeId: EntityTypeId,
     val actionCodeId: ActionCodeId,
@@ -55,3 +86,15 @@ data class ActionEvent(
     var duration: Long = -1,
     val userId: EntityId = 1L,
 )
+
+data class IncidentEvent(
+    val incidentId: String,
+    val source: IncidentSource,
+    val message: String,
+    val stackTrace: String
+)
+
+enum class IncidentSource {
+    IS_REST,
+    IS_GRPC
+}

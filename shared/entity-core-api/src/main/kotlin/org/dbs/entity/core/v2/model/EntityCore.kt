@@ -11,7 +11,7 @@ import org.dbs.consts.OperDateNull
 import org.dbs.entity.core.EntityStatusEnum
 import org.dbs.entity.core.EntityTypeEnum
 import org.dbs.entity.core.v2.type.EntityCoreInitializer.Companion.EntityCore.entityActionEnums
-import org.dbs.ext.SpringFuncs.registryEvent
+import org.dbs.ext.SpringFuncs.registryEntityEvent
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.core.Ordered.LOWEST_PRECEDENCE
 import org.springframework.core.annotation.Order
@@ -67,7 +67,7 @@ class EntityActionLoggerAspect(
             val duration = System.currentTimeMillis() - startTime
             val execInfo by lazy { "entity: ${result.javaClass}, method: ${method.name}, executed: $duration ms" }
             logger.info { execInfo }
-            applicationEventPublisher.registryEvent(
+            applicationEventPublisher.registryEntityEvent(
                 entityId = entity.entityId ?: error("entityId must be set"),
                 entityTypeId = entity.type.entityTypeId,
                 actionCodeId = actionCodeId,
