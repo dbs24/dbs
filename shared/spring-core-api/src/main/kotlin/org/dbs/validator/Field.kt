@@ -59,7 +59,7 @@ enum class Field(private val value: String, private val code: Int) : RefEnum {
     SSS_USER_OLD_LOGIN("sss.user.old.login", 600002),
     SSS_USER_PASSWORD("sss.user.password", 600003),
     SSS_USER_EMAIL("sss.user.email", 600004),
-    SSS_USER_OLD_EMAIL("sss.user.email", 600005),
+    SSS_USER_OLD_EMAIL("sss.user.email.old", 600005),
     SSS_USER_ACCOUNT_V1("sss.user.account.v1.id", 600006),
     SSS_USER_ACCOUNT_BILL_V1("sss.user.account.bill.v1", 600007),
     SSS_USER_ACCOUNT_PAYMENT_V1("sss.user.account.payment.v1", 600008),

@@ -1,6 +1,6 @@
 package org.dbs.tree.config
 
-import org.dbs.config.MainApplicationConfig
+import org.dbs.config.AbstractWebSecurityConfig
 import org.dbs.consts.SpringCoreConst.Beans.DEFAULT_PROXY_BEANS_VAL
 import org.springframework.boot.actuate.autoconfigure.audit.AuditEventsEndpointAutoConfiguration
 import org.springframework.boot.actuate.autoconfigure.condition.ConditionsReportEndpointAutoConfiguration
@@ -91,4 +91,4 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy
 ])
 @Configuration(proxyBeanMethods = DEFAULT_PROXY_BEANS_VAL)
 @EnableAspectJAutoProxy(proxyTargetClass = true)
-class TreeConfig : MainApplicationConfig()
+class TreeConfig : AbstractWebSecurityConfig()
