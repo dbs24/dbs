@@ -65,7 +65,7 @@ class EntityActionLoggerAspect(
             }
 
             val duration = System.currentTimeMillis() - startTime
-            val execInfo by lazy { "entity: ${result.javaClass}, method: ${method.name}, executed: $duration ms" }
+            val execInfo by lazy { "entity: ${entity::class.qualifiedName}, method: ${method.name}, executed: $duration ms" }
             logger.info { execInfo }
             applicationEventPublisher.registryEntityEvent(
                 entityId = entity.entityId ?: error("entityId must be set"),

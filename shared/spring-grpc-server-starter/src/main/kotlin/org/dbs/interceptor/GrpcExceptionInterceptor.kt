@@ -24,7 +24,7 @@ class GrpcExceptionInterceptor(
     private val applicationEventPublisher: ApplicationEventPublisher
 ) : ServerInterceptor, Logging {
 
-    private fun translateException(e: Throwable): Pair<Status, Metadata> {
+    private fun translateException(e: Throwable, path: String): Pair<Status, Metadata> {
 
         val metadata = Metadata()
         logger.error(e.toString())
@@ -44,8 +44,9 @@ class GrpcExceptionInterceptor(
 
                 val isDevelopment = System.getProperty("spring.profiles.active") == "dev"
                 val incidentMsg = applicationEventPublisher.registryIncidentEvent(
-                    e,
-                    IncidentSource.IS_GRPC,
+                    throwable = e,
+                    path = path,
+                    source =IncidentSource.IS_GRPC,
                 )
 
                 val publicMsg = "Internal server error: ${if (isDevelopment) e.toString() else incidentMsg }"
@@ -77,7 +78,7 @@ class GrpcExceptionInterceptor(
                 } else {
                     // Если пришла ошибка (в т.ч. из корутины), мапим её
                     val exception = status.cause
-                    val (newStatus, newTrailers) = translateException(exception ?: status.asException())
+                    val (newStatus, newTrailers) = translateException(exception ?: status.asException(), call.getProcedureName())
                     super.close(newStatus, newTrailers)
                 }
             }

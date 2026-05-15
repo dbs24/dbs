@@ -57,6 +57,7 @@ class EntityActionEventService(
                 Incident(
                     incidentId = incidentId,
                     source = source.toString(),
+                    path = path,
                     stackTrace = stackTrace,
                     osOpenFiles = osBean?.openFileDescriptorCount ?: -1L,
                     jvmFreeMemoryBytes = runtime.freeMemory(),

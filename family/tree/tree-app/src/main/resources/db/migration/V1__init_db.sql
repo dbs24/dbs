@@ -246,8 +246,7 @@ create table core_actions
             on update restrict on delete restrict
 );
 
-comment on table core_actions is 'Картотека выполненный действий пользователя
-';
+comment on table core_actions is 'Картотека выполненный действий пользователя';
 
 alter table core_actions
     owner to dev_family_admin;
@@ -283,3 +282,20 @@ alter table ft_users
 alter table core_actions
     add constraint fk_core_actions_user_id foreign key (user_id)
         references ft_users on update restrict on delete restrict;
+
+
+CREATE TABLE core_incidents (
+                                incident_id           VARCHAR  PRIMARY KEY,
+                                source                VARCHAR NOT NULL,
+                                path                  VARCHAR NOT NULL,
+                                create_date           TIMESTAMP    NOT NULL,
+                                stack_trace           TEXT         NOT NULL,
+                                os_open_files         BIGINT       NOT NULL,
+                                jvm_free_memory_bytes BIGINT       NOT NULL,
+                                jvm_total_memory_bytes BIGINT       NOT NULL,
+                                jvm_max_memory_bytes  BIGINT       NOT NULL
+);
+
+comment on table core_incidents is 'Картотека регистрированных инцидентов (исключений)';
+
+CREATE INDEX idx_core_incidents_create_date ON core_incidents (create_date);

@@ -10,6 +10,7 @@ data class Incident(
     @Id
     val incidentId: String,
     val source: String,
+    val path: String,
     val createDate: OperDate = LocalDateTime.now(),
     val stackTrace: String,
     val osOpenFiles: Long,

@@ -36,7 +36,7 @@ class UsersRestTests : BaseRestSpec() {
 
     init {
         "Create user via $source" {
-            val dto = createUserDto("rest_valid_user", "rest_valid_user@test.com", "rest_Strong1Password")
+            val dto = createUserDto("restvaliduser1", "rest_valid_user1@test.com", "rest_Strong1Password")
 
             postQuery<CreateOrUpdateUserDto, CreatedUserDto>("/createOrUpdate", dto) { response ->
                 assertCreatedUser(dto, response)
@@ -44,7 +44,7 @@ class UsersRestTests : BaseRestSpec() {
         }
 
         "Create another user via $source" {
-            val dto = createUserDto("rest_valid_user1", "rest_valid_user1@test.com", "rest_Strong1Password")
+            val dto = createUserDto("restvaliduser2", "rest_valid_user2@test.com", "rest_Strong2Password")
 
             postQuery<CreateOrUpdateUserDto, CreatedUserDto>("/createOrUpdate", dto) { response ->
                 assertCreatedUser(dto, response)
@@ -52,17 +52,17 @@ class UsersRestTests : BaseRestSpec() {
         }
 
         "Create invalid exists user via $source" {
-            val dto = createUserDto("rest_valid_user1", "rest_valid_user1@test.com", "rest_Strong1Password")
+            val dto = createUserDto("restvaliduser2", "rest_valid_user2@test.com", "rest_Strong2Password")
 
             postQueryShouldFail("/createOrUpdate", dto)
-                .shouldContainErrors(Error.ALREADY_EXISTS to Field.SSS_LOGIN_USER)
+                .shouldContainErrors(Error.ALREADY_EXISTS to Field.SSS_USER_LOGIN)
         }
 
         "Try to create invalid user via $source" {
-            val dto = createUserDto(login = "", email = "")
+            val dto = createUserDto(login = "", email = "", password = "Strong12Password")
 
             postQueryShouldFail("/createOrUpdate", dto)
-                .shouldContainErrors(Error.INVALID_DTO_ATTR to Field.SSS_LOGIN_USER)
+                .shouldContainErrors(Error.MANDATORY_FIELD_MISSING to Field.SSS_USER_LOGIN)
         }
     }
 

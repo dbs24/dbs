@@ -15,6 +15,7 @@ enum class Error(private val value: String, private val code: Int) : RefEnum {
     GRPC_JWT_IS_NOT_AUTHORIZED("grpc.service.not.authorized", 32),
 
     ALREADY_EXISTS("already.exists", 50),
+    MANDATORY_FIELD_MISSING("mandatory.field.missing", 51),
     ILLEGAL_CALL("illegal.call", 1000),
     H1H2_ILLEGAL_CALL("h1h2.illegal.call", 1001),
     ILLEGAL_STATE("illegal.state", 1010),

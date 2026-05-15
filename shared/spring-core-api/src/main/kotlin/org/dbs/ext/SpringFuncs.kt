@@ -60,6 +60,7 @@ object SpringFuncs {
 
     fun ApplicationEventPublisher.registryIncidentEvent(
         throwable: Throwable,
+        path: String,
         source: IncidentSource): String {
 
         val (incidentId, incidentMsg, stackTrace) = generateIncidentIdAndMsg(throwable)
@@ -68,6 +69,7 @@ object SpringFuncs {
             IncidentEvent(
                 incidentId = incidentId,
                 source = source,
+                path = path,
                 message = throwable.message ?: incidentMsg,
                 stackTrace = stackTrace
             )
@@ -90,6 +92,7 @@ data class EntityActionEvent(
 data class IncidentEvent(
     val incidentId: String,
     val source: IncidentSource,
+    val path: String,
     val message: String,
     val stackTrace: String
 )

@@ -11,6 +11,7 @@ import org.dbs.validator.exception.ValidationException
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
+import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -22,23 +23,32 @@ class RestExceptionHandler(
     @ExceptionHandler(ValidationException::class)
     @ResponseStatus(BAD_REQUEST)
     fun handleValidationException(ex: ValidationException): ValidationErrorResponse =
-        ValidationErrorResponse(errors = ex.errors)
+        ValidationErrorResponse(
+            type = "RESTful exception",
+            title = BAD_REQUEST.toString(),
+            status = BAD_REQUEST.value(),
+            detail = "Validation exception",
+            errors = ex.errors)
 
     @ExceptionHandler(Throwable::class)
     @ResponseStatus(INTERNAL_SERVER_ERROR)
-    fun handleGenericException(ex: Exception): ValidationErrorResponse {
+    fun handleGenericException(
+        ex: Exception,
+        request: ServerHttpRequest
+    ): ValidationErrorResponse {
 
         // В production не показываем детали исключения клиенту
         val isDevelopment = System.getProperty("spring.profiles.active") == "dev"
 
         val incidentMsg =  applicationEventPublisher.registryIncidentEvent(
-            ex,
-            IncidentSource.IS_REST
+            throwable = ex,
+            path = request.uri.toString(),
+            IncidentSource.IS_REST,
         )
 
         return ValidationErrorResponse(
-            type = "unknown type",
-            title = "Internal Server Error",
+            type = "RESTful exception",
+            title = INTERNAL_SERVER_ERROR.toString(),
             status = INTERNAL_SERVER_ERROR.value(),
             detail = if (isDevelopment) {
                 "Unexpected error: ${ex.message}"

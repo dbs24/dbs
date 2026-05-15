@@ -53,7 +53,6 @@ spring:
       validation-query: SELECT 1
       max-life-time: 7200000
       max-idle-time: 12000000
-    next-val-cmd: SELECT nextval('seq_action_id')
     repositories:
       enabled: true
   application:
@@ -102,6 +101,7 @@ logging:
     org.flywaydb: ${logging.level.default}
     org.springframework.r2dbc: ${logging.level.default}
     web: ${logging.level.default}
+    reactor.netty.http.server.HttpServer: ${logging.level.default}
   config: classpath:log4j2.xml
 network:
   cors:

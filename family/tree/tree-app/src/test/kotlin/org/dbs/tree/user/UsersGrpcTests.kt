@@ -12,6 +12,7 @@ import org.dbs.tree.repo.user.UserRepo
 import org.dbs.user.UserCore.EntityStatus.ES_USER_ANONYMOUS
 import org.dbs.user.UserCore.UserActionEnum.EA_CREATE_OR_UPDATE_USER
 import org.dbs.validator.Error
+import org.dbs.validator.Error.MANDATORY_FIELD_MISSING
 import org.dbs.validator.Field
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -40,24 +41,25 @@ class UsersGrpcTests : BaseGrpcSpec() {
 
     init {
         "Create user via $source" {
-            createOrUpdateSuccess(buildUserRequest("valid_user", "valid_user@test.com", "Strong1Password"))
+            createOrUpdateSuccess(buildUserRequest("validuser1", "valid_user@test.com", "Strong1Password"))
         }
 
         "Create another user via $source" {
-            createOrUpdateSuccess(buildUserRequest("valid_user2", "valid_user2@test.com", "Strong12Password"))
+            createOrUpdateSuccess(buildUserRequest("validuser2", "valid_user2@test.com", "Strong12Password"))
         }
 
         "Try to create invalid exists user via $source" {
             createOrUpdateFail(
-                buildUserRequest(login = "valid_user2", email = ""),
-                Error.ALREADY_EXISTS to Field.SSS_LOGIN_USER
+                buildUserRequest(login = "validuser2", email = "", password = "Strong12Password"),
+                Error.ALREADY_EXISTS to Field.SSS_USER_LOGIN
             )
         }
 
         "Try to create invalid user via $source" {
             createOrUpdateFail(
-                buildUserRequest(login = "", email = ""),
-                Error.INVALID_DTO_ATTR to Field.SSS_LOGIN_USER
+                buildUserRequest(login = "", email = "", password = ""),
+                MANDATORY_FIELD_MISSING to Field.SSS_USER_LOGIN,
+                        MANDATORY_FIELD_MISSING to Field.SSS_USER_PASSWORD
             )
         }
     }
