@@ -12,6 +12,7 @@ import org.dbs.tree.repo.user.UserRepo
 import org.dbs.user.UserCore.EntityStatus.ES_USER_ANONYMOUS
 import org.dbs.user.UserCore.UserActionEnum.EA_CREATE_OR_UPDATE_USER
 import org.dbs.validator.Error
+import org.dbs.validator.Error.INVALID_ATTR_PATTERN_MISMATCH
 import org.dbs.validator.Error.MANDATORY_FIELD_MISSING
 import org.dbs.validator.Field
 import org.springframework.beans.factory.annotation.Autowired
@@ -50,16 +51,16 @@ class UsersGrpcTests : BaseGrpcSpec() {
 
         "Try to create invalid exists user via $source" {
             createOrUpdateFail(
-                buildUserRequest(login = "validuser2", email = "", password = "Strong12Password"),
+                buildUserRequest(login = "validuser2", email = "valid_user2@test.com", password = "Strong12Password"),
                 Error.ALREADY_EXISTS to Field.SSS_USER_LOGIN
             )
         }
 
         "Try to create invalid user via $source" {
             createOrUpdateFail(
-                buildUserRequest(login = "", email = "", password = ""),
+                buildUserRequest(login = "", email = "", password = "fp"),
                 MANDATORY_FIELD_MISSING to Field.SSS_USER_LOGIN,
-                        MANDATORY_FIELD_MISSING to Field.SSS_USER_PASSWORD
+                INVALID_ATTR_PATTERN_MISMATCH to Field.SSS_USER_PASSWORD,
             )
         }
     }

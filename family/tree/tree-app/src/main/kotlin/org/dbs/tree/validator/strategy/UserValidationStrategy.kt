@@ -1,8 +1,11 @@
 package org.dbs.tree.validator.strategy
 
-import kotlinx.coroutines.runBlocking
+import org.dbs.application.core.service.funcs.Patterns.EMAIL_PATTERN
 import org.dbs.application.core.service.funcs.Patterns.LOGIN_PATTERN
 import org.dbs.application.core.service.funcs.Patterns.PASSWORD_PATTERN
+import org.dbs.application.core.service.funcs.Patterns.PHONE_PATTERN
+import org.dbs.application.core.service.funcs.Patterns.USER_FIRST_NAME_PATTERN
+import org.dbs.application.core.service.funcs.Patterns.USER_LAST_NAME_PATTERN
 import org.dbs.enums.I18NEnum
 import org.dbs.rest.validation.FieldValidationRule
 import org.dbs.rest.validation.ValidationStrategy
@@ -24,9 +27,15 @@ class UserValidationStrategy(
     override val supportedClass = DTO::class
 
     override val rules: Collection<FieldValidationRule<DTO>> = listOf(
-        DTO::oldLogin matchesOptional (LOGIN_PATTERN to SSS_USER_OLD_LOGIN),
+        DTO::oldLogin matches (LOGIN_PATTERN to SSS_USER_OLD_LOGIN),
         DTO::login matches (LOGIN_PATTERN to SSS_USER_LOGIN),
+        DTO::oldEmail matches (EMAIL_PATTERN to Field.SSS_USER_EMAIL),
+        DTO::email matches (EMAIL_PATTERN to Field.SSS_USER_EMAIL),
+        DTO::phone matches (PHONE_PATTERN to Field.SSS_USER_PHONE),
         DTO::password matches (PASSWORD_PATTERN to Field.SSS_USER_PASSWORD),
+        DTO::firstName matches (USER_FIRST_NAME_PATTERN to Field.SSS_USER_FIRST_NAME),
+        DTO::lastName matches (USER_LAST_NAME_PATTERN to Field.SSS_USER_LAST_NAME),
+        DTO::middleName matches (USER_LAST_NAME_PATTERN to Field.SSS_USER_MIDDLE_NAME),
     )
 
     override fun validate(request: DTO) {
@@ -37,15 +46,12 @@ class UserValidationStrategy(
                 // new login should not exist
                 if (isNewUser || isUpdateLogin) {
 
-                    runBlocking {
-
                         userService.findUserByLogin(login)
                             ?.apply {  errors.add(
                                 create(
                                     ALREADY_EXISTS, SSS_USER_LOGIN,
                                     findI18nMessage(I18NEnum.EXIST_USER_LOGIN)
                                 ))   }
-                    }
                 }
             }
         }

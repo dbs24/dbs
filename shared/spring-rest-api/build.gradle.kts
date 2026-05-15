@@ -28,6 +28,7 @@ dependencies {
     implementation(libs.reactor.netty)
     implementation(libs.reactor.kotlin.extensions)
     implementation(libs.kotlin.stdlib.jdk8)
+    implementation(libs.kotlin.reflect)
     implementation(libs.log4j.api.kotlin)
     implementation(libs.coroutines.core)
     implementation(libs.coroutines.core.jvm)

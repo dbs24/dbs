@@ -292,17 +292,13 @@ object Patterns {
     const val V6_CELL = "[$V6]{1,4}"
     val V6_PATTERN by lazy { compile("($V6_CELL:){7}$V6_CELL") }
 
-    private fun buildPatternSet(basePattern: String, size: Int): Set<Pattern> = buildPatternSet(basePattern, 0, size)
+    private fun buildPatternSet(basePattern: String, size: Int): Pattern = buildPatternSet(basePattern, 0, size)
 
-    private fun buildPatternSet(basePattern: String, minSize: Int, maxSize: Int): Set<Pattern> = let {
+
+    private fun buildPatternSet(basePattern: String, minSize: Int, maxSize: Int): Pattern {
         val length = "{$minSize,${maxSize - 1}}"
-        setOf(
-            compile("[$LATIN_CHARS$basePattern]$length"),
-            compile("[$CYRILLIC_CHARS$basePattern]$length"),
-            compile("^[$TURKISH_CHARS$basePattern]$length"),
-            compile("[$ARABIC_CHARS$basePattern]$length")
-        ).also {
-            //println("################# build pattern: $it")
-        }
+        // Собираем в один паттерн: (?:[LATIN...]|[CYRILLIC...])
+        val combinedRegex = "^(?:[$LATIN_CHARS$basePattern]$length|[$CYRILLIC_CHARS$basePattern]$length|...)$"
+        return Pattern.compile(combinedRegex)
     }
 }
