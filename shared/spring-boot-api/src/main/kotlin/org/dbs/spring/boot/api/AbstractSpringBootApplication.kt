@@ -3,38 +3,26 @@ package org.dbs.spring.boot.api
 import com.sun.management.HotSpotDiagnosticMXBean
 import org.apache.logging.log4j.kotlin.Logging
 import org.dbs.application.core.api.LateInitVal
-import org.dbs.application.core.nullsafe.StopWatcher
 import org.dbs.application.core.nullsafe.StopWatcher.Companion.defaultZoneId
 import org.dbs.application.core.service.funcs.GetNetworkAddress
 import org.dbs.application.core.service.funcs.GetNetworkAddress.currentHostName
 import org.dbs.application.core.service.funcs.LocalDateTimeFuncs.toString2
 import org.dbs.application.core.service.funcs.ServiceFuncs.createMap
 import org.dbs.application.core.service.funcs.StringFuncs.clearName
-import org.dbs.application.core.service.funcs.StringFuncs.secureReplace
 import org.dbs.application.core.service.funcs.SysEnvFuncs.appCreateTime
 import org.dbs.application.core.service.funcs.SysEnvFuncs.memoryStatistics
 import org.dbs.application.core.service.funcs.SysEnvFuncs.processHandleInfo
 import org.dbs.consts.SpringCoreConst.App.BUFFER_APP_SIZE
-import org.dbs.consts.SpringCoreConst.App.STOPPED
-import org.dbs.consts.SpringCoreConst.App.SUCCESSFULLY_STARTED
-import org.dbs.consts.SpringCoreConst.PropertiesNames.BANNER_ROW_BOLD_DELIMITER
 import org.dbs.consts.SpringCoreConst.PropertiesNames.JUNIT_MODE
-import org.dbs.consts.SpringCoreConst.PropertiesNames.SPRING_ACTIVE_PROFILE
 import org.dbs.consts.SpringCoreConst.PropertiesNames.SPRING_DEVTOOLS_RESTART_ENABLED
 import org.dbs.consts.SpringCoreConst.PropertiesNames.USER_TIME_ZONE
-import org.dbs.consts.SysConst.APP_SHUTDOWN_DELAY
 import org.dbs.consts.SysConst.DEF_EXIT_PROCESS
 import org.dbs.consts.SysConst.HotSpotConsts.VMS
-import org.dbs.consts.SysConst.KOTLIN_VERSION
 import org.dbs.consts.SysConst.MN42
-import org.dbs.consts.SysConst.MN42L
-import org.dbs.consts.SysConst.SB_DEF_CAPACITY
 import org.dbs.consts.SysConst.UNKNOWN
 import org.dbs.spring.boot.banner.BannerBuilder
 import org.dbs.spring.boot.banner.BannerInititializer
 import org.dbs.spring.boot.vm.WmBuilder
-import org.reactivestreams.Subscriber
-import org.reactivestreams.Subscription
 import org.springframework.beans.factory.DisposableBean
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -43,181 +31,51 @@ import org.springframework.boot.ExitCodeGenerator
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.context.metrics.buffering.BufferingApplicationStartup
 import org.springframework.boot.info.BuildProperties
+import org.springframework.boot.web.reactive.context.ReactiveWebServerApplicationContext
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.support.GenericApplicationContext
-import reactor.kotlin.core.publisher.toMono
 import reactor.tools.agent.ReactorDebugAgent
-import java.lang.System.getProperty
-import java.lang.System.setProperty
-import java.lang.Thread.sleep
 import java.lang.management.ManagementFactory
 import java.util.*
-import java.util.stream.Stream
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
 abstract class AbstractSpringBootApplication : Logging {
 
     @Value("\${config.security.secured-params:password,username}")
-    private val securedParams = "password,username"
+    private val securedParams: String = "password,username"
 
     private fun run(args: Array<String>) {
-        if (args.isNotEmpty()) {
-            logger.debug {
-                Stream.of(*args)
-                    .reduce(
-                        """
-    Modified application arguments   
-    """.trimIndent()
-                    ) { x: String, y: String ->
-                        x + " * '${y.secureReplace(securedParams)}'\n"
-                    }
-            }
-        }
-
         val applicationName = this.javaClass.canonicalName
         logger.info { "Application is validated '${applicationName.clearName()}'" }
     }
-
-    private class SpringBootSubscriber<T : Any>(
-        val applicationName: String,
-        val args: Array<String>,
-        val sbi: SpringBootInititializer,
-        val bi: BannerInititializer,
-    ) : Subscriber<KClass<T>>, Logging, DisposableBean {
-        val stopWatcher = StopWatcher()
-
-        override fun onSubscribe(s: Subscription) {
-            s.request(MN42L)
-            logger.info { "Initializing $applicationName ... " }
-            logger.info { "$processHandleInfo " }
-            logger.info { "logger.isDebugEnabled = ${logger.delegate.isDebugEnabled} " }
-            logger.info { "logger.isTraceEnabled = ${logger.delegate.isTraceEnabled} " }
-        }
-
-        override fun onNext(clazz: KClass<T>) {
-            logger.debug { "Initializing Spring Boot application ${clazz.simpleName} " }
-
-            createDefaultBanner(clazz)
-
-            SpringApplication(clazz.java).apply {
-                applicationStartup = BufferingApplicationStartup(BUFFER_APP_SIZE)
-                applicationStartup.start(clazz.simpleName ?: UNKNOWN)
-                run(*args)
-                //logger.initLog4j2(userApplicationName.value)
-            }
-
-            sbi.initialize()
-            logger.debug { "${GetNetworkAddress.allAddresses}, port $serverPort" }
-
-            isRunning = true
-            val appMsg = "$applicationName, $currentHostName, $GetNetworkAddress.allAddresses, port = $serverPort"
-
-            logger.info { appMsg }
-            logger.info { SUCCESSFULLY_STARTED }
-            logger.info { KOTLIN_VERSION }
-            genericApplicationContext.displayName = clazz.simpleName ?: clazz.toString()
-
-            Runtime.getRuntime().addShutdownHook(
-                Thread {
-                    logger.info { appMsg }
-                    logger.info { "$processHandleInfo " }
-                    logger.info { "$applicationName: server shut down" }
-                }
-            )
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-        private fun createDefaultBanner(clazz: KClass<T>) = BannerBuilder(bi.initialize()).build(clazz)
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        override fun onError(t: Throwable) {
-            logger.error {
-                "ERROR STARTING '${applicationName}' ('$userApplicationName'), " +
-                        "reason: '${t.localizedMessage}' "
-            }
-            logger.error { KOTLIN_VERSION }
-            logger.error { stopWatcher.stringExecutionTime }
-            logger.error { "$applicationName exception \n ${t.javaClass.canonicalName}: '${t.localizedMessage}'" }
-        }
-
-        override fun onComplete() {
-            logger.info { memoryStatistics }
-            logger.info { "finally initialization '${userApplicationName.value}' ($applicationName)" }
-            logger.info { stopWatcher.stringExecutionTime }
-        }
-
-        @Throws(Exception::class)
-        override fun destroy() {
-            logger.info { memoryStatistics }
-            val applicationName = this.javaClass.canonicalName
-            logger.info { "█($applicationName, $userApplicationName)" }
-            logger.info { STOPPED }
-            logger.info { KOTLIN_VERSION }
-            logger.info { "$applicationName: ${stopWatcher.stringExecutionTime}" }
-        }
-    }
-
-    private val className = this.javaClass.simpleName
 
     @Autowired
     fun initializeGenericContext(
         applicationContext: ApplicationContext,
         genericApplicationContext: GenericApplicationContext,
         buildProperties: BuildProperties,
-        @Value("\${$JUNIT_MODE:false}")
-        junitMode: Boolean,
-        @Value("\${$SPRING_ACTIVE_PROFILE:dev-mode}")
-        profileName: String,
+        @Value("\${$JUNIT_MODE:false}") junitMode: Boolean,
     ) {
-        Companion.applicationContext = applicationContext
-        Companion.genericApplicationContext = genericApplicationContext
+        contextRef.set(applicationContext)
+        genericContextRef.set(genericApplicationContext)
         initializeSpringBootApplication()
-        logger.info {
-            "Application '${className.clearName()}' is activated " +
-                    "[${applicationContext.beanDefinitionCount} spring beans in pool]"
-        }
 
         if (junitMode) {
             logger.info { "activate ReactorDebugAgent ..." }
             ReactorDebugAgent.init()
-//            BlockHound.install()
         }
 
-        if (profileName.contains("dev")) {
+        logger.info { "### ${buildProperties.name}: application build time is ${buildProperties.time.toString2()}" }
 
-            val configBeansList = applicationContext.beanDefinitionNames
-                .asSequence()
-                .map { it.clearName() }
-                .filter {
-                    !it.contains("$")
-                            && !it.contains("#")
-                            && it.contains(".")
-                            && it.let {
-                        it.contains("springframework")
-                                && !it.contains("internal")
-                    }
-                }.sorted()
-                .toList()
-
-            logger.warn { "There are ${configBeansList.size} autoconfigure spring beans in pool" }
-            configBeansList.forEach { logger.trace { it } }
+        runCatching {
+            ManagementFactory.getPlatformMXBean(HotSpotDiagnosticMXBean::class.java).apply {
+                logger.info { WmBuilder(VMS).buildLog() }
+            }
         }
 
-        val strDetails = "### ${buildProperties.name}: application build time is ${buildProperties.time.toString2()} "
-
-        logger.info { BANNER_ROW_BOLD_DELIMITER }
-        logger.info { strDetails.plus("#".repeat(BANNER_ROW_BOLD_DELIMITER.length - strDetails.length)) }
-        logger.info { BANNER_ROW_BOLD_DELIMITER }
-
-        ManagementFactory.getPlatformMXBean(HotSpotDiagnosticMXBean::class.java).apply {
-            logger.info { WmBuilder(VMS).buildLog() }
-            logger.info { BANNER_ROW_BOLD_DELIMITER }
-        }
-
-        // SysEnv
         appCreateTime.updateOnce(buildProperties.time)
         userApplicationName.updateOnce(buildProperties.name)
     }
@@ -225,76 +83,136 @@ abstract class AbstractSpringBootApplication : Logging {
     @Bean
     open fun exitCodeGenerator(): ExitCodeGenerator = ExitCodeGenerator { MN42 }
 
-    //==========================================================================
-    private fun initializeSpringBootApplication() {
-        //empty (4 override)
+    protected open fun initializeSpringBootApplication() {
+        // Доступно для переопределения в наследниках
     }
 
-    //==========================================================================
     @Bean
     open fun validateApplication(genericApplicationContext: GenericApplicationContext): CommandLineRunner =
         CommandLineRunner { args: Array<String> -> this.run(args) }
 
     companion object : Logging {
-
         val userApplicationName by lazy { LateInitVal<String>() }
-        var isRunning = false
-        var serverPort = 0
 
-        //==========================================================================
-        lateinit var applicationContext: ApplicationContext
-        lateinit var genericApplicationContext: GenericApplicationContext
+        @Volatile var isRunning = false
+        @Volatile var serverPort = 0
 
-        //==========================================================================
+        private val contextRef = AtomicReference<ApplicationContext?>()
+        private val genericContextRef = AtomicReference<GenericApplicationContext?>()
+
+        var applicationContext: ApplicationContext
+            get() = contextRef.get() ?: error("ApplicationContext is not initialized yet")
+            set(value) = contextRef.set(value)
+
+        var genericApplicationContext: GenericApplicationContext
+            get() = genericContextRef.get() ?: error("GenericApplicationContext is not initialized yet")
+            set(value) = genericContextRef.set(value)
+
         private val EMPTY_INITIALIZATION = SpringBootInititializer {}
         private val EMPTY_BANNER_INITIALIZATION = BannerInititializer { createMap() }
 
-        //==========================================================================
-        fun <T : Any> runSpringBootApplication(args: Array<String>, springBootClass: KClass<T>) =
-            runSpringBootApplication(args, springBootClass, EMPTY_INITIALIZATION)
+        // Класс полностью автономен, не удерживает внешних ссылок и безопасно очищает ресурсы
+        private class SpringBootLifecycleHandler<T : Any>(
+            private val applicationName: String,
+            private val args: Array<String>,
+            private val sbi: SpringBootInititializer,
+            private val bi: BannerInititializer,
+        ) : Logging, DisposableBean {
+
+            // Храним сообщение для вывода при завершении работы приложения
+            @Volatile private var shutdownMessage: String = UNKNOWN
+
+            fun start(clazz: KClass<T>) {
+                logger.debug { "Initializing Spring Boot application ${clazz.simpleName}" }
+                BannerBuilder(bi.initialize()).build(clazz)
+
+                try {
+                    val app = SpringApplication(clazz.java).apply {
+                        applicationStartup = BufferingApplicationStartup(BUFFER_APP_SIZE)
+                        applicationStartup.start(clazz.simpleName ?: UNKNOWN)
+
+                        // Идиоматичная передача базовых свойств Spring Boot 3.4 без глобального системного стейта
+                        setDefaultProperties(mapOf(SPRING_DEVTOOLS_RESTART_ENABLED to "false"))
+                    }
+
+                    val context = app.run(*args)
+                    sbi.initialize()
+
+                    if (context is ReactiveWebServerApplicationContext) {
+                        serverPort = context.webServer.port
+                    }
+
+                    logger.debug { "${GetNetworkAddress.allAddresses}, port $serverPort" }
+                    isRunning = true
+
+                    shutdownMessage = "$applicationName, $currentHostName, ${GetNetworkAddress.allAddresses}, port = $serverPort"
+
+                    if (context is GenericApplicationContext) {
+                        context.displayName = clazz.simpleName ?: clazz.toString()
+                    }
+
+                    logger.info { "finally initialization '${userApplicationName.value}' ($applicationName)" }
+
+                } catch (t: Throwable) {
+                    val devToolsExceptionClass = "org.springframework.boot.devtools.restart.SilentExitExceptionHandler\$SilentExitException"
+
+                    val isSilentExit = t.javaClass.name == devToolsExceptionClass
+                            || t.cause?.javaClass?.name == devToolsExceptionClass
+
+                    if (isSilentExit) {
+                        logger.debug { "Spring Boot DevTools triggered a silent thread exit for restart." }
+                        return // SWALLOW AND EXIT CLEANLY: Do not rethrow, do not exitProcess.
+                    }
+
+                    // Real structural application errors remain here
+                    logger.error(t) {
+                        "CRITICAL ERROR DURING INITIALIZATION '$applicationName', reason: '${t.localizedMessage}'"
+                    }
+                    exitProcess(DEF_EXIT_PROCESS)
+                }
+            }
+
+            // Автоматический хук Spring очистки ресурсов. Исключает утечку Shutdown Hooks при перезапуске контекстов.
+            override fun destroy() {
+                logger.info { shutdownMessage }
+                logger.info { processHandleInfo }
+                logger.info { "$applicationName: server shut down" }
+                logger.info { memoryStatistics }
+
+                val currentAppName = this.javaClass.canonicalName
+                logger.info { "█($currentAppName, ${userApplicationName.valueOrNull})" }
+            }
+        }
 
         fun <T : Any> runSpringBootApplication(
             args: Array<String>,
             springBootClass: KClass<T>,
             bi: BannerInititializer
-        ) =  runSpringBootApplication(args, springBootClass, EMPTY_INITIALIZATION, bi)
+        ) = runSpringBootApplication(args, springBootClass, EMPTY_INITIALIZATION, bi)
 
-        private fun <T : Any> runSpringBootApplication(
+        fun <T : Any> runSpringBootApplication(
             args: Array<String>,
             springBootClass: KClass<T>,
             sbi: SpringBootInititializer = EMPTY_INITIALIZATION,
             bi: BannerInititializer = EMPTY_BANNER_INITIALIZATION
-        ) = springBootClass.run {
-
+        ) {
             if (args.isNotEmpty()) {
-                StringBuilder(SB_DEF_CAPACITY * args.size).also { sb ->
-                    args.iterator().forEach { sb.append("$it ") }
-                    logger.debug { "args = $sb}" }
-                }
+                logger.debug { "args = ${args.joinToString(separator = " ")}" }
             }
 
-            (getProperty(USER_TIME_ZONE)
-                ?.also { logger.info { "assigned time zone: '$it'" } }) ?: run {
-                setProperty(USER_TIME_ZONE, defaultZoneId)
-                TimeZone.setDefault(TimeZone.getTimeZone(defaultZoneId))
-                    .also { logger.warn { "timezone is not assigned ($USER_TIME_ZONE), set defaultTimeZone: $defaultZoneId" } }
-            }
+            // FIX A: System properties MUST be set here BEFORE SpringApplication is instantiated
+            System.setProperty("spring.devtools.restart.enabled", "false")
 
-            setProperty(SPRING_DEVTOOLS_RESTART_ENABLED, "false")
-            //setProperty("LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_BOOT", "DEBUG");
+            val zoneId = System.getProperty(USER_TIME_ZONE) ?: defaultZoneId
+            System.setProperty(USER_TIME_ZONE, zoneId)
+            TimeZone.setDefault(TimeZone.getTimeZone(zoneId))
+            logger.info { "assigned time zone: '$zoneId'" }
 
-            val applicationName = qualifiedName ?: error("qualifiedName is null")
-
+            val applicationName = springBootClass.qualifiedName ?: error("qualifiedName is null")
             logger.info { "starting '$applicationName' ..." }
 
-            toMono().subscribe(SpringBootSubscriber(applicationName, args, sbi, bi))
-
-            if (!isRunning) {
-                logger.info { "Shutdown APPLICATION $applicationName" }
-                sleep(APP_SHUTDOWN_DELAY)
-                //SpringApplication.exit(applicationContext);
-                exitProcess(DEF_EXIT_PROCESS)
-            }
+            val lifecycleHandler = SpringBootLifecycleHandler<T>(applicationName, args, sbi, bi)
+            lifecycleHandler.start(springBootClass)
         }
     }
 }
