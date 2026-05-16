@@ -42,16 +42,26 @@ interface ValidationStrategy<T : DomainCommand> : Logging, SmartInitializingSing
         val coveredPropertyNames = rules.map { it.property.name }
         val missingProperties = constructorParamNames - coveredPropertyNames
 
-        if (missingProperties.isNotEmpty()) {
-            error(
-                "Validation strategy for ${supportedClass.simpleName} is incomplete. " +
-                        "Missing validation rules for fields: $missingProperties"
-            )
+        require(missingProperties.isEmpty()) {
+            "Validation strategy for ${supportedClass.simpleName} is incomplete. " +
+                    "Missing validation rules for fields: $missingProperties"
         }
 
-        if (coveredPropertyNames.size != coveredPropertyNames.toSet().size) {
-            val duplicates = coveredPropertyNames.groupBy { it }.filter { it.value.size > 1 }.keys
-            error("Validation strategy for ${supportedClass.simpleName} has duplicate rules for fields: $duplicates")
+        val duplicates = rules
+            .groupBy { it.property }
+            .filter { it.value.size > 1 }
+
+        require(duplicates.isEmpty()) {
+            val className = " ${this::class.simpleName} (${supportedClass.simpleName})"
+            val details = duplicates.entries.joinToString(separator = "; ") { (property, list) ->
+                "Property '${property.name}' appears ${list.size} times"
+            }
+            "Duplicate validation rules found for class '$className': $details"
+        }
+
+        require (coveredPropertyNames.size == coveredPropertyNames.toSet().size) {
+            "Validation strategy for ${supportedClass.simpleName} has duplicate rules for fields: " +
+                    "${coveredPropertyNames.groupBy { it }.filter { it.value.size > 1 }.keys}"
         }
     }
 

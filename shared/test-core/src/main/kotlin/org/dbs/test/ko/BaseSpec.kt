@@ -123,7 +123,15 @@ abstract class BaseSpec: StringSpec(), Logging {
                 "Unknown fields in validators for ${entityClass.simpleName}: $unknownFields"
             }
 
-            // 2. Выполнение проверок
+            val duplicates = validators
+                .groupBy { it.property }
+                .filter { it.value.size > 1 }
+
+            require (duplicates.isEmpty()) {
+                "Duplicate validators found: ${duplicates.entries.joinToString(separator = "; ") { (property, list) ->
+                    "Field '${property.name}' of '${entity.let { it::class.qualifiedName }}' appears ${list.size} times"}}"
+            }
+
             validators.forEach { v ->
                 val value = v.property.get(this)
                 // Запускаем лямбду: 'this' будет сущностью, 'it' (первый аргумент) — значением поля
