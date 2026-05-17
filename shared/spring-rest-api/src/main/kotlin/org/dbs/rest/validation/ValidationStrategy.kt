@@ -39,7 +39,7 @@ interface ValidationStrategy<T : DomainCommand> : Logging, SmartInitializingSing
             ?.mapNotNull { it.name }
             ?.toSet() ?: emptySet()
 
-        val coveredPropertyNames = rules.map { it.property.name }
+        val coveredPropertyNames = rules.map { it.property.name }.toSet()
         val missingProperties = constructorParamNames - coveredPropertyNames
 
         require(missingProperties.isEmpty()) {
@@ -121,7 +121,7 @@ interface ValidationStrategy<T : DomainCommand> : Logging, SmartInitializingSing
 // Структура, описывающая правило для конкретного свойства
 data class FieldValidationRule<T : DomainCommand>(
     val property: KProperty1<T, *>,
-    val pattern: Pattern, // Меняем Regex обратно на Pattern
+    val pattern: Pattern,
     val isOptional: Boolean,
     val field: Field,
     val getter: (T) -> Any?

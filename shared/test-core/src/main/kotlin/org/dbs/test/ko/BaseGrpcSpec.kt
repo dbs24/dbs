@@ -13,7 +13,17 @@ import org.dbs.ext.SpringFuncs.fromErrString
 import org.springframework.beans.factory.annotation.Autowired
 import java.util.concurrent.TimeUnit
 
-abstract class BaseGrpcSpec : BaseSpec(), Logging {
+
+abstract class BaseGrpcSpec: BaseSpec(), Logging {
+
+    class GrpcEntityFactory<Builder, Message>(
+        val newBuilder: () -> Builder,
+        val build: (Builder) -> Message
+    ) {
+        inline fun create(configure: Builder.() -> Unit): Message {
+            return build(newBuilder().apply(configure))
+        }
+    }
 
     @Autowired
     lateinit var grpcServerProperties: GrpcServerProperties

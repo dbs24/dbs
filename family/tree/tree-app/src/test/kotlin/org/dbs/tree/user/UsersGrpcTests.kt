@@ -36,11 +36,14 @@ class UsersGrpcTests : BaseGrpcSpec() {
 
     private lateinit var userStub: Stub
 
+    val userFactory = GrpcEntityFactory(REQ::newBuilder, REQ.Builder::build)
+
     override fun initStubs(channel: ManagedChannel) {
         userStub = Stub(channel)
     }
-
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     init {
+
         "Create user via $source" {
             createOrUpdateSuccess(buildUserRequest("validuser1", "valid_user@test.com", "Strong1Password"))
         }
@@ -65,6 +68,8 @@ class UsersGrpcTests : BaseGrpcSpec() {
         }
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     private fun buildUserRequest(
         login: String,
         email: String,
@@ -75,7 +80,7 @@ class UsersGrpcTests : BaseGrpcSpec() {
         middleName: String = "",
         oldLogin: String = "",
         oldEmail: String = ""
-    ): REQ = REQ.newBuilder().apply {
+    ): REQ = userFactory.create {
         setLogin(login)
         setEmail(email)
         if (password.isNotEmpty()) setPassword(password)
@@ -85,7 +90,7 @@ class UsersGrpcTests : BaseGrpcSpec() {
         if (middleName.isNotEmpty()) setMiddleName(middleName)
         if (oldLogin.isNotEmpty()) setOldLogin(oldLogin)
         if (oldEmail.isNotEmpty()) setOldEmail(oldEmail)
-    }.build()
+    }
 
     private suspend fun createOrUpdateSuccess(request: REQ) {
         val response = userStub.createOrUpdateUser(request)
