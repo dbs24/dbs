@@ -15,8 +15,7 @@ import org.dbs.consts.SysConst.STRING_FALSE
 import org.dbs.consts.SysConst.STRING_NULL
 import org.dbs.consts.SysConst.STRING_ONE
 import org.dbs.consts.SysConst.STRING_TRUE
-import org.dbs.ext.FluxFuncs.noDuplicates
-import org.dbs.ext.FluxFuncs.subscribeMono
+import org.dbs.ext.CollectionFuncs.ensureNoDuplicates
 import org.dbs.ref.serv.enums.CountryEnum
 import org.dbs.ref.serv.enums.CurrencyEnum
 import org.dbs.ref.serv.enums.RegionEnum
@@ -42,8 +41,6 @@ import org.springframework.web.reactive.function.server.CoRouterFunctionDsl
 import org.springframework.web.reactive.function.server.HandlerFunction
 import org.springframework.web.reactive.function.server.RequestPredicates.accept
 import org.springframework.web.reactive.function.server.ServerResponse
-import reactor.core.publisher.Flux.fromIterable
-import reactor.core.scheduler.Schedulers.newParallel
 import java.time.Duration.ofHours
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.system.measureTimeMillis
@@ -133,73 +130,59 @@ abstract class AbstractWebSecurityConfig(private val appUriPrefix: String? = STR
     override fun initialize() = super.initialize().also {
         runBlocking {
             measureTimeMillis {
-                val scheduler = newParallel(javaClass.simpleName)
 
                 val roc = async {
                     // validate RestOperCode
-                    fromIterable(RestOperCodeEnum.entries.toList())
-                        .publishOn(scheduler)
-                        .noDuplicates({ it.getCode() }, { it.getValue() })
-                        .count()
-                        .subscribeMono()
+                    RestOperCodeEnum.entries.toList()
+                        .ensureNoDuplicates({ ::getCode }, { ::getValue })
+                        .size
+
                 }
 
                 val fld = async {
                     // validate Field
-                    fromIterable(Field.entries.toList())
-                        .publishOn(scheduler)
-                        .noDuplicates({ it.getCode() }, { it.getValue() })
-                        .count()
-                        .subscribeMono()
+                    Field.entries.toList()
+                        .ensureNoDuplicates({ ::getCode }, { ::getValue })
+                        .size
                 }
 
                 val errs = async {
                     // validate Error
-                    fromIterable(Error.entries.toList())
-                        .publishOn(scheduler)
-                        .noDuplicates({ it.getCode() }, { it.getValue() })
-                        .count()
-                        .subscribeMono()
+                    Error.entries.toList()
+                        .ensureNoDuplicates({ ::getCode }, { ::getValue })
+                        .size
                 }
 
                 val country = async {
                     // validate Countries
-                    fromIterable(CountryEnum.entries.toList())
-                        .publishOn(scheduler)
-                        .noDuplicates(
-                            { it.getCountryId() },
-                            { it.getCountryIso() },
-                            { it.getCountryName() },
-                            { it.getCountryIso3() })
-                        .count()
-                        .subscribeMono()
+                    CountryEnum.entries.toList()
+                        .ensureNoDuplicates(
+                            { ::getCountryId },
+                            { ::getCountryIso },
+                            { ::getCountryName },
+                            { ::getCountryIso3 })
+                        .size
                 }
 
                 val currency = async {
                     // validate Currency
-                    fromIterable(CurrencyEnum.entries.toList())
-                        .publishOn(scheduler)
-                        .noDuplicates({ it.getCurrencyId() }, { it.getCurrencyIso() }, { it.getCurrencyName() })
-                        .count()
-                        .subscribeMono()
+                    CurrencyEnum.entries.toList()
+                        .ensureNoDuplicates({ ::getCurrencyId }, { ::getCurrencyIso }, { ::getCurrencyName })
+                        .size
                 }
 
                 val region = async {
                     // validate Region
-                    fromIterable(RegionEnum.entries.toList())
-                        .publishOn(scheduler)
-                        .noDuplicates({ it.getRegionId() }, { it.getRegionName() })
-                        .count()
-                        .subscribeMono()
+                    RegionEnum.entries.toList()
+                        .ensureNoDuplicates({ ::getRegionId }, { ::getRegionName })
+                        .size
                 }
 
                 val r2http = async {
                     // RestOperCode2HttpEnum
-                    fromIterable(RestOperCode2HttpEnum.entries.toList())
-                        .publishOn(scheduler)
-                        .noDuplicates({ it.httpCode })
-                        .count()
-                        .subscribeMono()
+                    RestOperCode2HttpEnum.entries.toList()
+                        .ensureNoDuplicates({ ::httpCode })
+                        .size
                 }
 
                 val records = r2http.await() + region.await() + currency.await() + country.await() + errs.await() +

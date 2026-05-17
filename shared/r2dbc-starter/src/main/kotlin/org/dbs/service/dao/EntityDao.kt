@@ -11,7 +11,7 @@ import org.dbs.entity.core.v2.model.EntityCore
 import org.dbs.entity.core.v2.type.EntityCoreInitializer.Companion.EntityCore.entityActionEnums
 import org.dbs.entity.core.v2.type.EntityCoreInitializer.Companion.EntityCore.entityStatuses
 import org.dbs.entity.core.v2.type.EntityCoreInitializer.Companion.EntityCore.entityTypes
-import org.dbs.ext.FluxFuncs.noDuplicates
+import org.dbs.ext.CollectionFuncs.ensureNoDuplicates
 import org.dbs.ext.FluxFuncs.subscribeMono
 import org.dbs.ext.FluxFuncs.validateDb
 import org.dbs.service.api.RefSyncFuncs.synchronizeReference
@@ -24,7 +24,6 @@ import org.springframework.context.annotation.Lazy
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
-import reactor.core.publisher.Flux.fromIterable
 import reactor.core.publisher.Mono
 import kotlin.system.measureTimeMillis
 
@@ -42,10 +41,10 @@ class EntityDao(
         actionRepo.findByEntityIdAndActionCode(entityId, action.actionCodeId)
 
     fun <T : EntityCore> saveEntity(entity: T): Mono<T> =
-        if (entity.entityId == null)
-            entityTemplate.insert(entity)
-        else
+        entity.entityId?.let {
             entityTemplate.update(entity)
+        } ?: entityTemplate.insert(entity)
+
 
     fun <T : EntityCore> saveEntities(entities: Collection<T>): Flux<T> = Flux.concat(
         createCollection { savedEntities ->
@@ -62,10 +61,9 @@ class EntityDao(
     //==================================================================================================================
     fun synchronizeEntityTypes() = measureTimeMillis {
         // validate and save all entity types
-        fromIterable(entityTypes)
+        entityTypes
             .map { EntityType(it.entityTypeId.toInt(), it.entityTypeName, it.module.name) }
-            .publishOn(parallelScheduler)
-            .noDuplicates({ it.entityTypeId }, { it.entityTypeName })
+            .ensureNoDuplicates({ ::entityTypeId }, { ::entityTypeName })
             .synchronizeReference(
                 entityTypeRepository,
                 { existItem, preparedItem -> existItem.id == preparedItem.id },
@@ -80,13 +78,11 @@ class EntityDao(
             logger.debug { "synchronizeEntityTypes: took $it ms" }
         }
 
-
     fun synchronizeEntityStatuses() = measureTimeMillis {
         // validate and save all entity types
-        fromIterable(entityStatuses)
+        entityStatuses
             .map { EntityStatus(it.entityStatusId, it.entityType.entityTypeId, it.entityStatusName) }
-            .publishOn(parallelScheduler)
-            .noDuplicates({ it.entityStatus })
+            .ensureNoDuplicates({ ::entityStatus })
             .synchronizeReference(
                 entityStatusRepository,
                 { existItem, preparedItem -> existItem.id == preparedItem.id },
@@ -101,12 +97,10 @@ class EntityDao(
             logger.debug { "synchronizeEntityStatuses: took $it ms" }
         }
 
-    //
-//
     fun synchronizeActionCodes() = measureTimeMillis {
-        fromIterable(entityActionEnums)
+        entityActionEnums
             .map { ActionCode(it.actionCodeId, it.actionName, it.actionName, false) }
-            .noDuplicates({ it.actionCode }, { it.actionName }, { it.appName })
+            .ensureNoDuplicates({ ::actionCode }, { ::actionName }, { ::appName })
             .synchronizeReference(
                 actionCodeRepository,
                 { existItem, preparedItem -> existItem.actionCode == preparedItem.actionCode },

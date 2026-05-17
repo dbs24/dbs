@@ -6,8 +6,7 @@ import org.dbs.consts.SpringCoreConst.PropertiesNames.SPRING_WEB_LOCALE
 import org.dbs.consts.SpringCoreConst.PropertiesNames.SPRING_WEB_LOCALE_DEF_VAL
 import org.dbs.consts.SysConst.EMPTY_STRING
 import org.dbs.enums.I18NEnum
-import org.dbs.ext.FluxFuncs.noDuplicates
-import org.dbs.ext.FluxFuncs.subscribeMono
+import org.dbs.ext.CollectionFuncs.ensureNoDuplicates
 import org.dbs.ext.LocaleFuncs.isValidLocale
 import org.dbs.ext.LocaleFuncs.locale
 import org.dbs.spring.core.api.AbstractApplicationService
@@ -16,7 +15,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.MessageSource
 import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Flux.fromArray
 import java.util.*
 
 @Service
@@ -65,11 +63,9 @@ class I18NService : AbstractApplicationService() {
             messageSource.getMessage(messageCode, args, messageCode, systemLocale.value) ?: EMPTY_STRING
 
         init {
-            fromArray(I18NEnum.entries.toTypedArray())
-                .noDuplicates({ it.defaultMsgValue })
-                .count()
-                .map { logger.debug { "validate I18NEnum ($it records) " }; it }
-                .subscribeMono()
+            I18NEnum.entries.toList()
+                .ensureNoDuplicates({ ::defaultMsgValue })
+                .also { logger.debug { "validate I18NEnum ($it records) " }}
         }
     }
 }

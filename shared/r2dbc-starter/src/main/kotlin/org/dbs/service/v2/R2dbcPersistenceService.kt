@@ -18,8 +18,7 @@ import org.dbs.entity.core.v2.type.EntityCoreInitializer.Companion.EntityCore.ca
 import org.dbs.entity.core.v2.type.EntityCoreInitializer.Companion.EntityCore.entityActionEnums
 import org.dbs.entity.core.v2.type.EntityCoreInitializer.Companion.EntityCore.entityStatuses
 import org.dbs.entity.core.v2.type.EntityCoreInitializer.Companion.EntityCore.entityTypes
-import org.dbs.ext.FluxFuncs.noDuplicates
-import org.dbs.ext.FluxFuncs.subscribeMono
+import org.dbs.ext.CollectionFuncs.ensureNoDuplicates
 import org.dbs.service.EntityCoreFuncs.validateEntityCore
 import org.dbs.service.cache.v2.EntityCacheService
 import org.dbs.service.dao.EntityDao
@@ -37,7 +36,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.ReactiveTransactionManager
 import org.springframework.transaction.annotation.EnableTransactionManagement
 import org.springframework.transaction.reactive.TransactionalOperator
-import reactor.core.publisher.Flux.fromIterable
 import reactor.core.publisher.Mono
 
 @Service
@@ -84,36 +82,24 @@ class R2dbcPersistenceService(
         logger.debug { "validate entity types: [${entityTypes}]" }
         require(entityTypes.isNotEmpty()) { " Entity types list is empty" }
 
-        fromIterable(entityTypes)
-            .noDuplicates({ it.entityTypeId }, { it.entityTypeName })
-            .count()
-            .subscribeMono()
+        entityTypes.ensureNoDuplicates({::entityTypeId}, {::entityTypeName})
 
         initCoreEnums(EntityStatusEnum::class.java, entityStatuses)
         logger.debug { "validate entity statuses: [${entityStatuses}]" }
         require(entityStatuses.isNotEmpty()) { " Entity statuses list is empty" }
-        fromIterable(entityStatuses)
-            .noDuplicates({ it.entityStatusId })
-            .count()
-            .subscribeMono()
+
+        entityStatuses.ensureNoDuplicates({::entityStatusId})
 
         initCoreEnums(EntityActionEnum::class.java, entityActionEnums)
         logger.debug { "validate entity actions: [${entityActionEnums}]" }
         require(entityActionEnums.isNotEmpty()) { " Entity actions list is empty" }
-        fromIterable(entityActionEnums)
-            .noDuplicates({ it.actionCodeId })
-            .noDuplicates({ it.actionName })
-            .count()
-            .subscribeMono()
+
+        entityActionEnums.ensureNoDuplicates({ ::actionCodeId}, {::actionName})
 
         initCoreEnums(EntityCacheKeyEnum::class.java, cacheKeys)
         logger.debug { "validate entity cache keys: [${cacheKeys}]" }
         require(cacheKeys.isNotEmpty()) { " Entity caches list is empty" }
-        fromIterable(cacheKeys)
-            .noDuplicates({ it.cacheKeyCodeId })
-            .noDuplicates({ it.cacheCode })
-            .count()
-            .subscribeMono()
+        cacheKeys.ensureNoDuplicates({ ::cacheKeyCodeId}, { ::cacheCode})
 
         if (autoSynchronize) with(entityDao) {
             logger.debug { "synchronize system references" }
@@ -157,7 +143,7 @@ class EntityCoreValidationListener : AfterConvertCallback<EntityCore>, BeforeSav
     }
 
     private fun validateIfAnnotated(entity: EntityCore) {
-      entity.validateEntityCore()
+        entity.validateEntityCore()
     }
 
     override fun onBeforeSave(

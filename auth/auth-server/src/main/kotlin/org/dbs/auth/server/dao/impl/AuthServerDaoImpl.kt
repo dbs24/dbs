@@ -4,12 +4,20 @@ import org.dbs.auth.server.dao.AuthServerDao
 import org.dbs.auth.server.enums.ApplicationEnum
 import org.dbs.auth.server.enums.ApplicationEnum.Companion.isExistEnum
 import org.dbs.auth.server.enums.ApplicationEnum.entries
-import org.dbs.auth.server.model.*
-import org.dbs.auth.server.repo.*
+import org.dbs.auth.server.model.Application
+import org.dbs.auth.server.model.IssuedJwt
+import org.dbs.auth.server.model.IssuedJwtArc
+import org.dbs.auth.server.model.RefreshJwt
+import org.dbs.auth.server.model.RefreshJwtArc
+import org.dbs.auth.server.repo.ApplicationRepo
+import org.dbs.auth.server.repo.IssuedJwtArcRepo
+import org.dbs.auth.server.repo.IssuedJwtRepo
+import org.dbs.auth.server.repo.RefreshJwtArcRepo
+import org.dbs.auth.server.repo.RefreshJwtRepo
 import org.dbs.consts.Jwt
 import org.dbs.consts.JwtId
 import org.dbs.consts.OperDate
-import org.dbs.ext.FluxFuncs.noDuplicates
+import org.dbs.ext.CollectionFuncs.ensureNoDuplicates
 import org.dbs.ext.FluxFuncs.subscribeMono
 import org.dbs.ext.FluxFuncs.validateDb
 import org.dbs.service.api.RefSyncFuncs.synchronizeReference
@@ -17,7 +25,6 @@ import org.dbs.spring.core.api.DaoAbstractApplicationService
 import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
-import reactor.core.publisher.Flux.fromIterable
 import reactor.core.publisher.Mono
 import java.time.LocalDateTime
 import kotlin.system.measureTimeMillis
@@ -38,9 +45,8 @@ class AuthServerDaoImpl(
     }
 
     override fun synchronizeRefs() = measureTimeMillis {
-        fromIterable(actualApplications)
-            .publishOn(parallelScheduler)
-            .noDuplicates({ it.applicationId }, { it.applicationCode })
+        actualApplications
+            .ensureNoDuplicates({ ::applicationId }, { ::applicationCode })
             .synchronizeReference(applicationRepo,
                 { existItem, preparedItem -> existItem.id == preparedItem.id },
                 { preparedItem -> preparedItem.copy() })
