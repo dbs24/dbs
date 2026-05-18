@@ -1,16 +1,16 @@
 package org.dbs.tree.mapper
 
-import org.dbs.application.core.service.funcs.IntFuncs.toLocalDate
 import org.dbs.grpc.ext.GrpcNull.grpcGetOrNull
 import org.dbs.tree.client.CreateOrUpdateUserRequest
 import org.dbs.tree.client.CreateOrUpdateUserResponse
+import org.dbs.tree.client.UserCredentialsRequest
+import org.dbs.tree.client.UserCredentialsResponse
 import org.dbs.tree.model.domain.CreateOrUpdateUserCommand
+import org.dbs.tree.model.domain.GetUserCredentialsCommand
 import org.dbs.tree.model.user.User
-import org.dbs.tree.service.UserService
 import org.dbs.user.dto.user.CreateOrUpdateUserDto
 import org.dbs.user.dto.user.CreatedUserDto
 import org.springframework.security.crypto.password.PasswordEncoder
-import java.time.LocalDateTime.now
 
 typealias Dto2User = (src: User, srcDto: CreateOrUpdateUserRequest, passwordEncoder: PasswordEncoder) -> User
 
@@ -55,20 +55,14 @@ object UserMappers {
             phone = phone
         )
 
-    val dto2User: Dto2User = { src, dto, passwordEncoder ->
-        src.copy(
-            login = dto.login.grpcGetOrNull() ?: dto.oldLogin,
-            email = dto.email.grpcGetOrNull() ?: dto.oldEmail,
-            lastName = dto.lastName.grpcGetOrNull(),
-            middleName = dto.middleName.grpcGetOrNull(),
-            firstName = dto.firstName.grpcGetOrNull(),
-            birthDate = dto.birthDate.toLocalDate(),
-            phone = dto.phone.grpcGetOrNull(),
-            password = dto.password.grpcGetOrNull()?.let { passwordEncoder.encode(it) } ?: src.password,
-            modifyDate = now(),
+    fun UserCredentialsRequest.toCommand(): GetUserCredentialsCommand =
+        GetUserCredentialsCommand(
+            login = userLogin
         )
-    }
 
-    fun UserService.updateUser(src: User, srcDto: CreateOrUpdateUserRequest): User =
-        dto2User(src, srcDto, passwordEncoder)
+    fun User.toUserCredentialsProto(): UserCredentialsResponse = UserCredentialsResponse.newBuilder()
+        .also {
+            it.userLogin = login
+            it.userPassword = password
+        }.build()
 }

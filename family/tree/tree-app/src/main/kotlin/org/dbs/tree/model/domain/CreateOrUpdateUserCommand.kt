@@ -20,3 +20,7 @@ data class CreateOrUpdateUserCommand(
     val isNewUser: Boolean = oldLogin == null
     val isUpdateLogin: Boolean = !isNewUser && (oldLogin != login)
 }
+
+data class GetUserCredentialsCommand(
+    val login: EntityCode,
+) : DomainCommand

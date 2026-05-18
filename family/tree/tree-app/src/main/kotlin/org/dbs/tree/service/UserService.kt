@@ -9,6 +9,7 @@ import org.dbs.entity.core.v2.model.LogEntityAction
 import org.dbs.rest.validation.ValidateDto
 import org.dbs.spring.core.api.AbstractApplicationService
 import org.dbs.tree.model.domain.CreateOrUpdateUserCommand
+import org.dbs.tree.model.domain.GetUserCredentialsCommand
 import org.dbs.user.UserCore.EntityStatus.ES_USER_ANONYMOUS
 import org.dbs.user.UserCore.isClosedUser
 import org.dbs.user.UserLogin
@@ -56,6 +57,10 @@ class UserService(
             closeDate = updatedUser.closeDate
         ))
 
+    }
+
+    suspend fun getUserCredentials(request: GetUserCredentialsCommand): ENTITY {
+        return (dao.findUserByLogin(request.login) ?: error("User not found (${request.login})"))
     }
 
     fun createNewUser(userLogin: UserLogin): ENTITY =

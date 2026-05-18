@@ -145,7 +145,7 @@ class EntityActionLoggerAspect(
         }
     }
 
-    private fun isInvalidAction(action: String): Boolean {
-        return entityActionEnums.none { (it as Enum<*>).name == action }
-    }
+    private fun isInvalidAction(action: String) =
+        entityActionEnums.none { (it as Enum<*>).name == action }
+
 }
