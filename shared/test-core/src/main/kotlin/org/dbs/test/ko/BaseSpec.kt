@@ -140,7 +140,16 @@ abstract class BaseSpec: StringSpec(), Logging {
 
             // 3. Проверка записи события в БД (core_actions)
             val count = databaseClient.sql(
-                "SELECT count(*) as cnt FROM core_actions WHERE entity_id = :E AND action_code = :AC"
+                """
+                    SELECT CASE 
+                        WHEN EXISTS (
+                            SELECT 1 
+                            FROM core_actions 
+                            WHERE entity_id = :E AND action_code = :AC
+                        ) THEN 1 
+                        ELSE 0 
+                    END as cnt                    
+                """
             )
                 .bind("E", entityId)
                 .bind("AC", actionEnum.actionCodeId)

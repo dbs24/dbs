@@ -12,10 +12,16 @@ import org.dbs.entity.core.EntityStatusEnum
 import org.dbs.entity.core.EntityTypeEnum
 import org.dbs.entity.core.v2.type.EntityCoreInitializer.Companion.EntityCore.entityActionEnums
 import org.dbs.ext.SpringFuncs.registryEntityEvent
+import org.springframework.boot.context.event.ApplicationReadyEvent
+import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationEventPublisher
+import org.springframework.context.annotation.Lazy
+import org.springframework.context.event.EventListener
 import org.springframework.core.Ordered.LOWEST_PRECEDENCE
+import org.springframework.core.annotation.MergedAnnotations
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
+import org.springframework.util.ClassUtils
 import reactor.core.publisher.Mono
 import java.io.Serializable
 import java.util.concurrent.ConcurrentHashMap
@@ -39,10 +45,12 @@ annotation class LogEntityAction(
 )
 
 @Aspect
+@Lazy(false)
 @Component
 @Order(LOWEST_PRECEDENCE)
 class EntityActionLoggerAspect(
-    private val applicationEventPublisher: ApplicationEventPublisher
+    private val applicationEventPublisher: ApplicationEventPublisher,
+    private val applicationContext: ApplicationContext
 ): Logging {
 
     private val actionCache = ConcurrentHashMap<String, Int>()
@@ -75,7 +83,6 @@ class EntityActionLoggerAspect(
                 "...",
                 duration = duration
             )
-
         }
 
         when (result)  {
@@ -95,5 +102,50 @@ class EntityActionLoggerAspect(
         }
         return result
 
+    }
+
+    @EventListener(ApplicationReadyEvent::class)
+    fun validateAnnotations() {
+        val beanNames = applicationContext.beanDefinitionNames
+        val errors = mutableListOf<String>()
+
+        for (beanName in beanNames) {
+            val beanInstance = applicationContext.findBeanInstance(beanName) ?: continue
+
+            val targetClass = ClassUtils.getUserClass(beanInstance)
+
+            targetClass.declaredMethods.forEach { method ->
+                val annotation = MergedAnnotations.from(method)
+                    .get(LogEntityAction::class.java)
+
+                if (annotation.isPresent) {
+                    val actionValue = annotation.synthesize().action
+                    if (isInvalidAction(actionValue)) {
+                        errors.add("Method '${targetClass.name}.${method.name}' has invalid action '$actionValue'")
+                    }
+                }
+            }
+        }
+
+        if (errors.isNotEmpty()) {
+            error("Validation failed for @LogEntityAction annotations:\n" +
+                        errors.joinToString("\n")
+            )
+        }
+    }
+
+    // Безопасное получение инстанса бина без триггера ленивой инициализации
+    private fun ApplicationContext.findBeanInstance(beanName: String): Any? {
+        return try {
+            if (this.containsBean(beanName) && this.isSingleton(beanName)) {
+                this.getBean(beanName)
+            } else null
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    private fun isInvalidAction(action: String): Boolean {
+        return entityActionEnums.none { (it as Enum<*>).name == action }
     }
 }
