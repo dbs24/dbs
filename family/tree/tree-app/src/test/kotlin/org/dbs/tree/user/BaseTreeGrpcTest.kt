@@ -20,10 +20,8 @@ typealias Stub = UserServiceGrpcKt.UserServiceCoroutineStub
 
 abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
 
-    @Autowired
-    lateinit var userRepo: UserRepo
-    @Autowired
-    lateinit var passwordEncoder: PasswordEncoder
+    @Autowired lateinit var userRepo: UserRepo
+    @Autowired lateinit var passwordEncoder: PasswordEncoder
 
     private lateinit var userStub: Stub
 
@@ -83,7 +81,7 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
         )
     }
 
-    protected suspend fun createOrUpdateFail(request: REQ_CREATE_USER, vararg expectedErrors: Pair<Error, Field>) {
+    protected suspend fun createOrUpdateUserWithFail(request: REQ_CREATE_USER, vararg expectedErrors: Pair<Error, Field>) {
         suspend { userStub.createOrUpdateUser(request) }
             .shouldFailWithValidation()
             .shouldContainErrors(*expectedErrors)
@@ -100,6 +98,11 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
         userRepo.findByLogin(request.userLogin).apply {
             response.userPassword shouldBe this?.password
         }
+    }
+
+    protected suspend fun getUserCredentialsWithFail(request: REQ_GET_USER_CR) {
+        suspend { userStub.getUserCredentials(request) }
+            .shouldFailWithInternalError()
     }
 
 }

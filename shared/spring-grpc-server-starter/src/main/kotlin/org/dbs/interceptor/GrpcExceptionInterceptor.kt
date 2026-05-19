@@ -27,7 +27,7 @@ class GrpcExceptionInterceptor(
     private fun translateException(e: Throwable, path: String): Pair<Status, Metadata> {
 
         val metadata = Metadata()
-        logger.error(e.toString())
+        logger.error("$path: ${e.toString()}")
         e.printStackTrace()
 
         return when (e) {
@@ -36,20 +36,22 @@ class GrpcExceptionInterceptor(
                 e.errors.forEachIndexed { i, err ->
                     metadata.put(
                         MKB.of("error-$i-bin", Metadata.BINARY_BYTE_MARSHALLER),
-                        err.toErrString().toByteArray())
+                        err.toErrString().toByteArray()
+                    )
                 }
                 Status.INVALID_ARGUMENT.withDescription("Validation failed").withCause(e) to metadata
             }
+
             else -> {
 
                 val isDevelopment = System.getProperty("spring.profiles.active") == "dev"
                 val incidentMsg = applicationEventPublisher.registryIncidentEvent(
                     throwable = e,
                     path = path,
-                    source =IncidentSource.IS_GRPC,
+                    source = IncidentSource.IS_GRPC,
                 )
 
-                val publicMsg = "Internal server error: ${if (isDevelopment) e.toString() else incidentMsg }"
+                val publicMsg = "Internal server error: ${if (isDevelopment) e.toString() else incidentMsg}"
 
                 metadata.put(MKB.of("internal-error-bin", Metadata.BINARY_BYTE_MARSHALLER), e.toString().toByteArray())
                 if (isDevelopment)
@@ -78,21 +80,25 @@ class GrpcExceptionInterceptor(
                 } else {
                     // Если пришла ошибка (в т.ч. из корутины), мапим её
                     val exception = status.cause
-                    val (newStatus, newTrailers) = translateException(exception ?: status.asException(), call.getProcedureName())
+                    val (newStatus, newTrailers) = translateException(
+                        exception ?: status.asException(),
+                        call.getProcedureName()
+                    )
                     super.close(newStatus, newTrailers)
                 }
             }
         }, headers)
     }
 
-    private fun <ReqT, RespT> ServerCall<ReqT, RespT>.logH2Call(headers: Metadata): Triple<String, IpAddress, String> = run {
-        logger.info { "███ h2 request" }
-        val grpcProcedure = getProcedureName()
-        val remoteAddress = getRemoteAddress(grpcProcedure, headers)
-        val userAgent = getUserAgent(grpcProcedure, headers)
-        logger.info { "request from $authority($userAgent) [$remoteAddress] ==> [$grpcProcedure] " }
-        logger.debug { headers.log() }
-        logger.debug { log() }
-        Triple(grpcProcedure, remoteAddress, userAgent)
-    }
+    private fun <ReqT, RespT> ServerCall<ReqT, RespT>.logH2Call(headers: Metadata): Triple<String, IpAddress, String> =
+        run {
+            logger.info { "███ h2 request" }
+            val grpcProcedure = getProcedureName()
+            val remoteAddress = getRemoteAddress(grpcProcedure, headers)
+            val userAgent = getUserAgent(grpcProcedure, headers)
+            logger.info { "request from $authority($userAgent) [$remoteAddress] ==> [$grpcProcedure] " }
+            logger.debug { headers.log() }
+            logger.debug { log() }
+            Triple(grpcProcedure, remoteAddress, userAgent)
+        }
 }

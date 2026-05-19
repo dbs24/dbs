@@ -4,6 +4,7 @@ import org.dbs.enums.RefEnum
 
 enum class Field(private val value: String, private val code: Int) : RefEnum {
     UNKNOWN_FIELD("UNKNOWN_FIELD", 1),
+    ENTITY("ENTITY", 9),
     FILE_NAME("FILE_NAME", 10),
     FILE_CONTENT("FILE_CONTENT", 11),
     FLD_MESSAGE("MESSAGE_FIELD", 20),

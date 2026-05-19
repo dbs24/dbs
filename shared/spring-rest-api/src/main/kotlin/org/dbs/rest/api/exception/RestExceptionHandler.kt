@@ -33,7 +33,7 @@ class RestExceptionHandler(
     @ExceptionHandler(Throwable::class)
     @ResponseStatus(INTERNAL_SERVER_ERROR)
     fun handleGenericException(
-        ex: Exception,
+        throwable: Throwable,
         request: ServerHttpRequest
     ): ValidationErrorResponse {
 
@@ -41,7 +41,7 @@ class RestExceptionHandler(
         val isDevelopment = System.getProperty("spring.profiles.active") == "dev"
 
         val incidentMsg =  applicationEventPublisher.registryIncidentEvent(
-            throwable = ex,
+            throwable = throwable,
             path = request.uri.toString(),
             IncidentSource.IS_REST,
         )
@@ -51,7 +51,7 @@ class RestExceptionHandler(
             title = INTERNAL_SERVER_ERROR.toString(),
             status = INTERNAL_SERVER_ERROR.value(),
             detail = if (isDevelopment) {
-                "Unexpected error: ${ex.message}"
+                "Unexpected error: ${throwable.message}"
             } else {
                 incidentMsg
             },
@@ -60,7 +60,7 @@ class RestExceptionHandler(
                     error = Error.GENERAL_ERROR,
                     field = Field.UNKNOWN_FIELD,
                     errorMsg = if (isDevelopment) {
-                        ex.message ?: "Unknown error"
+                        throwable.message ?: "Unknown error"
                     } else incidentMsg
                 )
             ),

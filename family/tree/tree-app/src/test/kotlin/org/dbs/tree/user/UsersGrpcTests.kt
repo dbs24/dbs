@@ -29,21 +29,30 @@ class UsersGrpcTests : BaseTreeGrpcTest() {
         }
 
         "Try to create invalid exists user via $source" {
-            createOrUpdateFail(
+            createOrUpdateUserWithFail(
                 buildUserRequest(login = "validuser2", email = "valid_user2@test.com", password = "Strong12Password"),
                 Error.ALREADY_EXISTS to Field.SSS_USER_LOGIN
             )
         }
 
         "Try to create invalid user via $source" {
-            createOrUpdateFail(
+            createOrUpdateUserWithFail(
                 buildUserRequest(login = "", email = "", password = "fp"),
                 MANDATORY_FIELD_MISSING to Field.SSS_USER_LOGIN,
                 INVALID_ATTR_PATTERN_MISMATCH to Field.SSS_USER_PASSWORD,
             )
         }
 
-        "Get user credentials via $source" {
+        "Get user1 credentials via $source" {
+            getUserCredentials(buildUserCredentialsRequest("validuser1"))
+        }
+
+        "Get user credentials with fail via $source" {
+            getUserCredentialsWithFail(
+                buildUserCredentialsRequest("validuser0"))
+        }
+
+        "Get user2 credentials via $source" {
             getUserCredentials(buildUserCredentialsRequest("validuser2"))
         }
 

@@ -77,6 +77,31 @@ abstract class BaseGrpcSpec: BaseSpec(), Logging {
         return ErrorBox(errors)
     }
 
+    suspend fun <T> (suspend () -> T).shouldFailWithInternalError() {
+        val ex = shouldThrowAny { this.invoke() }
+
+        // Проверяем, что это именно gRPC ошибка
+        if (ex !is StatusException && ex !is StatusRuntimeException) {
+            throw ex
+        }
+
+        val trailers = Status.trailersFromThrowable(ex)
+            ?: error("Expected gRPC trailers with errors, but got none")
+
+        val firstKey = trailers.keys().first()
+
+        val key = Metadata.Key.of(firstKey, Metadata.BINARY_BYTE_MARSHALLER)
+        val errMsg = String(trailers.get(key)!!)
+
+        logger.error { "found internal error: $errMsg" }
+
+        require( firstKey == "internal-error-bin" ) {
+
+            "Expected 'internal-error-bin' key, but was: $firstKey ($errMsg)"
+        }
+
+    }
+
     // Методы расширения для конкретных тестов
     abstract fun initStubs(channel: ManagedChannel)
 
