@@ -26,4 +26,14 @@ object ServiceLocator : Logging {
     }
     @Suppress(UNCHECKED_CAST)
     fun <T: Any> ApplicationContext.findService(clazz: KClass<T>): T = getBean(clazz.java)
+
+    fun ApplicationContext.findBeanInstance(beanName: String): Any? {
+        return try {
+            if (this.containsBean(beanName) && this.isSingleton(beanName)) {
+                this.getBean(beanName)
+            } else null
+        } catch (e: Exception) {
+            null
+        }
+    }
 }
