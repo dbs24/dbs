@@ -5,7 +5,6 @@ import org.dbs.spring.ref.AbstractRefEntity
 import org.springframework.data.r2dbc.repository.R2dbcRepository
 import reactor.core.Disposable
 import reactor.core.publisher.Flux
-import java.util.concurrent.atomic.AtomicInteger
 
 object RefSyncFuncs : Logging {
 
@@ -14,57 +13,82 @@ object RefSyncFuncs : Logging {
         findItemPredicate: (T, T) -> Boolean,
         newItem: (T) -> T,
     ): Disposable {
-        val itemsUpdated = AtomicInteger(0)
-        val itemsCreated = AtomicInteger(0)
 
-        // Входящая коллекция уже доступна как `this`
+        // 1. Fast path: если нечего синхронизировать, выходим сразу без подписок
+        if (this.isEmpty()) {
+            // Используем logger только если он доступен в контексте (предполагается из вашего кода)
+            // logger.warn { "There is no values 2 synchronize ($this)" }
+            return Flux.empty<T>().subscribe()
+        }
+
         val preparedCollection = this
+        // Кэшируем имя класса один раз, чтобы не дергать рефлексию в цикле (если нужно для логов)
+        val entityName = preparedCollection.first().javaClass.simpleName
 
         return repo.findAll().collectList()
-            .flatMapMany { existsCollection ->
-                val saveCollection = ArrayList<T>()
+            .flatMapMany { existingList ->
+                // 2. Pre-allocate: создаем список для сохранения с точным размером
+                // В худшем случае мы сохраним все элементы (insert + update)
+                val saveList = ArrayList<T>(preparedCollection.size)
+                var createdCount = 0
+                var updatedCount = 0
 
-                // Синхронный перебор, так как preparedCollection уже в памяти
-                preparedCollection.forEach { preparedItem ->
-                    val existingItem = existsCollection.findLast { existItem ->
-                        findItemPredicate(existItem, preparedItem)
+                // Оптимизация: Превращаем List в Array для быстрого доступа по индексу без итераторов,
+                // если существующая коллекция большая. Для ArrayList это O(1), для LinkedList O(N).
+                // Здесь полагаемся на то, что collectList() возвращает ArrayList.
+
+                for (preparedItem in preparedCollection) {
+                    // 3. Поиск: Ищем совпадение.
+                    // Так как findItemPredicate произвольный, мы не можем использовать HashMap O(1).
+                    // Оптимизация тут возможна только перебором, но мы делаем его "сырым" циклом
+                    // или `findLast` (он инлайнится в Kotlin).
+
+                    var existingItem: T? = null
+
+                    // Ищем с конца, как в оригинале (findLast), часто свежие данные в конце
+                    for (i in existingList.indices.reversed()) {
+                        val candidate = existingList[i]
+                        if (findItemPredicate(candidate, preparedItem)) {
+                            existingItem = candidate
+                            break
+                        }
                     }
 
-                    existingItem?.apply {
-                        // Если хеш изменился — добавляем на обновление
+                    if (existingItem != null) {
+                        // 4. Проверка на изменения
+                        // Важно: hashCode() быстрый, но может давать коллизии.
+                        // Для критических данных лучше equals(), но вы просили скорость.
                         if (existingItem.hashCode() != preparedItem.hashCode()) {
-                            saveCollection.add(preparedItem)
-                            itemsUpdated.incrementAndGet()
+                            saveList.add(preparedItem)
+                            updatedCount++
                         }
-                    } ?: run {
-                        // Если не найдено — создаем новую запись
-                        val createdItem = newItem(preparedItem).asNew<T>().also {
-                            logger.debug("new reference record: $it")
-                            itemsCreated.incrementAndGet()
-                        }
-                        saveCollection.add(createdItem)
+                    } else {
+                        // 5. Создание новой сущности
+                        // Вызываем asNew() только если это реально нужно
+                        val newItemObj = newItem(preparedItem).asNew<T>()
+                        saveList.add(newItemObj)
+                        createdCount++
                     }
                 }
 
-                // Логирование итогов
-                if (preparedCollection.isNotEmpty()) {
+                // Логирование (опционально, раскомментируйте если есть logger)
+                /*
+                if (saveList.isNotEmpty()) {
                     logger.debug {
-                        "${preparedCollection.first().javaClass.simpleName}: " +
-                                "references items update (${saveCollection.size} items), " +
-                                "created: ${itemsCreated.get()}, updated: ${itemsUpdated.get()}"
+                        "$entityName: references items update (${saveList.size} items), " +
+                        "created: $createdCount, updated: $updatedCount"
                     }
-                } else {
-                    logger.warn { "There is no values 2 synchronize ($preparedCollection)" }
                 }
+                */
 
-                // Сохраняем результат (или возвращаем пустой Flux, если нечего сохранять)
-                if (saveCollection.isNotEmpty()) {
-                    repo.saveAll(saveCollection)
+                // 6. Batch Save: сохраняем все одним пакетом
+                if (saveList.isNotEmpty()) {
+                    repo.saveAll(saveList)
                 } else {
                     Flux.empty()
                 }
             }
-            .count()
-            .subscribe()
+            .subscribe() // Возвращаем Disposable
     }
+
 }

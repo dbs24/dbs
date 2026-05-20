@@ -75,7 +75,7 @@ class EntityDao(
             .subscribeMono()
     }
         .also {
-            logger.debug { "synchronizeEntityTypes: took $it ms" }
+            logger.info { "synchronizeEntityTypes: took $it ms" }
         }
 
     fun synchronizeEntityStatuses() = measureTimeMillis {
@@ -94,7 +94,7 @@ class EntityDao(
             .subscribeMono()
     }
         .also {
-            logger.debug { "synchronizeEntityStatuses: took $it ms" }
+            logger.info { "synchronizeEntityStatuses: took $it ms" }
         }
 
     fun synchronizeActionCodes() = measureTimeMillis {
@@ -112,7 +112,7 @@ class EntityDao(
             .subscribeMono()
 
     }.also {
-        logger.debug { "synchronizeActionCode: took $it ms" }
+        logger.info { "synchronizeActionCode: took $it ms" }
     }
 
 }

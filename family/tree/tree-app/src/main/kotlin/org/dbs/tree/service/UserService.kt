@@ -14,10 +14,9 @@ import org.dbs.user.UserCore.EntityStatus.ES_USER_ANONYMOUS
 import org.dbs.user.UserCore.isClosedUser
 import org.dbs.user.UserLogin
 import org.dbs.user.UserPassword
-import org.springframework.boot.context.event.ApplicationReadyEvent
+import org.springframework.beans.factory.SmartInitializingSingleton
 import org.springframework.context.annotation.DependsOn
 import org.springframework.context.annotation.Lazy
-import org.springframework.context.event.EventListener
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -32,10 +31,9 @@ class UserService(
     val dao: DAO,
     val passwordEncoder: PasswordEncoder,
     val userFactory: UserFactory,
-) : AbstractApplicationService() {
+) : AbstractApplicationService(), SmartInitializingSingleton {
 
-    @EventListener(ApplicationReadyEvent::class)
-    fun onApplicationReady() {
+    override fun afterSingletonsInstantiated() {
         runBlocking { findUserByLogin(ROOT_USER) ?: dao.saveUser(userFactory.createRootUser()) }
     }
 

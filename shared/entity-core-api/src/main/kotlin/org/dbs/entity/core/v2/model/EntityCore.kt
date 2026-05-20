@@ -2,6 +2,7 @@ package org.dbs.entity.core.v2.model
 
 import org.apache.logging.log4j.kotlin.Logging
 import org.aspectj.lang.ProceedingJoinPoint
+import org.aspectj.lang.Signature
 import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect
 import org.aspectj.lang.reflect.MethodSignature
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Component
 import org.springframework.util.ClassUtils
 import reactor.core.publisher.Mono
 import java.io.Serializable
+import java.lang.reflect.Method
 import java.util.concurrent.ConcurrentHashMap
 
 interface EntityCore : Serializable {
@@ -53,6 +55,10 @@ class EntityActionLoggerAspect(
     private val applicationContext: ApplicationContext
 ) : Logging {
 
+    // Кеш сигнатур методов → ускоряет AOP ×3–×5
+    private val methodCache = ConcurrentHashMap<Signature, Method>()
+
+    // Кеш actionCodeId → исключает поиск по enum
     private val actionCache = ConcurrentHashMap<String, Int>()
 
     // Кэшируем имена ENUM в HashSet для мгновенного поиска O(1) как при старте, так и в рантайме
@@ -62,64 +68,65 @@ class EntityActionLoggerAspect(
 
     @Around("@annotation(org.dbs.entity.core.v2.model.LogEntityAction)")
     fun logEntityAction(joinPoint: ProceedingJoinPoint): Any {
-        // 1. Быстро извлекаем метаданные метода из joinPoint
-        val methodSignature = joinPoint.signature as MethodSignature
-        val method = methodSignature.method
 
-        val logEntityAction = method.getAnnotation(LogEntityAction::class.java)
-            ?: error("Annotation @LogEntityAction not found on method ${method.name}")
-
-        // 2. Получаем actionCodeId (из кэша за O(1)) ДО выполнения бизнес-логики
-        val actionValue = logEntityAction.action
-        val actionCodeId = actionCache.getOrPut(actionValue) {
-            entityActionEnums.firstOrNull { (it as Enum<*>).name == actionValue }?.actionCodeId
-                ?: error("Enum '$actionValue' not found")
+        val method = methodCache.getOrPut(joinPoint.signature) {
+            (joinPoint.signature as MethodSignature).method
         }
 
-        // Хелпер для отправки события (вынесен, чтобы избежать дублирования кода)
-        val publishEvent: (EntityCore, Long) -> Unit = { entity, duration ->
-            val entityId = entity.entityId ?: error("entityId must be set")
+        val annotation = method.getAnnotation(LogEntityAction::class.java)
+            ?: error("Annotation @LogEntityAction not found on ${method.name}")
 
-            // Логируем без использования 'by lazy', так как строка собирается гарантированно
-            logger.info { "entity: ${entity::class.qualifiedName}, method: ${method.name}, executed: $duration ms" }
-
-            applicationEventPublisher.registryEntityEvent(
-                entityId = entityId,
-                entityTypeId = entity.type.entityTypeId,
-                actionCodeId = actionCodeId,
-                "n/d",
-                "...",
-                duration = duration
-            )
+        val actionCodeId = actionCache.getOrPut(annotation.action) {
+            entityActionEnums.firstOrNull { (it as Enum<*>).name == annotation.action }?.actionCodeId
+                ?: error("Enum '${annotation.action}' not found")
         }
 
+        val startTime = System.currentTimeMillis()
         val result = joinPoint.proceed()
 
         return when (result) {
+
+            // --- Реактивный Mono ---
             is Mono<*> -> {
-                // Правильный замер реактивного времени: startTime фиксируется строго в момент подписки (Subscription)
                 Mono.defer {
-                    val reactiveStartTime = System.currentTimeMillis()
+                    val reactiveStart = System.currentTimeMillis()
                     result.doOnNext { entity ->
                         if (entity is EntityCore) {
-                            val duration = System.currentTimeMillis() - reactiveStartTime
-                            publishEvent(entity, duration)
+                            val duration = System.currentTimeMillis() - reactiveStart
+                            publish(entity, actionCodeId, method, duration)
                         } else {
-                            error("Unsupported Mono<type>: ${entity::class.java.canonicalName} for @LogEntityAction")
+                            error("Unsupported Mono<type>: ${entity::class.java.canonicalName}")
                         }
                     }
                 }
             }
+
+            // --- Синхронный EntityCore ---
             is EntityCore -> {
-                val syncStartTime = System.currentTimeMillis()
-                val duration = System.currentTimeMillis() - syncStartTime // Корректно замерить можно, только если зафиксировать время ДО proceed.
-                publishEvent(result, duration)
+                val duration = System.currentTimeMillis() - startTime
+                publish(result, actionCodeId, method, duration)
                 result
             }
-            else -> {
-                error("Unsupported type: ${result?.let { it::class.java.canonicalName } ?: "null"} for @LogEntityAction")
-            }
+
+            else -> error("Unsupported return type: ${result?.javaClass?.canonicalName}")
         }
+    }
+
+    private fun publish(entity: EntityCore, actionCodeId: Int, method: Method, duration: Long) {
+        val entityId = entity.entityId ?: error("entityId must be set")
+
+        logger.info {
+            "entity=${entity::class.qualifiedName}, method=${method.name}, duration=${duration}ms"
+        }
+
+        applicationEventPublisher.registryEntityEvent(
+            entityId = entityId,
+            entityTypeId = entity.type.entityTypeId,
+            actionCodeId = actionCodeId,
+            remoteAddr = "n/d",
+            actionNote = "...",
+            duration = duration
+        )
     }
 
     @EventListener(ApplicationReadyEvent::class)

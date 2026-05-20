@@ -102,7 +102,7 @@ class R2dbcPersistenceService(
         cacheKeys.ensureNoDuplicates({ ::cacheKeyCodeId}, { ::cacheCode})
 
         if (autoSynchronize) with(entityDao) {
-            logger.debug { "synchronize system references" }
+            logger.info { "Synchronize system references" }
             synchronizeEntityTypes()
             synchronizeEntityStatuses()
             synchronizeActionCodes()
