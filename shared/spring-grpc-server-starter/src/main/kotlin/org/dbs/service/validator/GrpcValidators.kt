@@ -9,10 +9,15 @@ import org.dbs.application.core.service.funcs.Patterns.STR3N
 import org.dbs.application.core.service.funcs.Patterns.STR50U
 import org.dbs.application.core.service.funcs.StringFuncs.first15
 import org.dbs.application.core.service.funcs.StringFuncs.ifNotEmpty
-import org.dbs.consts.*
+import org.dbs.consts.Collection2Unit
+import org.dbs.consts.GenericArg2Unit
+import org.dbs.consts.Int2Unit
+import org.dbs.consts.NoArg2Mono
+import org.dbs.consts.QueryParamString
 import org.dbs.consts.RestHttpConsts.RestQueryParams.QP_SORT_ORDER
 import org.dbs.consts.SpringCoreConst.PropertiesNames.MAX_PAGES_VALUE
 import org.dbs.consts.SpringCoreConst.PropertiesNames.MAX_PAGE_SIZE_VALUE
+import org.dbs.consts.String2Unit
 import org.dbs.consts.SysConst.EMPTY_STRING
 import org.dbs.consts.SysConst.TEN_SECONDS
 import org.dbs.entity.core.EntityStatusEnum
@@ -20,7 +25,6 @@ import org.dbs.entity.core.EntityTypeEnum
 import org.dbs.entity.core.v2.model.EntityCore
 import org.dbs.entity.core.v2.status.EntityStatusExtension.isAllowedStatusUpdate
 import org.dbs.entity.core.v2.status.EntityStatusName
-import org.dbs.entity.core.v2.type.EntityTypeExtension.findEntityStatus
 import org.dbs.enums.I18NEnum
 import org.dbs.enums.I18NEnum.FLD_INVALID_FIELD_VALUE_4_PATTERN
 import org.dbs.enums.I18NEnum.FLD_UNKNOWN_COUNTRY
@@ -648,12 +652,13 @@ object GrpcValidators : Logging {
         }
     }
 
+    @Deprecated("use EnumSynchronizer instead")
     inline fun <ET : EntityTypeEnum> RAB.findEntityStatus(
         entityType: ET,
         entityStatusName: EntityStatusName,
         field: Field,
         onSuccessAction: (EntityStatusEnum) -> Unit,
-    ) = entityType.findEntityStatus(entityStatusName)?.apply {
+    ) = TODO().apply {
         onSuccessAction(this)
     } ?: apply {
         addErrorInfo(

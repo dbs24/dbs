@@ -10,8 +10,8 @@ import org.dbs.tree.TreeApplication
 import org.dbs.tree.config.TreeConfig
 import org.dbs.tree.model.user.User
 import org.dbs.tree.repo.user.UserRepo
-import org.dbs.user.UserCore.EntityStatus.ES_USER_ANONYMOUS
-import org.dbs.user.UserCore.UserActionEnum.EA_CREATE_OR_UPDATE_USER
+import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_ANONYMOUS
+import org.dbs.user.FamilyTreeCore.UserActionEnum.EA_CREATE_OR_UPDATE_USER
 import org.dbs.user.dto.user.CreateOrUpdateUserDto
 import org.dbs.user.dto.user.CreatedUserDto
 import org.dbs.validator.Error

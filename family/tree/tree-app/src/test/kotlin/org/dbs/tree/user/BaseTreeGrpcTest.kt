@@ -7,8 +7,8 @@ import org.dbs.test.ko.BaseGrpcSpec
 import org.dbs.tree.client.UserServiceGrpcKt
 import org.dbs.tree.model.user.User
 import org.dbs.tree.repo.user.UserRepo
-import org.dbs.user.UserCore.EntityStatus.ES_USER_ANONYMOUS
-import org.dbs.user.UserCore.UserActionEnum.EA_CREATE_OR_UPDATE_USER
+import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_ANONYMOUS
+import org.dbs.user.FamilyTreeCore.UserActionEnum.EA_CREATE_OR_UPDATE_USER
 import org.dbs.validator.Error
 import org.dbs.validator.Field
 import org.springframework.beans.factory.annotation.Autowired

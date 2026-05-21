@@ -1,6 +1,6 @@
 package org.dbs.service.repo
 
 import org.dbs.entity.core.ActionCode
-import org.springframework.data.r2dbc.repository.R2dbcRepository
+import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 
-interface ActionCodeRepository : R2dbcRepository<ActionCode, Int>
+interface ActionCodeRepository : CoroutineCrudRepository<ActionCode, Int>

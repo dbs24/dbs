@@ -3,8 +3,8 @@ package org.dbs.tree.service
 import org.dbs.consts.SysConst.UsersConsts.ROOT_USER
 import org.dbs.consts.SysConst.UsersConsts.ROOT_USER_PASS
 import org.dbs.spring.core.api.AbstractApplicationService
-import org.dbs.user.UserCore.EntityStatus.ES_USER_ACTUAL
-import org.dbs.user.UserCore.EntityStatus.ES_USER_ANONYMOUS
+import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_ACTUAL
+import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_ANONYMOUS
 import org.dbs.user.UserLogin
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service

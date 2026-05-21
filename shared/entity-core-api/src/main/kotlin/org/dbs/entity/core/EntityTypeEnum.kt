@@ -9,14 +9,13 @@ import org.dbs.entity.core.v2.consts.EntityV2Consts.ET_RATE
 import org.dbs.entity.core.v2.status.EntityStatusId
 import org.dbs.entity.core.v2.status.EntityStatusName
 import org.dbs.entity.core.v2.type.Application
-import org.dbs.entity.core.v2.type.EntityCoreInitializer.Companion.EntityCore.entityStatuses
 
 interface EntityTypeEnum {
     val entityTypeId: EntityTypeId
     val entityTypeName: EntityTypeName
     val module: Application
     val existsEntityStatuses: Collection<EntityStatusEnum>
-        get() = entityStatuses.filter { it.entityType.entityTypeId == entityTypeId  }
+        get() = TODO()
 }
 
 interface EntityStatusEnum {

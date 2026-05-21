@@ -7,8 +7,8 @@ import org.dbs.service.cache.v2.EntityCacheService
 import org.dbs.spring.core.api.DaoAbstractApplicationService
 import org.dbs.tree.model.user.User
 import org.dbs.tree.repo.user.UserRepo
-import org.dbs.user.UserCore.CacheKeyUserEnum.CC_USER_ID
-import org.dbs.user.UserCore.CacheKeyUserEnum.CC_USER_LOGIN
+import org.dbs.user.FamilyTreeCore.CacheKeyUserEnum.CC_USER_ID
+import org.dbs.user.FamilyTreeCore.CacheKeyUserEnum.CC_USER_LOGIN
 import org.springframework.stereotype.Service
 import org.dbs.tree.model.user.User as ENTITY
 

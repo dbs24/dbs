@@ -10,7 +10,7 @@ import org.dbs.consts.OperDateNull
 import org.dbs.consts.Password
 import org.dbs.entity.core.EntityStatusEnum
 import org.dbs.entity.core.v2.model.EntityCore
-import org.dbs.user.UserCore.EntityTypes.ET_USER
+import org.dbs.user.FamilyTreeCore.EntityTypes.ET_USER
 import org.dbs.user.UserId
 import org.dbs.user.UserLogin
 import org.springframework.data.annotation.Id

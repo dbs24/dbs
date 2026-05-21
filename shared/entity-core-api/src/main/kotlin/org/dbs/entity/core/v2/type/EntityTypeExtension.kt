@@ -2,13 +2,8 @@ package org.dbs.entity.core.v2.type
 
 import org.apache.logging.log4j.kotlin.Logging
 import org.apache.logging.log4j.kotlin.logger
-import org.dbs.consts.EntityTypeId
-import org.dbs.entity.core.EntityStatusEnum
 import org.dbs.entity.core.EntityTypeEnum
 import org.dbs.entity.core.v2.status.AllowedStatusesRoutes
-import org.dbs.entity.core.v2.status.EntityStatusName
-import org.dbs.entity.core.v2.type.EntityCoreInitializer.Companion.EntityCore.entityStatuses
-import org.dbs.entity.core.v2.type.EntityCoreInitializer.Companion.EntityCore.entityTypes
 
 
 object EntityTypeExtension: Logging {
@@ -50,14 +45,4 @@ object EntityTypeExtension: Logging {
     fun EntityTypeEnum.findAllowedStatusesChanges(): AllowedStatusesRoutes =
         statusRoutesStore[this] ?: emptyMap()
 
-    fun EntityTypeId.findAllowedStatusesChanges(): AllowedStatusesRoutes {
-        val entityType = entityTypes.find { it.entityTypeId == this }
-            ?: error("Unknown entity type ($this)")
-        return entityType.findAllowedStatusesChanges()
-    }
-
-    fun EntityTypeEnum.findEntityStatus(statusName: EntityStatusName): EntityStatusEnum =
-        entityStatuses.find { it.entityType == this && it.entityStatusName == statusName }
-            ?: error("status not found ($statusName) for entityType $this")
 }
-

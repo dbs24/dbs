@@ -29,6 +29,7 @@ dependencies {
     implementation(libs.log4j.api.kotlin)
     implementation(libs.r2dbc.postgresql)
     implementation(libs.r2dbc.pool)
+    implementation(libs.spring.aop)
     implementation(libs.reactor.kotlin.extensions)
     implementation(libs.coroutines.reactor)
     implementation(libs.kotlin.stdlib.jdk8)

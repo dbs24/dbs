@@ -8,6 +8,7 @@ import reactor.core.publisher.Flux
 
 object RefSyncFuncs : Logging {
 
+    @Deprecated("use new sync engine")
     fun <T : AbstractRefEntity<Int>> Collection<T>.synchronizeReference(
         repo: R2dbcRepository<T, Int>,
         findItemPredicate: (T, T) -> Boolean,

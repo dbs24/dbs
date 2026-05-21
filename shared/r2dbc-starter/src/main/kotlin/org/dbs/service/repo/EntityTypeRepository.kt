@@ -1,6 +1,6 @@
 package org.dbs.service.repo
 
 import org.dbs.entity.core.EntityType
-import org.springframework.data.r2dbc.repository.R2dbcRepository
+import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 
-interface EntityTypeRepository : R2dbcRepository<EntityType, Int>
+interface EntityTypeRepository : CoroutineCrudRepository<EntityType, Int>

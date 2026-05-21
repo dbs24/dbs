@@ -21,6 +21,7 @@ object CollectionFuncs: Logging {
         this.takeIf { this.isNotEmpty() } ?: listOf(INTEGER_ZERO)
     }
 
+    @Deprecated("use v2")
     fun <T : Any> Collection<T>.ensureNoDuplicates(vararg selectors: T.() -> KCallable<*>): Collection<T> {
         if (isEmpty()) return this
 
@@ -43,6 +44,27 @@ object CollectionFuncs: Logging {
                 "Duplicate validation failed:\n$details"
             }
         }
+        return this
+    }
+
+    fun <T> Collection<T>.ensureNoDuplicates2(
+        vararg selectors: (T) -> Any
+    ): Collection<T> {
+
+        if (this.isEmpty() || selectors.isEmpty()) return this
+
+        selectors.forEach { selector ->
+            val duplicates = this
+                .groupBy(selector)
+                .filter { (_, items) -> items.size > 1 }
+
+            require(duplicates.isEmpty()) {
+                duplicates.entries.joinToString("\n") { (value, items) ->
+                    "Duplicate value '$value' found ${items.size} times in ${items.map { it!!::class.simpleName }}"
+                }
+            }
+        }
+
         return this
     }
 

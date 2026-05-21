@@ -21,14 +21,14 @@ import org.dbs.entity.core.v2.consts.EntityV2Consts.GenericStatuses.EGS_CLOSED
 import org.dbs.entity.core.v2.type.Application.FAMILY_TREE
 import org.dbs.entity.core.v2.type.EntityCoreInitializer
 import org.dbs.entity.core.v2.type.EntityTypeExtension.registerAllowedStatusesChanges
-import org.dbs.user.UserCore.EntityStatus.ES_USER_ACTUAL
-import org.dbs.user.UserCore.EntityStatus.ES_USER_ANONYMOUS
-import org.dbs.user.UserCore.EntityStatus.ES_USER_BANNED
-import org.dbs.user.UserCore.EntityStatus.ES_USER_CLOSED
-import org.dbs.user.UserCore.EntityTypes.ET_USER
+import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_ACTUAL
+import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_ANONYMOUS
+import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_BANNED
+import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_CLOSED
+import org.dbs.user.FamilyTreeCore.EntityTypes.ET_USER
 import org.dbs.user.UsersConsts.Names.USER
 
-object UserCore : EntityCoreInitializer {
+object FamilyTreeCore : EntityCoreInitializer {
 
     // Types
     enum class EntityTypes : EntityTypeEnum {
