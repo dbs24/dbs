@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 class RestExceptionHandler(
     private val applicationEventPublisher: ApplicationEventPublisher): Logging {
 
+    private val isDevelopmentMode by lazy { System.getProperty("spring.profiles.active") == "dev" }
+
     @ExceptionHandler(ValidationException::class)
     @ResponseStatus(BAD_REQUEST)
     fun handleValidationException(ex: ValidationException): ValidationErrorResponse =
@@ -30,15 +32,46 @@ class RestExceptionHandler(
             detail = "Validation exception",
             errors = ex.errors)
 
+    @ExceptionHandler(IllegalArgumentException::class)
+    @ResponseStatus(BAD_REQUEST)
+    fun handleGenericIllegalArgumentException(
+        throwable: IllegalArgumentException,
+        request: ServerHttpRequest
+    ): ValidationErrorResponse {
+
+        val incidentMsg =  applicationEventPublisher.registryIncidentEvent(
+            throwable = throwable,
+            path = request.uri.toString(),
+            IncidentSource.IS_REST,
+        )
+
+        return ValidationErrorResponse(
+            type = "RESTful exception",
+            title = BAD_REQUEST.toString(),
+            status = BAD_REQUEST.value(),
+            detail = if (isDevelopmentMode) {
+                "Unexpected error: ${throwable.message}"
+            } else {
+                incidentMsg
+            },
+            errors = listOf(
+                create(
+                    error = Error.BAD_REQUEST_ERROR,
+                    field = Field.UNKNOWN_FIELD,
+                    errorMsg = if (isDevelopmentMode) {
+                        throwable.message ?: "Unknown bad request error"
+                    } else incidentMsg
+                )
+            ),
+        )
+    }
+
     @ExceptionHandler(Throwable::class)
     @ResponseStatus(INTERNAL_SERVER_ERROR)
     fun handleGenericException(
         throwable: Throwable,
         request: ServerHttpRequest
     ): ValidationErrorResponse {
-
-        // В production не показываем детали исключения клиенту
-        val isDevelopment = System.getProperty("spring.profiles.active") == "dev"
 
         val incidentMsg =  applicationEventPublisher.registryIncidentEvent(
             throwable = throwable,
@@ -50,7 +83,7 @@ class RestExceptionHandler(
             type = "RESTful exception",
             title = INTERNAL_SERVER_ERROR.toString(),
             status = INTERNAL_SERVER_ERROR.value(),
-            detail = if (isDevelopment) {
+            detail = if (isDevelopmentMode) {
                 "Unexpected error: ${throwable.message}"
             } else {
                 incidentMsg
@@ -59,7 +92,7 @@ class RestExceptionHandler(
                 create(
                     error = Error.GENERAL_ERROR,
                     field = Field.UNKNOWN_FIELD,
-                    errorMsg = if (isDevelopment) {
+                    errorMsg = if (isDevelopmentMode) {
                         throwable.message ?: "Unknown error"
                     } else incidentMsg
                 )

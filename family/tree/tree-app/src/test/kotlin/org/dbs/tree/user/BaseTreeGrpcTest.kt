@@ -81,10 +81,15 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
         )
     }
 
-    protected suspend fun createOrUpdateUserWithFail(request: REQ_CREATE_USER, vararg expectedErrors: Pair<Error, Field>) {
+    protected suspend fun createOrUpdateUserWithValidationError(request: REQ_CREATE_USER, vararg expectedErrors: Pair<Error, Field>) {
         suspend { userStub.createOrUpdateUser(request) }
             .shouldFailWithValidation()
             .shouldContainErrors(*expectedErrors)
+    }
+
+    protected suspend fun createOrUpdateUserWithInternalError(request: REQ_CREATE_USER) {
+        suspend { userStub.createOrUpdateUser(request) }
+            .shouldFailWithInternalError()
     }
 
     protected fun buildUserCredentialsRequest(login: String): REQ_GET_USER_CR =
@@ -100,7 +105,7 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
         }
     }
 
-    protected suspend fun getUserCredentialsWithFail(request: REQ_GET_USER_CR) {
+    protected suspend fun getUserCredentialsWithInternalError(request: REQ_GET_USER_CR) {
         suspend { userStub.getUserCredentials(request) }
             .shouldFailWithInternalError()
     }

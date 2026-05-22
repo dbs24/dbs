@@ -46,7 +46,7 @@ class UserValidationStrategy(
                 // new login should not exist
                 if (isNewUser || isUpdateLogin) {
 
-                        userService.findUserByLogin(login)
+                        userService.findUserByLogin(login.value)
                             ?.apply {  errors.add(
                                 create(
                                     ALREADY_EXISTS, SSS_USER_LOGIN,

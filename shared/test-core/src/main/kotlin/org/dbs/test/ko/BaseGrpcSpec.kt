@@ -38,7 +38,7 @@ abstract class BaseGrpcSpec: BaseSpec(), Logging {
 
             require(port > 0) { "gRPC server port is not assigned! Current port: $port. Check if gRPC server started." }
 
-            logger.info(" gRPC test server port: $port")
+            logger.info("gRPC test server port: $port")
 
             channel = ManagedChannelBuilder
                 .forAddress("localhost", port)

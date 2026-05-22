@@ -54,15 +54,22 @@ class UsersRestTests : BaseRestSpec() {
         "Create invalid exists user via $source" {
             val dto = createUserDto("restvaliduser2", "rest_valid_user2@test.com", "rest_Strong2Password")
 
-            postQueryShouldFail("/createOrUpdate", dto)
+            postQueryShouldFailWithValidationError("/createOrUpdate", dto)
                 .shouldContainErrors(Error.ALREADY_EXISTS to Field.SSS_USER_LOGIN)
         }
 
         "Try to create invalid user via $source" {
             val dto = createUserDto(login = "", email = "", password = "Strong12Password")
 
-            postQueryShouldFail("/createOrUpdate", dto)
-                .shouldContainErrors(Error.MANDATORY_FIELD_MISSING to Field.SSS_USER_LOGIN)
+            postQueryShouldFailWithValidationError("/createOrUpdate", dto)
+
+        }
+
+        "Try to create user with invalid email via $source" {
+            val dto = createUserDto(login = "restvaliduser3", email = "invalid_mail", password = "Strong12Password")
+
+            postQueryShouldFailWithValidationError("/createOrUpdate", dto)
+
         }
     }
 

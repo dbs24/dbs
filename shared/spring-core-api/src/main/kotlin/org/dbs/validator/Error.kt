@@ -7,6 +7,7 @@ enum class Error(private val value: String, private val code: Int) : RefEnum {
 
     GENERAL_ERROR("general.error", 1),
     MONITORING_ERROR_STARTING_APPLICATION("app.error", 2),
+    BAD_REQUEST_ERROR("general.bad.refuest.error", 3),
     ENTITY_NOT_FOUND("entity.not.found", 10),
     INVALID_ENTITY_STATUS("entity.status.invalid", 20),
     INVALID_ENTITY_PASSWORD("entity.password.invalid", 21),

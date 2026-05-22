@@ -1,13 +1,13 @@
 package org.dbs.tree.model.domain
 
-import org.dbs.consts.Email
-import org.dbs.consts.EntityCode
+import org.dbs.application.value.Email
+import org.dbs.application.value.UserLogin
 import org.dbs.consts.Password
 import org.dbs.rest.api.nio.DomainCommand
 
 data class CreateOrUpdateUserCommand(
-    val oldLogin: EntityCode?,
-    val login: EntityCode,
+    val oldLogin: UserLogin?,
+    val login: UserLogin,
     val oldEmail: Email?,
     val email: Email,
     val phone: String?,
@@ -22,5 +22,5 @@ data class CreateOrUpdateUserCommand(
 }
 
 data class GetUserCredentialsCommand(
-    val login: EntityCode,
+    val login: UserLogin,
 ) : DomainCommand

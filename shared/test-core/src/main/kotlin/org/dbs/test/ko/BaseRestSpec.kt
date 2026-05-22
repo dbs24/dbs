@@ -75,7 +75,7 @@ abstract class BaseRestSpec : BaseSpec(), Logging {
         successAction(response)
     }
 
-    inline fun <reified T : RequestDto> postQueryShouldFail(
+    inline fun <reified T : RequestDto> postQueryShouldFailWithValidationError(
         uri: String,
         requestBody: T,
     ): ErrorBox {
@@ -85,4 +85,13 @@ abstract class BaseRestSpec : BaseSpec(), Logging {
         return ErrorBox(response.errors)
     }
 
+    inline fun <reified T : RequestDto> postQueryShouldFailWithInternalError(
+        uri: String,
+        requestBody: T,
+    ) {
+        executePost<T, ValidationErrorResponse>(uri, requestBody) {
+            expectStatus().is5xxServerError
+        }
+
+    }
 }

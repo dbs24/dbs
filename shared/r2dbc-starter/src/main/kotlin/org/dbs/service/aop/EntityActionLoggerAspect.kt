@@ -86,7 +86,7 @@ class EntityActionLoggerAspect(
                     result.doOnNext { entity ->
                         if (entity is EntityCore) {
                             val duration = System.currentTimeMillis() - reactiveStart
-                            publish(entity, actionCodeId, method, duration, ip)
+                            publishRegistryEvent(entity, actionCodeId, method, duration, ip)
                         } else {
                             error("Unsupported Mono<type>: ${entity::class.java.canonicalName}")
                         }
@@ -96,7 +96,7 @@ class EntityActionLoggerAspect(
 
             // --- Синхронный EntityCore ---
             is EntityCore -> {
-                publish(
+                publishRegistryEvent(
                     result,
                     actionCodeId,
                     method,
@@ -110,7 +110,7 @@ class EntityActionLoggerAspect(
         }
     }
 
-    private fun publish(entity: EntityCore, actionCodeId: Int, method: Method, duration: Long, ip: String) {
+    private fun publishRegistryEvent(entity: EntityCore, actionCodeId: Int, method: Method, duration: Long, ip: String) {
         val entityId = entity.entityId ?: error("entityId must be set")
 
         logger.trace {

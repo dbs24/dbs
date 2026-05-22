@@ -1,7 +1,7 @@
 package org.dbs.tree.service
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import org.dbs.consts.Email
 import org.dbs.consts.StringNote
 import org.dbs.consts.SysConst.UsersConsts.ROOT_USER
 import org.dbs.entity.core.EntityStatusEnum
@@ -36,8 +36,9 @@ class UserService(
 
     @EventListener(ApplicationReadyEvent::class)
     fun onApplicationReady() {
-        runBlocking {
-            findUserByLogin(ROOT_USER) ?: dao.saveUser(userFactory.createRootUser()) }
+        runBlocking(Dispatchers.IO) {
+            findUserByLogin(ROOT_USER) ?: dao.saveUser(userFactory.createRootUser())
+        }
     }
 
     @ValidateDto
@@ -45,23 +46,23 @@ class UserService(
     @Transactional
     suspend fun createOrUpdateUser(request: CreateOrUpdateUserCommand): ENTITY {
 
-        val updatedUser = if (request.isNewUser) createNewUser(request.login)
-            else (dao.findUserByLogin(request.login) ?: error("User not found (${request.login})"))
+        val updatedUser = if (request.isNewUser) createNewUser(request.login.value)
+        else (dao.findUserByLogin(request.login.value) ?: error("User not found (${request.login})"))
 
-        return dao.saveUser(updatedUser.copy(
-            email = request.email,
-            firstName = request.firstName,
-            lastName = request.lastName,
-            password = passwordEncoder.encode(request.password),
-            entityStatus = ES_USER_ANONYMOUS.takeIf { request.isNewUser } ?: updatedUser.status,
-            modifyDate = if (!request.isNewUser) now() else updatedUser.modifyDate,
-            closeDate = updatedUser.closeDate
-        ))
-
+        return dao.saveUser(
+            updatedUser.copy(
+                email = request.email.value,
+                firstName = request.firstName,
+                lastName = request.lastName,
+                password = passwordEncoder.encode(request.password),
+                entityStatus = ES_USER_ANONYMOUS.takeIf { request.isNewUser } ?: updatedUser.status,
+                modifyDate = if (!request.isNewUser) now() else updatedUser.modifyDate,
+                closeDate = updatedUser.closeDate
+            ))
     }
 
     suspend fun getUserCredentials(request: GetUserCredentialsCommand): ENTITY {
-        return (dao.findUserByLogin(request.login) ?: error("User not found (${request.login})"))
+        return (dao.findUserByLogin(request.login.value) ?: error("User not found (${request.login})"))
     }
 
     fun createNewUser(userLogin: UserLogin): ENTITY =
@@ -72,7 +73,7 @@ class UserService(
     suspend fun findUserByLogin(userLogin: UserLogin): ENTITY? =
         dao.findUserByLogin(userLogin.also { logger.debug { "find user login: $userLogin" } })
 
-    suspend fun findUserByEmail(userEmail: Email): ENTITY? =
+    suspend fun findUserByEmail(userEmail: String): ENTITY? =
         dao.findUserByEmail(userEmail)
 
     fun setUserNewStatus(user: ENTITY, status: EntityStatusEnum): ENTITY =

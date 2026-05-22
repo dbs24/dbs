@@ -3,7 +3,6 @@ package org.dbs.tree.model.user
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.dbs.consts.BirthDate
-import org.dbs.consts.Email
 import org.dbs.consts.EntityId
 import org.dbs.consts.OperDate
 import org.dbs.consts.OperDateNull
@@ -11,8 +10,6 @@ import org.dbs.consts.Password
 import org.dbs.entity.core.EntityStatusEnum
 import org.dbs.entity.core.v2.model.EntityCore
 import org.dbs.user.FamilyTreeCore.EntityTypes.ET_USER
-import org.dbs.user.UserId
-import org.dbs.user.UserLogin
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
@@ -21,10 +18,10 @@ import org.springframework.data.relational.core.mapping.Table
 data class User(
     @Id
     @Column("user_id")
-    val userId: UserId? = null,
+    val userId: Long? = null,
     @Column("user_login")
-    val login: UserLogin,
-    val email: Email?,
+    val login: String,
+    val email: String?,
     val phone: String?,
     val firstName: String?,
     val middleName: String?,

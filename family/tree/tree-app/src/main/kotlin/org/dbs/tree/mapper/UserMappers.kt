@@ -1,5 +1,7 @@
 package org.dbs.tree.mapper
 
+import org.dbs.application.value.Email
+import org.dbs.application.value.UserLogin
 import org.dbs.grpc.ext.GrpcNull.grpcGetOrNull
 import org.dbs.tree.client.CreateOrUpdateUserRequest
 import org.dbs.tree.client.CreateOrUpdateUserResponse
@@ -18,10 +20,10 @@ object UserMappers {
 
     fun CreateOrUpdateUserRequest.toCommand(): CreateOrUpdateUserCommand =
         CreateOrUpdateUserCommand(
-            oldLogin = oldLogin.grpcGetOrNull(),
-            login = login,
-            oldEmail = oldEmail.grpcGetOrNull(),
-            email = email,
+            oldLogin = oldLogin.grpcGetOrNull()?.let { UserLogin(it) },
+            login = UserLogin(login),
+            oldEmail = oldEmail.grpcGetOrNull()?.let { Email(it) },
+            email = Email(email),
             password = password,
             firstName =  firstName.grpcGetOrNull(),
             middleName = firstName.grpcGetOrNull(),
@@ -44,10 +46,10 @@ object UserMappers {
 
     fun CreateOrUpdateUserDto.toCommand() : CreateOrUpdateUserCommand =
         CreateOrUpdateUserCommand(
-            oldLogin = oldLogin,
-            login = login,
-            oldEmail = oldEmail,
-            email = email,
+            oldLogin = oldLogin?.let { UserLogin(it) },
+            login = UserLogin(login),
+            oldEmail = oldEmail?.let { Email(it) },
+            email = Email(email),
             password = password,
             firstName =  firstName,
             middleName = firstName,
@@ -57,7 +59,7 @@ object UserMappers {
 
     fun UserCredentialsRequest.toCommand(): GetUserCredentialsCommand =
         GetUserCredentialsCommand(
-            login = userLogin
+            login = UserLogin(userLogin)
         )
 
     fun User.toUserCredentialsProto(): UserCredentialsResponse = UserCredentialsResponse.newBuilder()

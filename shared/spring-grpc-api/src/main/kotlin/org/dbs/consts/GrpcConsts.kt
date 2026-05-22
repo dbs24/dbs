@@ -69,7 +69,6 @@ object GrpcConsts {
     }
 }
 
-class RemoteAddressCoroutineContext(val ip: String)
-    : AbstractCoroutineContextElement(Key) {
+class RemoteAddressCoroutineContext(val ip: String) : AbstractCoroutineContextElement(Key) {
     companion object Key : CoroutineContext.Key<RemoteAddressCoroutineContext>
 }

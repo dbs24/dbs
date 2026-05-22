@@ -45,7 +45,9 @@ typealias CurrencyCodeNull = String?
 typealias DocumentFile = String
 typealias DocumentFileNull = String?
 typealias DocumentNumber = String
+@Deprecated("Migrate to Email value class")
 typealias Email = String
+@Deprecated("Migrate to Email value class")
 typealias EmailNull = String?
 typealias ErrMsg = String
 
@@ -57,7 +59,9 @@ typealias EntityKindCode = String
 typealias EntityKindName = String
 typealias EntityTypeId = Int
 typealias EntityTypeName = String
+@Deprecated("Migrate to EntityCode value class")
 typealias EntityCode = String
+@Deprecated("Migrate to EntityCode value class")
 typealias EntityCodeNull = String?
 typealias EntityStatusId = Int
 typealias EntityStatusIdNull = EntityStatusId?

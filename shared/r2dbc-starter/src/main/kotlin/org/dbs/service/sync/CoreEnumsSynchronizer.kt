@@ -61,10 +61,10 @@ class CoreEnumsSynchronizer(
     override fun afterSingletonsInstantiated() {
         // Запускаем корутину в фоне, так как метод жизненного цикла Spring синхронный
         CoroutineScope(Dispatchers.IO).launch {
-            try {
+            runCatching {
                 syncAll()
-            } catch (e: Exception) {
-                logger.error("Failed to synchronize enums", e)
+            }.getOrElse {
+                logger.error("Failed to synchronize enums", it)
             }
         }
     }
@@ -183,9 +183,9 @@ class CoreEnumsSynchronizer(
         }
 
         if (toSave.isEmpty()) {
-            logger.info("No changes for $enumClass")
+            logger.trace { "No changes for $enumClass" }
         } else {
-            logger.info("Saving ${toSave.size} items for $enumClass")
+            logger.trace { "Saving ${toSave.size} item${if (toSave.size > 1) "s" else ""} [$enumClass]" }
             repo.saveAll(toSave).toList() // Вызов .toList() или .collect() триггерит холодный Flow
         }
     }

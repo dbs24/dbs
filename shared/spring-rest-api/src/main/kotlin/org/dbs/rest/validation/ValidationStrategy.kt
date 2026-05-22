@@ -100,7 +100,7 @@ interface ValidationStrategy<T : DomainCommand> : Logging, SmartInitializingSing
             }
 
             if (isNotEmpty()) {
-                logger.error { "Validation failure for ${supportedClass.simpleName}: $size errors found" }
+                logger.error { "Validation failure for ${supportedClass.simpleName}: $size error${if (size>1) "s" else ""} found" }
                 throw ValidationException(this)
             }
         }
