@@ -36,6 +36,7 @@ object RestHttpConsts {
     const val URI_HTTPS_LOCALHOST = URI_HTTPS + URI_LOCALHOST
     val LOCAL_ADDRESSES = arrayOf(URI_LOCALHOST, URI_HTTP_LOCALHOST, URI_HTTPS_LOCALHOST)
     const val URI_API = "/api"
+    const val REMOTE_IP_KEY = "REMOTE_IP_KEY"
 
     object RouteVersion {
         const val URI_V1 = "/v1"

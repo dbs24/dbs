@@ -1,12 +1,14 @@
 import dsl.Dependencies.Projects.APPLICATION_CORE_API
 import dsl.Dependencies.Projects.CACHE_STARTER
 import dsl.Dependencies.Projects.ENTITY_CORE_API
+import dsl.Dependencies.Projects.GRPC_API
 import dsl.Dependencies.Projects.PERSISTENCE_API
 import dsl.Dependencies.Projects.R2DBC_API
 import dsl.Dependencies.Projects.REF_STARTER
 import dsl.Dependencies.Projects.SECURITY_MANAGER_API
 import dsl.Dependencies.Projects.SPRING_CONFIG
 import dsl.Dependencies.Projects.SPRING_CORE_API
+import org.gradle.kotlin.dsl.project
 
 plugins {
     idea
@@ -21,6 +23,7 @@ dependencies {
     api(project(ENTITY_CORE_API))
     api(project(CACHE_STARTER))
     api(project(R2DBC_API))
+    api(project(GRPC_API))
 
     implementation(libs.spring.data.r2dbc)
     implementation(libs.spring.data.redis)

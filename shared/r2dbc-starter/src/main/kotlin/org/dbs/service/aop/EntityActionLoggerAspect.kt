@@ -1,11 +1,15 @@
 package org.dbs.service.aop
 
+import kotlinx.coroutines.reactor.ReactorContext
 import org.apache.logging.log4j.kotlin.Logging
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.Signature
 import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect
 import org.aspectj.lang.reflect.MethodSignature
+import org.dbs.consts.RemoteAddressCoroutineContext
+import org.dbs.consts.RestHttpConsts.REMOTE_IP_KEY
+import org.dbs.consts.SysConst.STRING_NULL
 import org.dbs.entity.core.v2.model.EntityCore
 import org.dbs.entity.core.v2.model.LogEntityAction
 import org.dbs.ext.SpringFuncs.registryEntityEvent
@@ -23,6 +27,7 @@ import org.springframework.util.ClassUtils
 import reactor.core.publisher.Mono
 import java.lang.reflect.Method
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.coroutines.Continuation
 
 @Aspect
 @Lazy(false)
@@ -62,9 +67,17 @@ class EntityActionLoggerAspect(
         }
 
         val startTime = System.currentTimeMillis()
-        val result = joinPoint.proceed()
+        val continuation = joinPoint.args.lastOrNull() as? Continuation<*> ?: error("continuation method is not found")
 
-        return when (result) {
+        val ip = continuation.context[RemoteAddressCoroutineContext]?.ip
+            ?: let {
+                continuation
+                    .context[ReactorContext]
+                    ?.context
+                    ?.getOrDefault(REMOTE_IP_KEY, STRING_NULL)
+            } ?: error("ip not defined")
+
+        return when (val result = joinPoint.proceed()) {
 
             // --- Реактивный Mono ---
             is Mono<*> -> {
@@ -73,7 +86,7 @@ class EntityActionLoggerAspect(
                     result.doOnNext { entity ->
                         if (entity is EntityCore) {
                             val duration = System.currentTimeMillis() - reactiveStart
-                            publish(entity, actionCodeId, method, duration)
+                            publish(entity, actionCodeId, method, duration, ip)
                         } else {
                             error("Unsupported Mono<type>: ${entity::class.java.canonicalName}")
                         }
@@ -83,8 +96,13 @@ class EntityActionLoggerAspect(
 
             // --- Синхронный EntityCore ---
             is EntityCore -> {
-                val duration = System.currentTimeMillis() - startTime
-                publish(result, actionCodeId, method, duration)
+                publish(
+                    result,
+                    actionCodeId,
+                    method,
+                    System.currentTimeMillis() - startTime,
+                    ip
+                )
                 result
             }
 
@@ -92,19 +110,19 @@ class EntityActionLoggerAspect(
         }
     }
 
-    private fun publish(entity: EntityCore, actionCodeId: Int, method: Method, duration: Long) {
+    private fun publish(entity: EntityCore, actionCodeId: Int, method: Method, duration: Long, ip: String) {
         val entityId = entity.entityId ?: error("entityId must be set")
 
-        logger.info {
-            "entity=${entity::class.qualifiedName}, method=${method.name}, duration=${duration}ms"
+        logger.trace {
+            "create/update entity ${entity::class.qualifiedName}, id: $entityId,  method: ${method.name}, duration: $duration ms"
         }
 
         applicationEventPublisher.registryEntityEvent(
             entityId = entityId,
             entityTypeId = entity.type.entityTypeId,
             actionCodeId = actionCodeId,
-            remoteAddr = "n/d",
-            actionNote = "...",
+            remoteAddr = ip,
+            actionNote = method.name,
             duration = duration
         )
     }

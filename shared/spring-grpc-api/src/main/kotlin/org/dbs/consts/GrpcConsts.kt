@@ -4,7 +4,6 @@ import io.grpc.Context
 import io.grpc.Metadata
 import io.grpc.Metadata.ASCII_STRING_MARSHALLER
 import io.jsonwebtoken.Claims
-import kotlinx.coroutines.CoroutineScope
 import org.dbs.consts.SpringCoreConst.DELIMITER
 import org.dbs.consts.SpringCoreConst.PropertiesNames.GRPC_ENABLED_REFLECTION
 import org.dbs.consts.SpringCoreConst.PropertiesNames.GRPC_SERVER_CERT
@@ -13,6 +12,8 @@ import org.dbs.consts.SpringCoreConst.PropertiesNames.GRPC_SERVER_PORT
 import org.dbs.consts.SpringCoreConst.PropertiesNames.GRPC_SERVER_SECURITY
 import org.dbs.consts.SpringCoreConst.PropertiesNames.NOT_AVAILABLE
 import org.dbs.consts.SysConst.EMPTY_STRING
+import kotlin.coroutines.AbstractCoroutineContextElement
+import kotlin.coroutines.CoroutineContext
 
 typealias MK = Metadata.Key<String>
 typealias MKB = Metadata.Key<ByteArray>
@@ -66,4 +67,9 @@ object GrpcConsts {
         const val HEAVY_SPEED_LIMIT_MS = 100
         const val MIN_SPEED_LIMIT = 5
     }
+}
+
+class RemoteAddressCoroutineContext(val ip: String)
+    : AbstractCoroutineContextElement(Key) {
+    companion object Key : CoroutineContext.Key<RemoteAddressCoroutineContext>
 }

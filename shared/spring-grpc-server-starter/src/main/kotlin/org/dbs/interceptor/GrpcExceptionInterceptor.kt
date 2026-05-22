@@ -70,7 +70,6 @@ class GrpcExceptionInterceptor(
         next: ServerCallHandler<ReqT, RespT>
     ): ServerCall.Listener<ReqT> {
 
-        //val (grpcProcedure, remoteAddress, userAgent) = call.logH2Call(headers)
         call.logH2Call(headers)
 
         return next.startCall(object : ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT>(call) {
@@ -78,7 +77,6 @@ class GrpcExceptionInterceptor(
                 if (status.isOk) {
                     super.close(status, trailers)
                 } else {
-                    // Если пришла ошибка (в т.ч. из корутины), мапим её
                     val exception = status.cause
                     val (newStatus, newTrailers) = translateException(
                         exception ?: status.asException(),
