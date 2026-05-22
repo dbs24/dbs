@@ -2,6 +2,7 @@ package org.dbs.chess24.sandbox
 
 import api.TestConst.REPEATED_KOTEST_AMOUNT
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
 import org.apache.logging.log4j.kotlin.logger
@@ -48,7 +49,7 @@ class InviteTests() : AbstractSandBoxTest({
                 invites
                     .flatMapMany { fromIterable(it) }
                     .flatMap {
-                        runBlocking {
+                        runBlocking(Dispatchers.IO) {
                             logger().debug { "try 2 create invite: ${it.inviteCode}" }
                             createOrUpdateTestInvite(it.inviteCode)
                         }
@@ -83,7 +84,7 @@ class InviteTests() : AbstractSandBoxTest({
                 invites
                     .flatMapMany { fromIterable(it) }
                     .flatMap {
-                        runBlocking {
+                        runBlocking(Dispatchers.IO) {
                             logger().debug { "try 2 update invite status: ${it.inviteCode}" }
                             updateInviteStatus(
                                 it.inviteCode,

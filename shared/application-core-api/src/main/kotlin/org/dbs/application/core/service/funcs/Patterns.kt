@@ -299,6 +299,6 @@ object Patterns {
         val length = "{$minSize,${maxSize - 1}}"
         // Собираем в один паттерн: (?:[LATIN...]|[CYRILLIC...])
         val combinedRegex = "^(?:[$LATIN_CHARS$basePattern]$length|[$CYRILLIC_CHARS$basePattern]$length|...)$"
-        return Pattern.compile(combinedRegex)
+        return compile(combinedRegex)
     }
 }

@@ -1,5 +1,6 @@
 package org.dbs.auth.server.service
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
 import kotlinx.coroutines.coroutineScope
@@ -37,7 +38,7 @@ class JwtScheduledService(
     @KafkaListener(id = KAFKA_MANAGER_LOGIN, groupId = MANAGER_GROUP_ID, topics = [KAFKA_MANAGER_LOGIN])
     fun receiveRequests(managers: Collection<ApplicationLogin4RevokeDto>) = managers.apply {
         logger.info("receive managers list (${managers.size}: [$managers]")
-        runBlocking { channelManagersList.send(managers) }
+        runBlocking(Dispatchers.IO) { channelManagersList.send(managers) }
     }
 
     @Scheduled(
@@ -46,7 +47,7 @@ class JwtScheduledService(
         timeUnit = SECONDS
     )
     fun getLoginsFromChannel(): Unit =
-        if (channelManagersList.isReadyToReceive()) runBlocking {
+        if (channelManagersList.isReadyToReceive()) runBlocking(Dispatchers.IO) {
             channelManagersList.receive().let { logins ->
                 logger.debug("revoke jwt 4 login: $logins")
                 logins.forEach { jwtStorageServiceImpl.revokeExistsJwt(it.login, it.application).subscribe() }
@@ -62,7 +63,7 @@ class JwtScheduledService(
         fixedRateString = "\${config.security.jwt.delete-deprecated.period:60}",
         timeUnit = SECONDS
     )
-    fun scheduledProcedure() = runBlocking { processDeprecatedJwt() }
+    fun scheduledProcedure() = runBlocking(Dispatchers.IO) { processDeprecatedJwt() }
 
     suspend fun processDeprecatedJwt() = coroutineScope {
         launch {

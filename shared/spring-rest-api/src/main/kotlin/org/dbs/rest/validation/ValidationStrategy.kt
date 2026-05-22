@@ -1,5 +1,6 @@
 package org.dbs.rest.validation
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.apache.logging.log4j.kotlin.Logging
 import org.dbs.application.core.service.funcs.ServiceFuncs.createCollection
@@ -59,7 +60,7 @@ interface ValidationStrategy<T : DomainCommand> : Logging, SmartInitializingSing
             "Duplicate validation rules found for class '$className': $details"
         }
 
-        require (coveredPropertyNames.size == coveredPropertyNames.toSet().size) {
+        require(coveredPropertyNames.size == coveredPropertyNames.toSet().size) {
             "Validation strategy for ${supportedClass.simpleName} has duplicate rules for fields: " +
                     "${coveredPropertyNames.groupBy { it }.filter { it.value.size > 1 }.keys}"
         }
@@ -84,23 +85,59 @@ interface ValidationStrategy<T : DomainCommand> : Logging, SmartInitializingSing
                 }
 
                 if (!stringValue.isNullOrBlank()) {
-                    if (!rule.pattern.matcher(stringValue).matches()) {
-                        this.add(
-                            create(
-                                Error.INVALID_ATTR_PATTERN_MISMATCH, rule.field,
-                                "${rule.property.name}: ${findI18nMessage(I18NEnum.VALUE_DOES_NOT_MATCH_FORMAT)}: '$rawValue'"
-                            )
-                        )
+
+                    val minMax = rule.minMax ?: run {
+                        extractRange(rule.pattern.pattern()).also {
+                            logger.info { " calculate pattern: ${rule.pattern.pattern()}, minMax range: $it " }
+                            rule.minMax = it
+                        }
                     }
+
+                    var isValid = true
+
+                    if (minMax.first > 0) {
+                        if (stringValue.length < minMax.first) {
+
+                            isValid = false
+                            this.add(
+                                create(
+                                    Error.INVALID_ATTR_PATTERN_MISMATCH, rule.field,
+                                    "${rule.property.name}: ${findI18nMessage(I18NEnum.VALUE_DOES_NOT_MATCH_FORMAT)}: '$rawValue' (minSize: ${minMax.first})"
+                                )
+                            )
+                        }
+                    }
+
+                    if (minMax.second > 0) {
+                        if (stringValue.length > minMax.second) {
+                            isValid = false
+                            this.add(
+                                create(
+                                    Error.INVALID_ATTR_PATTERN_MISMATCH, rule.field,
+                                    "${rule.property.name}: ${findI18nMessage(I18NEnum.VALUE_DOES_NOT_MATCH_FORMAT)}: '$rawValue'  (maxSize: ${minMax.second}"
+                                )
+                            )
+                        }
+                    }
+
+                    if (isValid)
+                        if (!rule.pattern.matcher(stringValue).matches()) {
+                            this.add(
+                                create(
+                                    Error.INVALID_ATTR_PATTERN_MISMATCH, rule.field,
+                                    "${rule.property.name}: ${findI18nMessage(I18NEnum.VALUE_DOES_NOT_MATCH_FORMAT)}: '$rawValue'"
+                                )
+                            )
+                        }
                 }
             }
 
-            if (isEmpty()) runBlocking {
+            if (isEmpty()) runBlocking(Dispatchers.IO) {
                 action(this@apply)
             }
 
             if (isNotEmpty()) {
-                logger.error { "Validation failure for ${supportedClass.simpleName}: $size error${if (size>1) "s" else ""} found" }
+                logger.error { "Validation failure for ${supportedClass.simpleName}: $size error${if (size > 1) "s" else ""} found" }
                 throw ValidationException(this)
             }
         }
@@ -116,6 +153,41 @@ interface ValidationStrategy<T : DomainCommand> : Logging, SmartInitializingSing
             field = fld.second,
             getter = { this.get(it) } // Прямая ссылка на геттер
         )
+
+    fun extractRange(p: String): Pair<Int, Int> {
+        var depth = 0
+        var start = -1
+        var found = false
+        var min = 0
+        var max = 0
+
+        for (i in p.indices) {
+            when (p[i]) {
+                '(' -> depth++
+                ')' -> if (depth > 0) depth--
+                '{' -> if (depth == 0) start = i
+                '}' -> if (start != -1 && depth == 0) {
+                    if (found) return 0 to 255
+                    val content = p.substring(start + 1, i)
+                    val comma = content.indexOf(',')
+                    if (comma == -1) {
+                        val v = content.trim().toIntOrNull() ?: return 0 to 255
+                        min = v; max = v
+                    } else {
+                        val a = content.substring(0, comma).trim().toIntOrNull() ?: return 0 to 255
+                        val b = content.substring(comma + 1).trim().toIntOrNull() ?: return 0 to 255
+                        min = a; max = b
+                    }
+                    found = true
+                    start = -1
+                }
+            }
+        }
+
+        return if (found) min to max else 0 to 255
+    }
+
+
 }
 
 // Структура, описывающая правило для конкретного свойства
@@ -124,7 +196,8 @@ data class FieldValidationRule<T : DomainCommand>(
     val pattern: Pattern,
     val isOptional: Boolean,
     val field: Field,
-    val getter: (T) -> Any?
+    val getter: (T) -> Any?,
+    var minMax: Pair<Int, Int>? = null
 ) {
     fun extractString(obj: Any?): String? = when (obj) {
         null -> null

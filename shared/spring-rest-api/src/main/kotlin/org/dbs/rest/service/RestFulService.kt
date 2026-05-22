@@ -1,10 +1,12 @@
 package org.dbs.rest.service
 
 import io.jsonwebtoken.Claims
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.dbs.application.core.nullsafe.StopWatcher
 import org.dbs.application.core.service.funcs.StringFuncs.last15
-import org.dbs.consts.*
+import org.dbs.consts.EntityId
+import org.dbs.consts.Jwt
 import org.dbs.consts.SpringCoreConst.PropertiesNames.CONFIG_RESTFUL_MESSAGE_PRINT_ENTITY_ID
 import org.dbs.consts.SpringCoreConst.PropertiesNames.DEFAULT_SYS_CURRENCY
 import org.dbs.consts.SpringCoreConst.PropertiesNames.DEFAULT_SYS_CURRENCY_VALUE
@@ -15,6 +17,8 @@ import org.dbs.consts.SpringCoreConst.PropertiesNames.MAX_PAGE_SIZE_VALUE
 import org.dbs.consts.SpringCoreConst.PropertiesNames.QUERY_MAX_EXEC_TIME
 import org.dbs.consts.SpringCoreConst.PropertiesNames.QUERY_MAX_EXEC_TIME_VALUE
 import org.dbs.consts.SpringCoreConst.PropertiesNames.VALUE_RESTFUL_MESSAGE_PRINT_ENTITY_ID
+import org.dbs.consts.SuspendArg2Mono
+import org.dbs.consts.SuspendNoArg2Mono
 import org.dbs.consts.SysConst.EMPTY_STRING
 import org.dbs.consts.SysConst.UNCHECKED_CAST
 import org.dbs.ext.LoggerFuncs.logRequestInternal
@@ -78,7 +82,7 @@ class RestFulService : AbstractApplicationService() {
             .flatMap { requestBody ->
                 val stopWatcher = StopWatcher.create()
                 logger.debug("*** $path: [$requestBody]")
-                runBlocking { funkResponseBody(requestBody.requestBodyDto) }
+                runBlocking(Dispatchers.IO) { funkResponseBody(requestBody.requestBodyDto) }
                     .map { finishResponse(it, path, stopWatcher.executionTime) }
                     .doOn()
             }

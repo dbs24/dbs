@@ -1,5 +1,6 @@
 package org.dbs.config
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.dbs.application.core.api.LateInitVal
@@ -128,7 +129,7 @@ abstract class AbstractWebSecurityConfig(private val appUriPrefix: String? = STR
     })
 
     override fun initialize() = super.initialize().also {
-        runBlocking {
+        runBlocking(Dispatchers.IO) {
             measureTimeMillis {
 
                 val roc = async {

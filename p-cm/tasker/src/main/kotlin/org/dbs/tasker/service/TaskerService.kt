@@ -34,7 +34,7 @@ class TaskerService(
         //actorUserDao.saveActorUser(tasks)
         //channelTasks.addItems(tasks)
 
-        runBlocking {
+        runBlocking(Dispatchers.IO) {
             tasks.forEach {
                 jobs.add(launch {
                     Thread {

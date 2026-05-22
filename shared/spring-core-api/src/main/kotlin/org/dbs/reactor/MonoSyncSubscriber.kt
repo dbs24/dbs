@@ -1,5 +1,6 @@
 package org.dbs.reactor
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.dbs.application.core.api.LateInitVal
 import org.dbs.consts.SysConst.UNCHECKED_CAST
@@ -12,7 +13,7 @@ import kotlin.coroutines.suspendCoroutine
 value class MonoSyncSubscriber<T: Any>(private val mono: Mono<T>) {
     private fun complete(continuation: Continuation<Unit>) = continuation.resume(Unit)
     fun doSubscribe() {
-        runBlocking {
+        runBlocking(Dispatchers.IO) {
             suspendCoroutine { continuation ->
                 mono.doFinally { complete(continuation) }
                     .subscribe()
@@ -20,9 +21,9 @@ value class MonoSyncSubscriber<T: Any>(private val mono: Mono<T>) {
         }
     }
 
-    fun <T: Any> doBlockingSubscribe() = runBlocking { doSubscribeThrowable<T>() }
+    fun <T: Any> doBlockingSubscribe() = runBlocking(Dispatchers.IO) { doSubscribeThrowable<T>() }
 
-    fun <T: Any> doBlockingNullAbleSubscribe() = runBlocking { doSubscribeNullable<T>() }
+    fun <T: Any> doBlockingNullAbleSubscribe() = runBlocking(Dispatchers.IO) { doSubscribeNullable<T>() }
 
     @Suppress(UNCHECKED_CAST)
     suspend fun <T: Any> doSubscribeThrowable(): T = run {

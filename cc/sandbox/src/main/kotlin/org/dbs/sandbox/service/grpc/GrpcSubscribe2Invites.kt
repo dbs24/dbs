@@ -1,5 +1,6 @@
 package org.dbs.sandbox.service.grpc
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
@@ -17,7 +18,7 @@ object GrpcSubscribe2Invites {
         remoteAddress: IpAddress = CK_REMOTE_ADDRESS.get(),
     ): FlowResponse = request.run dto@{
 
-        runBlocking { validateRemoteAddress(remoteAddress) }
+        runBlocking(Dispatchers.IO) { validateRemoteAddress(remoteAddress) }
 
         logger.info {"receive request: $request"}
 

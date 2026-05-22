@@ -6,6 +6,7 @@ import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder.forAddress
 import io.grpc.Metadata
 import io.grpc.kotlin.AbstractCoroutineStub
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.dbs.application.core.service.funcs.ServiceFuncs.createCollection
 import org.dbs.consts.GenericArg2Unit
@@ -45,7 +46,7 @@ abstract class AbstractGrpcClientService<T : AbstractCoroutineStub<T>>(
     private val ymlConfig by lazy { findCanonicalService(GrpcYmlConfig::class) }
     private val clientSsl by lazy { ymlConfig.useSsl.takeIf { useClientSsl } ?: useClientSsl }
     private val streamJobs by lazy { createCollection<Thread>() }
-    private val blockingJob: GenericArg2Unit<StreamJob> = { runBlocking { it() } }
+    private val blockingJob: GenericArg2Unit<StreamJob> = { runBlocking(Dispatchers.IO) { it() } }
     fun addGrpcStreamJob(sj: StreamJob) {
 
         if (env.junitMode) blockingJob(sj) else
@@ -95,7 +96,7 @@ abstract class AbstractGrpcClientService<T : AbstractCoroutineStub<T>>(
             }
             response
         }
-        runBlocking {
+        runBlocking(Dispatchers.IO) {
             runCatching {
                 tryCall()
             }.getOrElse {

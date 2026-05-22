@@ -1,7 +1,5 @@
 package org.dbs.tree.mapper
 
-import org.dbs.application.value.Email
-import org.dbs.application.value.UserLogin
 import org.dbs.grpc.ext.GrpcNull.grpcGetOrNull
 import org.dbs.tree.client.CreateOrUpdateUserRequest
 import org.dbs.tree.client.CreateOrUpdateUserResponse
@@ -12,18 +10,15 @@ import org.dbs.tree.model.domain.GetUserCredentialsCommand
 import org.dbs.tree.model.user.User
 import org.dbs.user.dto.user.CreateOrUpdateUserDto
 import org.dbs.user.dto.user.CreatedUserDto
-import org.springframework.security.crypto.password.PasswordEncoder
-
-typealias Dto2User = (src: User, srcDto: CreateOrUpdateUserRequest, passwordEncoder: PasswordEncoder) -> User
 
 object UserMappers {
 
     fun CreateOrUpdateUserRequest.toCommand(): CreateOrUpdateUserCommand =
         CreateOrUpdateUserCommand(
-            oldLogin = oldLogin.grpcGetOrNull()?.let { UserLogin(it) },
-            login = UserLogin(login),
-            oldEmail = oldEmail.grpcGetOrNull()?.let { Email(it) },
-            email = Email(email),
+            oldLogin = oldLogin.grpcGetOrNull(),
+            login = login,
+            oldEmail = oldEmail.grpcGetOrNull(),
+            email = email,
             password = password,
             firstName =  firstName.grpcGetOrNull(),
             middleName = firstName.grpcGetOrNull(),
@@ -46,10 +41,10 @@ object UserMappers {
 
     fun CreateOrUpdateUserDto.toCommand() : CreateOrUpdateUserCommand =
         CreateOrUpdateUserCommand(
-            oldLogin = oldLogin?.let { UserLogin(it) },
-            login = UserLogin(login),
-            oldEmail = oldEmail?.let { Email(it) },
-            email = Email(email),
+            oldLogin = oldLogin,
+            login = login,
+            oldEmail = oldEmail,
+            email = email,
             password = password,
             firstName =  firstName,
             middleName = firstName,
@@ -59,7 +54,7 @@ object UserMappers {
 
     fun UserCredentialsRequest.toCommand(): GetUserCredentialsCommand =
         GetUserCredentialsCommand(
-            login = UserLogin(userLogin)
+            login = userLogin
         )
 
     fun User.toUserCredentialsProto(): UserCredentialsResponse = UserCredentialsResponse.newBuilder()

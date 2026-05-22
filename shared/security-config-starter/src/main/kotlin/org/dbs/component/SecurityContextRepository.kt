@@ -1,6 +1,7 @@
 package org.dbs.component
 
 import io.jsonwebtoken.ExpiredJwtException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.dbs.application.core.service.funcs.Patterns.LEGAL_DOMAIN
 import org.dbs.consts.SecurityConsts.PASSWORD_ENCODER_STRENGTH_DEF
@@ -42,7 +43,7 @@ class SecurityContextRepository(
         error(UnsupportedOperationException("Not supported yet."))
 
     override fun load(serverWebExchange: ServerWebExchange): Mono<SecurityContext> =
-        runBlocking { jwtValidator(serverWebExchange) }
+        runBlocking(Dispatchers.IO) { jwtValidator(serverWebExchange) }
 
     private val fuckOff2Ban: FuckOff2Ban = {
         it.ip().subnet2IpV4().also { bucket4jRateLimitService.addNewTemporaryBlackList(it) }

@@ -1,5 +1,6 @@
 package org.dbs.rest.service
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.dbs.consts.SysConst.EMPTY_STRING
 import org.dbs.consts.SysConst.UNKNOWN
@@ -13,7 +14,7 @@ object ServerWebExchangeExt {
     fun ServerWebExchange.log() = request.let {
         "ServerWebExchange: [${it.id}, ${it.method}, ${it.uri}, ${it.headers.entries}, ${it.queryParams}, " +
                 "${it.remoteAddress}, ${it.cookies}, " +
-                "formData[${runBlocking { awaitFormData() }}]]"
+                "formData[${runBlocking(Dispatchers.IO) { awaitFormData() }}]]"
     }
 
     fun ServerWebExchange.ip(): String =

@@ -1,5 +1,6 @@
 package org.dbs.service.cache
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -38,16 +39,16 @@ class EntityIdCacheService(redisTemplate: RedisTemplate<String, String>) :
     fun getEntityId(cacheKey: EntityCacheKeyEnum, code: String, func: NoArg2Mono<EntityId>): Mono<EntityId> =
         getCachedEntityId(cacheKey, code).run {
             (this?.let { this.toLong() } ?: LONG_NULL).toMono()
-                .switchIfEmpty { runBlocking { heavyLoad(cacheKey, code, func) } }
+                .switchIfEmpty { runBlocking(Dispatchers.IO) { heavyLoad(cacheKey, code, func) } }
         }
 
     fun getEntityCode(cacheKey: EntityCacheKeyEnum, entityId: Long, func: NoArg2Mono<String>): Mono<String> =
         getCachedEntityCode(cacheKey, entityId).run {
             (this?.let { this } ?: STRING_NULL).toMono()
-                .switchIfEmpty { runBlocking { heavyLoad(cacheKey, entityId, func) } }
+                .switchIfEmpty { runBlocking(Dispatchers.IO) { heavyLoad(cacheKey, entityId, func) } }
         }
 
-    override fun invalidateCaches(code: String, vararg entityCacheKey: EntityCacheKeyEnum): Unit = runBlocking {
+    override fun invalidateCaches(code: String, vararg entityCacheKey: EntityCacheKeyEnum): Unit = runBlocking(Dispatchers.IO) {
         logger.debug("invalidate caches[${code}], ${entityCacheKey.map { it.cacheCode }.toList()}")
         launch {
             redisUtil.run {

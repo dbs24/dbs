@@ -1,5 +1,6 @@
 package org.dbs.goods.service
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
 import org.apache.logging.log4j.kotlin.logger
@@ -34,7 +35,7 @@ class UserService(
 ) : AbstractApplicationService() {
 
     override fun initialize() = super.initialize().also {
-        runBlocking {
+        runBlocking(Dispatchers.IO) {
             getOrCreateDefaultRootUser().subscribeMono()
         }
     }

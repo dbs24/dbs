@@ -3,6 +3,7 @@ package org.dbs.goods.user
 import api.TestConst.PLAYER_TEST_AMOUNT
 import api.TestConst.REPEATED_KOTEST_AMOUNT
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
 import org.apache.logging.log4j.kotlin.logger
@@ -12,12 +13,11 @@ import org.dbs.application.core.service.funcs.TestFuncs.selectFrom
 import org.dbs.goods.funcs.AbstractUserTest
 import org.dbs.goods.funcs.UserFuncs.createOrUpdateTestUser
 import org.dbs.goods.funcs.UserFuncs.createTestUser
-import org.dbs.goods.funcs.UserFuncs.userCount
-import org.dbs.goods.funcs.UserFuncs.userStatusesNames
 import org.dbs.goods.funcs.UserFuncs.updateUserPassword
 import org.dbs.goods.funcs.UserFuncs.updateUserStatus
+import org.dbs.goods.funcs.UserFuncs.userCount
+import org.dbs.goods.funcs.UserFuncs.userStatusesNames
 import org.dbs.goods.model.user.User
-import org.springframework.security.crypto.password.PasswordEncoder
 import reactor.core.publisher.Flux.concat
 import reactor.core.publisher.Flux.fromIterable
 import reactor.core.publisher.Mono
@@ -51,7 +51,7 @@ class UserTests: AbstractUserTest({
                 users
                     .flatMapMany { fromIterable(it) }
                     .flatMap {
-                        runBlocking {
+                        runBlocking(Dispatchers.IO) {
                             logger().debug { "try 2 create user: ${it.login}" }
                             createOrUpdateTestUser(
                                 it.login,
@@ -91,7 +91,7 @@ class UserTests: AbstractUserTest({
                 users
                     .flatMapMany { fromIterable(it) }
                     .flatMap {
-                        runBlocking {
+                        runBlocking(Dispatchers.IO) {
                             logger().debug { "try 2 update user status: ${it.login}" }
                             updateUserStatus(
                                 it.login,
@@ -110,7 +110,7 @@ class UserTests: AbstractUserTest({
                     .flatMapMany { fromIterable(it) }
                     .flatMap {
 
-                        runBlocking {
+                        runBlocking(Dispatchers.IO) {
                             logger().debug { "try 2 update user password: ${it.login}" }
                             updateUserPassword(
                                 it.login,

@@ -1,5 +1,6 @@
 package org.dbs.config
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -44,7 +45,7 @@ class LivenessService : AbstractApplicationService() {
         fixedRateString = "\${config.liveness.internal-services.range:60}",
         timeUnit = SECONDS
     )
-    fun checkDueTimeTimeout() = runBlocking {
+    fun checkDueTimeTimeout() = runBlocking(Dispatchers.IO) {
         externalAddresses
             .asSequence()
             .distinctBy { "${it.trackingHost.host}:${it.trackingHost.port}" }

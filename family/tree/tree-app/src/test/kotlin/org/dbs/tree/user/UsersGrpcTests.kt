@@ -34,8 +34,16 @@ class UsersGrpcTests : BaseTreeGrpcTest() {
         }
 
         "Try to create invalid user via $source" {
-            createOrUpdateUserWithInternalError(
-                buildUserRequest(login = "", email = "", password = "fp")
+            createOrUpdateUserWithValidationError(
+                buildUserRequest(login = "", email = "", password = "fp"),
+                Error.MANDATORY_FIELD_MISSING to Field.SSS_USER_LOGIN
+            )
+        }
+
+        "Try to create invalid user with invalid login via $source" {
+            createOrUpdateUserWithValidationError(
+                buildUserRequest(login = "vali", email = "valid_user2@test.com", password = "Strong12Password"),
+                Error.INVALID_ATTR_PATTERN_MISMATCH to Field.SSS_USER_LOGIN
             )
         }
 

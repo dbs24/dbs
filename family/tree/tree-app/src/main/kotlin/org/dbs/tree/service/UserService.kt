@@ -46,12 +46,12 @@ class UserService(
     @Transactional
     suspend fun createOrUpdateUser(request: CreateOrUpdateUserCommand): ENTITY {
 
-        val updatedUser = if (request.isNewUser) createNewUser(request.login.value)
-        else (dao.findUserByLogin(request.login.value) ?: error("User not found (${request.login})"))
+        val updatedUser = if (request.isNewUser) createNewUser(request.login)
+        else (dao.findUserByLogin(request.login) ?: error("User not found (${request.login})"))
 
         return dao.saveUser(
             updatedUser.copy(
-                email = request.email.value,
+                email = request.email,
                 firstName = request.firstName,
                 lastName = request.lastName,
                 password = passwordEncoder.encode(request.password),
@@ -62,7 +62,7 @@ class UserService(
     }
 
     suspend fun getUserCredentials(request: GetUserCredentialsCommand): ENTITY {
-        return (dao.findUserByLogin(request.login.value) ?: error("User not found (${request.login})"))
+        return (dao.findUserByLogin(request.login) ?: error("User not found (${request.login})"))
     }
 
     fun createNewUser(userLogin: UserLogin): ENTITY =

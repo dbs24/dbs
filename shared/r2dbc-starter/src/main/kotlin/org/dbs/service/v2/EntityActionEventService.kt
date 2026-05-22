@@ -1,6 +1,7 @@
 package org.dbs.service.v2
 
 import com.sun.management.UnixOperatingSystemMXBean
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.apache.logging.log4j.kotlin.Logging
 import org.dbs.consts.SysConst.STRING_NULL
@@ -25,7 +26,7 @@ class EntityActionEventService(
 
     @EventListener
     @Async
-    fun onActionEvent(event: EntityActionEvent): Unit = runBlocking {
+    fun onActionEvent(event: EntityActionEvent): Unit = runBlocking(Dispatchers.IO) {
         with(event) {
             actionRepo.save(
                 EntityAction(
@@ -47,7 +48,7 @@ class EntityActionEventService(
 
     @EventListener
     @Async
-    fun onIncidentEvent(event: IncidentEvent): Unit = runBlocking {
+    fun onIncidentEvent(event: IncidentEvent): Unit = runBlocking(Dispatchers.IO) {
         with(event) {
 
             val osBean = ManagementFactory.getOperatingSystemMXBean() as? UnixOperatingSystemMXBean

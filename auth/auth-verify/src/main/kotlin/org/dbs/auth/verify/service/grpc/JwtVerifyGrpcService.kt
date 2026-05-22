@@ -1,5 +1,6 @@
 package org.dbs.auth.verify.service.grpc
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import net.devh.boot.grpc.server.service.GrpcService
@@ -84,7 +85,7 @@ class JwtVerifyGrpcService : AbstractGrpcServerService(), PublicApplicationBean 
             removeObsoletedJwt()
         }
 
-        override fun removeJwtList(jwt: Collection<Jwt>): Unit = runBlocking {
+        override fun removeJwtList(jwt: Collection<Jwt>): Unit = runBlocking(Dispatchers.IO) {
             mutex.apply {
                 lock()
                 logger.debug { "removeJwtList: [$jwt]" }
@@ -96,7 +97,7 @@ class JwtVerifyGrpcService : AbstractGrpcServerService(), PublicApplicationBean 
             }
         }
 
-        override fun removeObsoletedJwt(): Unit = runBlocking {
+        override fun removeObsoletedJwt(): Unit = runBlocking(Dispatchers.IO) {
             mutex.apply {
                 lock()
                 val now = now()

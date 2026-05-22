@@ -1,5 +1,6 @@
 package org.dbs.mail.service
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import org.dbs.consts.SpringCoreConst.PropertiesNames.SPRING_MAIL_PROCESS_BATCH_INTERVAL
@@ -26,7 +27,7 @@ class EmailKafkaListener(private val emailService: EmailServiceInternal) : Abstr
     @KafkaListener(topics = [EMAIL_TOPIC])
     fun readNotificationAndSendEmail(notifications: Collection<NotificationDto>) {
         logger.debug("Read email notifications (size=${notifications.size}) from topic: $notifications")
-        runBlocking {
+        runBlocking(Dispatchers.IO) {
             notifications.forEach { notificationChannel.send(it) }
         }
     }
@@ -36,7 +37,7 @@ class EmailKafkaListener(private val emailService: EmailServiceInternal) : Abstr
         fixedRateString = "\${$SPRING_MAIL_PROCESS_BATCH_INTERVAL:10}",
         timeUnit = TimeUnit.SECONDS
     )
-    fun insertFromKafka() = runBlocking {
+    fun insertFromKafka() = runBlocking(Dispatchers.IO) {
         val notificationsToProcess = mutableListOf<NotificationDto>()
         while (notificationChannel.isReadyToReceive() && notificationsToProcess.size < processBatchLimit) {
             notificationsToProcess.add(notificationChannel.receive())

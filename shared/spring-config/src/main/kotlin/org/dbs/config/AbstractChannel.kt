@@ -1,5 +1,6 @@
 package org.dbs.config
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
@@ -18,13 +19,13 @@ abstract class AbstractChannel<T> : Logging {
     private val job by lazy { LateInitVal<Job>() }
     private val thread by lazy { LateInitVal<Thread>() }
 
-    fun push(element: T) = runBlocking {  channel.send(element.also {
+    fun push(element: T) = runBlocking(Dispatchers.IO) {  channel.send(element.also {
         logger.debug{ "push: $element"}
     }) }
 
     suspend fun start(asyncAlgDelay: Long, funcExec: SuspendGenericArg2Unit<T>) {
         thread.init(Thread {
-            runBlocking {
+            runBlocking(Dispatchers.IO) {
                 job.init(launch {
                     while (true) {
                         if (channel.isReadyToReceive()) {
@@ -42,7 +43,7 @@ abstract class AbstractChannel<T> : Logging {
             it.start() })
     }
 
-    fun stop() = runBlocking {
+    fun stop() = runBlocking(Dispatchers.IO) {
         logger.debug { "stopping infinite loop" }
         job.value.cancel()
         thread.value.apply {

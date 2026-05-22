@@ -2,6 +2,7 @@ package org.dbs.ext
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
@@ -13,12 +14,12 @@ object CoroutineFuncs {
     fun <T> Channel<T>.isReady(): Boolean = !(isClosedForReceive || isEmpty)
     fun Channel<*>.isReadyToReceive() = !isClosedForReceive && !isEmpty
 
-    fun <T> Channel<T>.addItems(items: T) = runBlocking {
+    fun <T> Channel<T>.addItems(items: T) = runBlocking(Dispatchers.IO) {
         send(items)
     }
 
     fun <T> Channel<T>.processItem(itemProcessor: suspend (T) -> Unit) = if (isReady()) {
-        runBlocking {
+        runBlocking(Dispatchers.IO) {
             itemProcessor(receive())
         }
     } else {

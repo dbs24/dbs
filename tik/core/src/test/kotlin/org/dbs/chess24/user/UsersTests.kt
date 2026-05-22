@@ -53,7 +53,7 @@ class UserTests(
                 users
                     .flatMapMany { fromIterable(it) }
                     .flatMap {
-                        runBlocking {
+                        runBlocking(Dispatchers.IO) {
                             logger().debug { "try 2 create user: ${it.login}" }
                             createOrUpdateTestUser(
                                 it.login,
@@ -93,7 +93,7 @@ class UserTests(
                 users
                     .flatMapMany { fromIterable(it) }
                     .flatMap {
-                        runBlocking {
+                        runBlocking(Dispatchers.IO) {
                             logger().debug { "try 2 update user status: ${it.login}" }
                             updateUserStatus(
                                 it.login,
@@ -112,7 +112,7 @@ class UserTests(
                     .flatMapMany { fromIterable(it) }
                     .flatMap {
 
-                        runBlocking {
+                        runBlocking(Dispatchers.IO) {
                             logger().debug { "try 2 update user password: ${it.login}" }
                             updateUserPassword(
                                 it.login,

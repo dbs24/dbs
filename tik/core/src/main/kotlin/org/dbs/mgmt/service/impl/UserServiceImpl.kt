@@ -40,7 +40,7 @@ class UserServiceImpl(
 
     override fun initialize() = super.initialize().also {
 
-        runBlocking {
+        runBlocking(Dispatchers.IO) {
             getOrCreateDefaultRootUser().subscribeMono()
         }
     }
@@ -68,7 +68,7 @@ class UserServiceImpl(
             else this
         }
 
-    private val createRootUser: Mono<ENTITY> = runBlocking {
+    private val createRootUser: Mono<ENTITY> = runBlocking(Dispatchers.IO) {
         generateNewEntityId().toMono()
             .map { userFactory.createRootUser(it) }
             .flatMap { executeAction(it, EA_CREATE_OR_UPDATE_USER) }
