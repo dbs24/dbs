@@ -61,6 +61,7 @@ class UserService(
             ))
     }
 
+    @ValidateDto
     suspend fun getUserCredentials(request: GetUserCredentialsCommand): ENTITY {
         return (dao.findUserByLogin(request.login) ?: error("User not found (${request.login})"))
     }

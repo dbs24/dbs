@@ -110,4 +110,10 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
             .shouldFailWithInternalError()
     }
 
+    protected suspend fun getUserCredentialsWithFails(request: REQ_GET_USER_CR, vararg expectedErrors: Pair<Error, Field>) {
+        suspend { userStub.getUserCredentials(request) }
+            .shouldFailWithValidation()
+            .shouldContainErrors(*expectedErrors)
+    }
+
 }

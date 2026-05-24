@@ -56,6 +56,12 @@ class UsersGrpcTests : BaseTreeGrpcTest() {
                 buildUserCredentialsRequest("validuser0"))
         }
 
+        "Get user credentials with invalid login via $source" {
+            getUserCredentialsWithFails(
+                buildUserCredentialsRequest("validuser#1"),
+            Error.INVALID_ATTR_PATTERN_MISMATCH to Field.SSS_USER_LOGIN)
+        }
+
         "Get user2 credentials via $source" {
             getUserCredentials(buildUserCredentialsRequest("validuser2"))
         }

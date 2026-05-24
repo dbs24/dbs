@@ -138,7 +138,16 @@ interface ValidationStrategy<T : DomainCommand> : Logging, SmartInitializingSing
         }
     }
 
-    fun validate(request: T)
+    fun validate(request: T) {
+        logger.info {"validate request: $request"}
+        validateInternal(request) { errors ->
+            errors.apply {
+                if (isNotEmpty()) {
+                    logger.error { "Validation failure for ${supportedClass.simpleName}: $size error${if (size > 1) "s" else ""} found" }
+                }
+            }
+        }
+    }
 
     infix fun <T : DomainCommand> KProperty1<T, *>.matches(fld: Pair<Pattern, Field>) =
         FieldValidationRule(
@@ -162,8 +171,9 @@ data class FieldValidationRule<T : DomainCommand>(
 
     val minMax: Pair<Int, Int> by lazy {
         extractRange(pattern.pattern()).also {
-            logger.info { " calculate pattern: ${pattern.pattern()}, minMax range: $it " }
-        } }
+            logger.info { "calculate pattern: ${pattern.pattern()}, minMax range: $it " }
+        }
+    }
 
     fun extractString(obj: Any?): String? = when (obj) {
         null -> null

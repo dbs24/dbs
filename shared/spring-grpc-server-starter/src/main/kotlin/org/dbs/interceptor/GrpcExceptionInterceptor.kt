@@ -24,6 +24,8 @@ class GrpcExceptionInterceptor(
     private val applicationEventPublisher: ApplicationEventPublisher
 ) : ServerInterceptor, Logging {
 
+    private val isDevelopment = System.getProperty("spring.profiles.active") == "dev"
+
     private fun translateException(e: Throwable, path: String): Pair<Status, Metadata> {
 
         val metadata = Metadata()
@@ -42,9 +44,23 @@ class GrpcExceptionInterceptor(
                 Status.INVALID_ARGUMENT.withDescription("Validation failed").withCause(e) to metadata
             }
 
+            is IllegalStateException -> {
+
+                val incidentMsg = applicationEventPublisher.registryIncidentEvent(
+                    throwable = e,
+                    path = path,
+                    IncidentSource.IS_GRPC,
+                )
+
+                val publicMsg =
+                    "Illegal state exception server error: ${if (isDevelopment) e.toString() else incidentMsg}"
+
+                metadata.put(MKB.of("internal-error-bin", Metadata.BINARY_BYTE_MARSHALLER), e.toString().toByteArray())
+                Status.INTERNAL.withDescription(publicMsg).withCause(e) to metadata
+            }
+
             else -> {
 
-                val isDevelopment = System.getProperty("spring.profiles.active") == "dev"
                 val incidentMsg = applicationEventPublisher.registryIncidentEvent(
                     throwable = e,
                     path = path,
