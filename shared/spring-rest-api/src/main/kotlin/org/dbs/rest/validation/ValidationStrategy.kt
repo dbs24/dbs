@@ -86,35 +86,30 @@ interface ValidationStrategy<T : DomainCommand> : Logging, SmartInitializingSing
 
                 if (!stringValue.isNullOrBlank()) {
 
-                    val minMax = rule.minMax ?: run {
-                        extractRange(rule.pattern.pattern()).also {
-                            logger.info { " calculate pattern: ${rule.pattern.pattern()}, minMax range: $it " }
-                            rule.minMax = it
-                        }
-                    }
-
                     var isValid = true
 
-                    if (minMax.first > 0) {
-                        if (stringValue.length < minMax.first) {
+                    if (rule.minMax.first > 0) {
+                        if (stringValue.length < rule.minMax.first) {
 
                             isValid = false
                             this.add(
                                 create(
                                     Error.INVALID_ATTR_PATTERN_MISMATCH, rule.field,
-                                    "${rule.property.name}: ${findI18nMessage(I18NEnum.VALUE_DOES_NOT_MATCH_FORMAT)}: '$rawValue' (minSize: ${minMax.first})"
+                                    "${rule.property.name}: " +
+                                            "${findI18nMessage(I18NEnum.VALUE_DOES_NOT_MATCH_FORMAT)}: '$rawValue' (minSize: ${rule.minMax.first})"
                                 )
                             )
                         }
                     }
 
-                    if (minMax.second > 0) {
-                        if (stringValue.length > minMax.second) {
+                    if (rule.minMax.second > 0) {
+                        if (stringValue.length > rule.minMax.second) {
                             isValid = false
                             this.add(
                                 create(
                                     Error.INVALID_ATTR_PATTERN_MISMATCH, rule.field,
-                                    "${rule.property.name}: ${findI18nMessage(I18NEnum.VALUE_DOES_NOT_MATCH_FORMAT)}: '$rawValue'  (maxSize: ${minMax.second}"
+                                    "${rule.property.name}: " +
+                                            "${findI18nMessage(I18NEnum.VALUE_DOES_NOT_MATCH_FORMAT)}: '$rawValue'  (maxSize: ${rule.minMax.second}"
                                 )
                             )
                         }
@@ -154,6 +149,31 @@ interface ValidationStrategy<T : DomainCommand> : Logging, SmartInitializingSing
             getter = { this.get(it) } // Прямая ссылка на геттер
         )
 
+}
+
+// Структура, описывающая правило для конкретного свойства
+data class FieldValidationRule<T : DomainCommand>(
+    val property: KProperty1<T, *>,
+    val pattern: Pattern,
+    val isOptional: Boolean,
+    val field: Field,
+    val getter: (T) -> Any?,
+): Logging {
+
+    val minMax: Pair<Int, Int> by lazy {
+        extractRange(pattern.pattern()).also {
+            logger.info { " calculate pattern: ${pattern.pattern()}, minMax range: $it " }
+        } }
+
+    fun extractString(obj: Any?): String? = when (obj) {
+        null -> null
+        is String -> obj
+        // Добавьте распаковку ваших доменных примитивов, чтобы избежать toString()
+        // is Email -> obj.value
+        // is EntityCode -> obj.value
+        else -> obj.toString()
+    }
+
     fun extractRange(p: String): Pair<Int, Int> {
         var depth = 0
         var start = -1
@@ -187,24 +207,4 @@ interface ValidationStrategy<T : DomainCommand> : Logging, SmartInitializingSing
         return if (found) min to max else 0 to 255
     }
 
-
-}
-
-// Структура, описывающая правило для конкретного свойства
-data class FieldValidationRule<T : DomainCommand>(
-    val property: KProperty1<T, *>,
-    val pattern: Pattern,
-    val isOptional: Boolean,
-    val field: Field,
-    val getter: (T) -> Any?,
-    var minMax: Pair<Int, Int>? = null
-) {
-    fun extractString(obj: Any?): String? = when (obj) {
-        null -> null
-        is String -> obj
-        // Добавьте распаковку ваших доменных примитивов, чтобы избежать toString()
-        // is Email -> obj.value
-        // is EntityCode -> obj.value
-        else -> obj.toString()
-    }
 }
