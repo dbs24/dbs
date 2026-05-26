@@ -95,7 +95,8 @@ abstract class BaseSpec: StringSpec(), Logging {
     suspend fun <T : EntityCore> verifyModifiedEntity(
         entity: T?,
         actionEnum: EntityActionEnum,
-        vararg validators: PropertyValidator<T, *>
+        verifyAllFields: Boolean = true,
+        vararg validators: PropertyValidator<T, *>,
     ) {
         val nonNullEntity = entity ?: error("entity not found")
 
@@ -105,22 +106,24 @@ abstract class BaseSpec: StringSpec(), Logging {
 
             logger.info { "Verify entity: $entityId ($entityClass)" }
 
-            // 1. Проверка полноты тестов (Expected vs Provided)
-            val expectedFieldNames = fieldsCache.getOrPut(entityClass) {
-                // Берем свойства из конструктора, так как они определяют состояние в БД
-                entityClass.memberProperties.map { it.name }.toSet() - ignoredTechnicalFields
-            }
+            if (verifyAllFields) {
+                // 1. Проверка полноты тестов (Expected vs Provided)
+                val expectedFieldNames = fieldsCache.getOrPut(entityClass) {
+                    // Берем свойства из конструктора, так как они определяют состояние в БД
+                    entityClass.memberProperties.map { it.name }.toSet() - ignoredTechnicalFields
+                }
 
-            val providedFieldNames = validators.map { it.property.name }.toSet()
+                val providedFieldNames = validators.map { it.property.name }.toSet()
 
-            val missingFields = expectedFieldNames - providedFieldNames
-            require(missingFields.isEmpty()) {
-                "Missing tests for fields in ${entityClass.simpleName}: $missingFields"
-            }
+                val missingFields = expectedFieldNames - providedFieldNames
+                require(missingFields.isEmpty()) {
+                    "Missing tests for fields in ${entityClass.simpleName}: $missingFields"
+                }
 
-            val unknownFields = providedFieldNames - expectedFieldNames
-            require(unknownFields.isEmpty()) {
-                "Unknown fields in validators for ${entityClass.simpleName}: $unknownFields"
+                val unknownFields = providedFieldNames - expectedFieldNames
+                require(unknownFields.isEmpty()) {
+                    "Unknown fields in validators for ${entityClass.simpleName}: $unknownFields"
+                }
             }
 
             val duplicates = validators

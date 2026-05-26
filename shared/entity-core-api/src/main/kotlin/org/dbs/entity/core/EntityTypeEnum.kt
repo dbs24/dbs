@@ -25,6 +25,13 @@ interface EntityStatusEnum {
         get() = entityType.entityTypeId * ET_RATE + statusCode
     val entityType: EntityTypeEnum
     val entityStatusName: EntityStatusName
+
+    companion object {
+        inline fun <reified T> findStatus(
+            status: EntityStatusName
+        ): T? where T : Enum<T>, T : EntityStatusEnum =
+            enumValues<T>().firstOrNull { it.entityStatusName == status }
+    }
 }
 
 interface EntityActionEnum {

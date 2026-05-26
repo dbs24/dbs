@@ -3,30 +3,40 @@ package org.dbs.tree.user
 import io.grpc.ManagedChannel
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import org.dbs.entity.core.EntityStatusEnum
 import org.dbs.test.ko.BaseGrpcSpec
 import org.dbs.tree.client.UserServiceGrpcKt
 import org.dbs.tree.model.user.User
 import org.dbs.tree.repo.user.UserRepo
+import org.dbs.user.FamilyTreeCore.EntityStatus
 import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_ANONYMOUS
 import org.dbs.user.FamilyTreeCore.UserActionEnum.EA_CREATE_OR_UPDATE_USER
+import org.dbs.user.FamilyTreeCore.UserActionEnum.EA_UPDATE_USER_STATUS
+import org.dbs.user.FamilyTreeCore.isClosedUser
 import org.dbs.validator.Error
 import org.dbs.validator.Field
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.dbs.tree.client.CreateOrUpdateUserRequest as REQ_CREATE_USER
+import org.dbs.tree.client.UpdateUserStatusRequest as REQ_UPDATE_USER_STATUS
 import org.dbs.tree.client.UserCredentialsRequest as REQ_GET_USER_CR
 
 typealias Stub = UserServiceGrpcKt.UserServiceCoroutineStub
 
 abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
 
-    @Autowired lateinit var userRepo: UserRepo
-    @Autowired lateinit var passwordEncoder: PasswordEncoder
+    @Autowired
+    lateinit var userRepo: UserRepo
+
+    @Autowired
+    lateinit var passwordEncoder: PasswordEncoder
 
     private lateinit var userStub: Stub
 
     private val userFactory = GrpcEntityFactory(REQ_CREATE_USER::newBuilder, REQ_CREATE_USER.Builder::build)
     private val userCredentialFactory = GrpcEntityFactory(REQ_GET_USER_CR::newBuilder, REQ_GET_USER_CR.Builder::build)
+    private val userStatusFactory =
+        GrpcEntityFactory(REQ_UPDATE_USER_STATUS::newBuilder, REQ_UPDATE_USER_STATUS.Builder::build)
 
     override fun initStubs(channel: ManagedChannel) {
         userStub = Stub(channel)
@@ -55,33 +65,40 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
     }
 
     protected suspend fun createOrUpdateSuccess(request: REQ_CREATE_USER) {
-        val response = userStub.createOrUpdateUser(request)
 
-        response.userLogin shouldBe request.login
-        response.email shouldBe request.email
-        response.status shouldBe ES_USER_ANONYMOUS.entityStatusName
+        suspend { userStub.createOrUpdateUser(request) }
+            .shouldSuccess { response ->
 
-        verifyModifiedEntity(
-            userRepo.findByLogin(request.login),
-            EA_CREATE_OR_UPDATE_USER,
-            User::entityStatus verify { it shouldBe ES_USER_ANONYMOUS },
-            User::userId verify { it shouldBe entityId },
-            User::entityId verify { it shouldBe userId },
-            User::birthDate verify { it shouldBe null },
-            User::closeDate verify { it shouldBe null },
-            User::createDate verify { it shouldNotBe null },
-            User::modifyDate verify { it shouldBe createDate },
-            User::login verify { it shouldBe request.login },
-            User::email verify { it shouldBe request.email },
-            User::phone verify { it shouldBe request.phone.takeIf { it.isNotEmpty() } },
-            User::firstName verify { it shouldBe request.firstName.takeIf { it.isNotEmpty() } },
-            User::middleName verify { it shouldBe request.middleName.takeIf { it.isNotEmpty() } },
-            User::lastName verify { it shouldBe request.lastName.takeIf { it.isNotEmpty() } },
-            User::password verify { passwordEncoder.matches(request.password, it) },
-        )
+                response.userLogin shouldBe request.login
+                response.email shouldBe request.email
+                response.status shouldBe ES_USER_ANONYMOUS.entityStatusName
+
+                verifyModifiedEntity(
+                    userRepo.findByLogin(request.login),
+                    EA_CREATE_OR_UPDATE_USER,
+                    verifyAllFields = true,
+                    User::entityStatus verify { it shouldBe ES_USER_ANONYMOUS },
+                    User::userId verify { it shouldBe entityId },
+                    User::entityId verify { it shouldBe userId },
+                    User::birthDate verify { it shouldBe null },
+                    User::closeDate verify { it shouldBe null },
+                    User::createDate verify { it shouldNotBe null },
+                    User::modifyDate verify { it shouldBe createDate },
+                    User::login verify { it shouldBe request.login },
+                    User::email verify { it shouldBe request.email },
+                    User::phone verify { it shouldBe request.phone.takeIf { it.isNotEmpty() } },
+                    User::firstName verify { it shouldBe request.firstName.takeIf { it.isNotEmpty() } },
+                    User::middleName verify { it shouldBe request.middleName.takeIf { it.isNotEmpty() } },
+                    User::lastName verify { it shouldBe request.lastName.takeIf { it.isNotEmpty() } },
+                    User::password verify { passwordEncoder.matches(request.password, it) },
+                )
+            }
     }
 
-    protected suspend fun createOrUpdateUserWithValidationError(request: REQ_CREATE_USER, vararg expectedErrors: Pair<Error, Field>) {
+    protected suspend fun createOrUpdateUserWithValidationError(
+        request: REQ_CREATE_USER,
+        vararg expectedErrors: Pair<Error, Field>
+    ) {
         suspend { userStub.createOrUpdateUser(request) }
             .shouldFailWithValidation()
             .shouldContainErrors(*expectedErrors)
@@ -110,8 +127,50 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
             .shouldFailWithInternalError()
     }
 
-    protected suspend fun getUserCredentialsWithFails(request: REQ_GET_USER_CR, vararg expectedErrors: Pair<Error, Field>) {
+    protected suspend fun getUserCredentialsWithFails(
+        request: REQ_GET_USER_CR,
+        vararg expectedErrors: Pair<Error, Field>
+    ) {
         suspend { userStub.getUserCredentials(request) }
+            .shouldFailWithValidation()
+            .shouldContainErrors(*expectedErrors)
+    }
+
+    protected fun buildUserStatusRequest(
+        login: String,
+        newStatus: String,
+    ): REQ_UPDATE_USER_STATUS = userStatusFactory.create {
+        setModifiedLogin(login)
+        setStatus(newStatus)
+    }
+
+    protected suspend fun updateUserStatusSuccess(request: REQ_UPDATE_USER_STATUS) {
+
+        suspend { userStub.updateUserStatus(request) }
+            .shouldSuccess { response ->
+
+                response.modifiedLogin shouldBe request.modifiedLogin
+                response.newStatus shouldBe request.status
+
+                val newEnumStatus = EntityStatusEnum.findStatus<EntityStatus>(request.status)
+                val isClosedStatus = isClosedUser(newEnumStatus!!)
+
+                verifyModifiedEntity(
+                    userRepo.findByLogin(request.modifiedLogin),
+                    EA_UPDATE_USER_STATUS,
+                    verifyAllFields = false,
+                    User::entityStatus verify { it shouldBe newEnumStatus },
+                    User::closeDate verify { it shouldBe if (isClosedStatus) modifyDate else null }
+                )
+            }
+    }
+
+    protected suspend fun updateUserStatusWithFail(
+        request: REQ_UPDATE_USER_STATUS,
+        vararg expectedErrors: Pair<Error, Field>
+    ) {
+
+        suspend { userStub.updateUserStatus(request) }
             .shouldFailWithValidation()
             .shouldContainErrors(*expectedErrors)
     }

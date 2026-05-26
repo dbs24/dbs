@@ -41,7 +41,7 @@ class GrpcExceptionInterceptor(
                         err.toErrString().toByteArray()
                     )
                 }
-                Status.INVALID_ARGUMENT.withDescription("Validation failed").withCause(e) to metadata
+                Status.INVALID_ARGUMENT.withDescription("Validation failed: (${e.errors.size} error(s)").withCause(e) to metadata
             }
 
             is IllegalStateException -> {
@@ -93,11 +93,9 @@ class GrpcExceptionInterceptor(
                 if (status.isOk) {
                     super.close(status, trailers)
                 } else {
-                    val exception = status.cause
-                    val (newStatus, newTrailers) = translateException(
-                        exception ?: status.asException(),
-                        call.getProcedureName()
-                    )
+                    val exception = status.cause?: status.asException()
+                    logger.error("${call.getProcedureName()}: ${status.code}", exception)
+                    val (newStatus, newTrailers) = translateException(exception, call.getProcedureName())
                     super.close(newStatus, newTrailers)
                 }
             }

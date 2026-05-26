@@ -65,5 +65,23 @@ class UsersGrpcTests : BaseTreeGrpcTest() {
         "Get user2 credentials via $source" {
             getUserCredentials(buildUserCredentialsRequest("validuser2"))
         }
+
+        "Try to close user with unknown status via $source" {
+            updateUserStatusWithFail(buildUserStatusRequest("validuser1", "FAKED_STATUS"),
+                Error.UNKNOWN_ENTITY_STATUS to Field.SSS_USER_STATUS)
+        }
+
+        "Close user via $source" {
+            updateUserStatusSuccess(buildUserStatusRequest("validuser1", "CLOSED"))
+        }
+
+        "Try to close user with invalid status via $source" {
+            updateUserStatusWithFail(buildUserStatusRequest("validuser1", "CLOSED"),
+            Error.INVALID_ENTITY_STATUS to Field.SSS_USER_STATUS)
+        }
+
+        "Reopen user via $source" {
+            updateUserStatusSuccess(buildUserStatusRequest("validuser1", "ACTUAL"))
+        }
     }
 }

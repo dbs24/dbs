@@ -10,6 +10,8 @@ import org.dbs.rest.validation.ValidateDto
 import org.dbs.spring.core.api.AbstractApplicationService
 import org.dbs.tree.model.domain.CreateOrUpdateUserCommand
 import org.dbs.tree.model.domain.GetUserCredentialsCommand
+import org.dbs.tree.model.domain.UpdateUserStatusCommand
+import org.dbs.user.FamilyTreeCore.EntityStatus
 import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_ANONYMOUS
 import org.dbs.user.FamilyTreeCore.isClosedUser
 import org.dbs.user.UserLogin
@@ -66,7 +68,26 @@ class UserService(
         return (dao.findUserByLogin(request.login) ?: error("User not found (${request.login})"))
     }
 
-    fun createNewUser(userLogin: UserLogin): ENTITY =
+    @ValidateDto
+    @LogEntityAction("EA_UPDATE_USER_STATUS")
+    @Transactional
+    suspend fun updateUserStatus(request: UpdateUserStatusCommand): ENTITY {
+
+        val updatedUser = dao.findUserByLogin(request.login) ?: error("User not found (${request.login})")
+        val newStatus = EntityStatusEnum.findStatus<EntityStatus>(request.userStatus)
+            ?: error("EntityStatus not found: (${request.userStatus})")
+        val modifyDate = now()
+        val closeDate = if (isClosedUser(newStatus)) modifyDate else null
+
+        return dao.saveUser(
+            updatedUser.copy(
+                entityStatus = newStatus,
+                modifyDate = modifyDate,
+                closeDate = closeDate
+            ))
+    }
+
+    private fun createNewUser(userLogin: UserLogin): ENTITY =
         userFactory.createNewUser(userLogin).also {
             logger.debug { "create new user login: $userLogin" }
         }

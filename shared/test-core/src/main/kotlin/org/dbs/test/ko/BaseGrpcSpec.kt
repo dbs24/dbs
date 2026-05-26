@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.util.concurrent.TimeUnit
 
 
-abstract class BaseGrpcSpec: BaseSpec(), Logging {
+abstract class BaseGrpcSpec : BaseSpec(), Logging {
 
     class GrpcEntityFactory<Builder, Message>(
         val newBuilder: () -> Builder,
@@ -53,6 +53,24 @@ abstract class BaseGrpcSpec: BaseSpec(), Logging {
 
         beforeTest {
             //clearDatabase()
+        }
+    }
+
+    suspend fun <T> (suspend () -> T).shouldSuccess(validation: suspend (T) -> Unit) {
+        runCatching { validation(this.invoke()) }.onFailure {
+
+            logger.error(it)
+
+            Status.trailersFromThrowable(it)?.apply {
+                val errors = keys()
+                    .filter { it.startsWith("error-") }
+                    .map { keyName ->
+                        val key = Metadata.Key.of(keyName, Metadata.BINARY_BYTE_MARSHALLER)
+                        String(get(key)!!).fromErrString()
+                    }
+                logger.error(errors, it)
+            }
+            throw it
         }
     }
 
@@ -95,7 +113,7 @@ abstract class BaseGrpcSpec: BaseSpec(), Logging {
 
         logger.error { "found internal error: $errMsg" }
 
-        require( firstKey == "internal-error-bin" ) {
+        require(firstKey == "internal-error-bin") {
 
             "Expected 'internal-error-bin' key, but was: $firstKey ($errMsg)"
         }

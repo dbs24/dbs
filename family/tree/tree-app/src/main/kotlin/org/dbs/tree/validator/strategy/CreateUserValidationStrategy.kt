@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component
 import org.dbs.tree.model.domain.CreateOrUpdateUserCommand as DTO
 
 @Component
-class UserValidationStrategy(
+class CreateUserValidationStrategy(
     private val userService: UserService,
 ) : ValidationStrategy<DTO> {
 

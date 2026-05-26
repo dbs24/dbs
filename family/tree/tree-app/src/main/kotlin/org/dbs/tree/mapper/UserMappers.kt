@@ -3,10 +3,13 @@ package org.dbs.tree.mapper
 import org.dbs.grpc.ext.GrpcNull.grpcGetOrNull
 import org.dbs.tree.client.CreateOrUpdateUserRequest
 import org.dbs.tree.client.CreateOrUpdateUserResponse
+import org.dbs.tree.client.UpdateUserStatusRequest
+import org.dbs.tree.client.UpdateUserStatusResponse
 import org.dbs.tree.client.UserCredentialsRequest
 import org.dbs.tree.client.UserCredentialsResponse
 import org.dbs.tree.model.domain.CreateOrUpdateUserCommand
 import org.dbs.tree.model.domain.GetUserCredentialsCommand
+import org.dbs.tree.model.domain.UpdateUserStatusCommand
 import org.dbs.tree.model.user.User
 import org.dbs.user.dto.user.CreateOrUpdateUserDto
 import org.dbs.user.dto.user.CreatedUserDto
@@ -62,4 +65,17 @@ object UserMappers {
             it.userLogin = login
             it.userPassword = password
         }.build()
+
+    fun UpdateUserStatusRequest.toCommand(): UpdateUserStatusCommand =
+        UpdateUserStatusCommand(
+            login = modifiedLogin,
+            userStatus = status
+        )
+
+    fun User.toUserStatusProto(): UpdateUserStatusResponse = UpdateUserStatusResponse.newBuilder()
+        .also {
+            it.modifiedLogin = login
+            it.newStatus = status.entityStatusName
+        }.build()
+
 }

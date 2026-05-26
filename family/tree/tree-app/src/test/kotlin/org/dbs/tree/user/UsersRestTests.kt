@@ -102,6 +102,7 @@ class UsersRestTests : BaseRestSpec() {
         verifyModifiedEntity(
             userRepo.findByLogin(dto.login),
             EA_CREATE_OR_UPDATE_USER,
+            verifyAllFields = true,
             User::entityStatus verify { it shouldBe ES_USER_ANONYMOUS },
             User::userId verify { it shouldBe entityId },
             User::entityId verify { it shouldBe userId },

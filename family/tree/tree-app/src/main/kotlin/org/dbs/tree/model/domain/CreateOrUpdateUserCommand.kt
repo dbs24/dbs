@@ -22,3 +22,8 @@ data class CreateOrUpdateUserCommand(
 data class GetUserCredentialsCommand(
     val login: String,
 ) : DomainCommand
+
+data class UpdateUserStatusCommand(
+    val login: String,
+    val userStatus: String,
+) : DomainCommand

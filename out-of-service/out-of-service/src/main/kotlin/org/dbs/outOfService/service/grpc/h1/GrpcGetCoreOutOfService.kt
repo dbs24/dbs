@@ -5,7 +5,7 @@ import org.dbs.application.core.service.funcs.LocalDateTimeFuncs.toLong
 import org.dbs.consts.GrpcConsts.ContextKeys.CK_REMOTE_ADDRESS
 import org.dbs.consts.IpAddress
 import org.dbs.consts.SysConst.EMPTY_STRING
-import org.dbs.enums.I18NEnum.NOT_FOUND_ENTITY
+import org.dbs.enums.I18NEnum.ENTITY_NOT_FOUND
 import org.dbs.ext.GrpcFuncs.fmStart
 import org.dbs.grpc.ext.ResponseAnswerObj.noErrors
 import org.dbs.outOfService.model.CoreOutOfService
@@ -52,7 +52,7 @@ object GrpcGetCoreOutOfService {
                                     RC_INVALID_RESPONSE_DATA,
                                     INVALID_ENTITY_ATTR,
                                     S3_CORE_OUT_OF_SERVICE,
-                                    findI18nMessage(NOT_FOUND_ENTITY)
+                                    findI18nMessage(ENTITY_NOT_FOUND)
                                 )
                             }
 
