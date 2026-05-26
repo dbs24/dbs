@@ -12,6 +12,7 @@ import org.dbs.tree.client.UserCredentialsResponse
 import org.dbs.tree.client.UserServiceGrpcKt
 import org.dbs.tree.mapper.UserMappers.toCommand
 import org.dbs.tree.mapper.UserMappers.toUserCredentialsProto
+import org.dbs.tree.mapper.UserMappers.toUserPasswordProto
 import org.dbs.tree.mapper.UserMappers.toUserProto
 import org.dbs.tree.mapper.UserMappers.toUserStatusProto
 import org.dbs.tree.service.UserService
@@ -29,7 +30,6 @@ class GrpcUserController(val userService: UserService) : UserServiceGrpcKt.UserS
                 userService.updateUserStatus(request.toCommand()).toUserStatusProto()
 
         override suspend fun updateUserPassword(request: UpdateUserPasswordRequest): UpdateUserPasswordResponse =
-                TODO()
-        // updateUserPasswordInternal(request)
+                userService.updateUserPassword(request.toCommand()).toUserPasswordProto()
 
 }

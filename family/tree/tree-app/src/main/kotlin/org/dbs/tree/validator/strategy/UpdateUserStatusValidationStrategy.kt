@@ -25,7 +25,7 @@ class UpdateUserStatusValidationStrategy(
 
     override val rules: Collection<FieldValidationRule<DTO>> = listOf(
         DTO::login matches (LOGIN_PATTERN to SSS_USER_LOGIN),
-        DTO::userStatus matches (STATUS_PATTERN to SSS_USER_STATUS),
+        DTO::status matches (STATUS_PATTERN to SSS_USER_STATUS),
     )
 
     override fun validate(request: DTO) {
@@ -36,12 +36,12 @@ class UpdateUserStatusValidationStrategy(
                 userService.findUserByLogin(login)
                     ?.apply user@{
 
-                        EntityStatusEnum.findStatus<EntityStatus>(request.userStatus)?.apply status@{
+                        EntityStatusEnum.findStatus<EntityStatus>(request.status)?.apply status@{
                             if (this@status == this@user.status) {
                                 errors.add(
                                     create(
                                         Error.INVALID_ENTITY_STATUS, SSS_USER_STATUS,
-                                        findI18nMessage(I18NEnum.ENTITY_ALREADY_HAS_APPLIED_STATUS, request.userStatus)
+                                        findI18nMessage(I18NEnum.ENTITY_ALREADY_HAS_APPLIED_STATUS, request.status)
                                     )
                                 )
                             }
@@ -49,7 +49,7 @@ class UpdateUserStatusValidationStrategy(
                         } ?: errors.add(
                             create(
                                 Error.UNKNOWN_ENTITY_STATUS, SSS_USER_STATUS,
-                                findI18nMessage(I18NEnum.UNKNOWN_ENTITY_STATUS, request.userStatus)
+                                findI18nMessage(I18NEnum.UNKNOWN_ENTITY_STATUS, request.status)
                             )
                         )
 

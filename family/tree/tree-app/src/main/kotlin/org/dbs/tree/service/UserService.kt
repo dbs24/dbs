@@ -2,7 +2,6 @@ package org.dbs.tree.service
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import org.dbs.consts.StringNote
 import org.dbs.consts.SysConst.UsersConsts.ROOT_USER
 import org.dbs.entity.core.EntityStatusEnum
 import org.dbs.entity.core.v2.model.LogEntityAction
@@ -10,12 +9,12 @@ import org.dbs.rest.validation.ValidateDto
 import org.dbs.spring.core.api.AbstractApplicationService
 import org.dbs.tree.model.domain.CreateOrUpdateUserCommand
 import org.dbs.tree.model.domain.GetUserCredentialsCommand
+import org.dbs.tree.model.domain.UpdateUserPasswordCommand
 import org.dbs.tree.model.domain.UpdateUserStatusCommand
 import org.dbs.user.FamilyTreeCore.EntityStatus
 import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_ANONYMOUS
 import org.dbs.user.FamilyTreeCore.isClosedUser
 import org.dbs.user.UserLogin
-import org.dbs.user.UserPassword
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.annotation.DependsOn
 import org.springframework.context.annotation.Lazy
@@ -74,8 +73,8 @@ class UserService(
     suspend fun updateUserStatus(request: UpdateUserStatusCommand): ENTITY {
 
         val updatedUser = dao.findUserByLogin(request.login) ?: error("User not found (${request.login})")
-        val newStatus = EntityStatusEnum.findStatus<EntityStatus>(request.userStatus)
-            ?: error("EntityStatus not found: (${request.userStatus})")
+        val newStatus = EntityStatusEnum.findStatus<EntityStatus>(request.status)
+            ?: error("EntityStatus not found: (${request.status})")
         val modifyDate = now()
         val closeDate = if (isClosedUser(newStatus)) modifyDate else null
 
@@ -87,6 +86,19 @@ class UserService(
             ))
     }
 
+    @ValidateDto
+    @LogEntityAction("EA_UPDATE_USER_PASSWORD")
+    @Transactional
+    suspend fun updateUserPassword(request: UpdateUserPasswordCommand): ENTITY {
+
+        val updatedUser = dao.findUserByLogin(request.login) ?: error("User not found (${request.login})")
+
+        return dao.saveUser(
+            updatedUser.copy(
+                password = passwordEncoder.encode(request.newPassword)
+            ))
+    }
+
     private fun createNewUser(userLogin: UserLogin): ENTITY =
         userFactory.createNewUser(userLogin).also {
             logger.debug { "create new user login: $userLogin" }
@@ -95,24 +107,4 @@ class UserService(
     suspend fun findUserByLogin(userLogin: UserLogin): ENTITY? =
         dao.findUserByLogin(userLogin.also { logger.debug { "find user login: $userLogin" } })
 
-    suspend fun findUserByEmail(userEmail: String): ENTITY? =
-        dao.findUserByEmail(userEmail)
-
-    fun setUserNewStatus(user: ENTITY, status: EntityStatusEnum): ENTITY =
-        user.copy(
-            entityStatus = status,
-            modifyDate = now(),
-            closeDate = if (isClosedUser(status)) now() else null,
-        ).also {
-            dao.invalidateCaches(user.login)
-        }
-
-    fun setUserNewPassword(user: ENTITY, password: UserPassword): ENTITY =
-        user.copy(password = passwordEncoder.encode(password), modifyDate = now())
-            .also {
-                dao.invalidateCaches(user.login)
-            }
-
-    fun updateUser(src: ENTITY, actionNote: StringNote): ENTITY =
-        src.copy(modifyDate = now())
 }

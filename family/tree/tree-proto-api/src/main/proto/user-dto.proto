@@ -69,7 +69,8 @@ message UpdateUserStatusResponse {
 //======================================================================================================================
 message UpdateUserPasswordRequest {
   string modifiedLogin = 1;
-  string newPassword = 2;
+  string oldPassword = 2;
+  string newPassword = 3;
 }
 
 message UpdateUserPasswordResponse {

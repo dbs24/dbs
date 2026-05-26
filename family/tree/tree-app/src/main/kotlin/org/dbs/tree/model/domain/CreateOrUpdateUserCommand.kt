@@ -25,5 +25,11 @@ data class GetUserCredentialsCommand(
 
 data class UpdateUserStatusCommand(
     val login: String,
-    val userStatus: String,
+    val status: String,
+) : DomainCommand
+
+data class UpdateUserPasswordCommand(
+    val login: String,
+    val oldPassword: String,
+    val newPassword: String,
 ) : DomainCommand

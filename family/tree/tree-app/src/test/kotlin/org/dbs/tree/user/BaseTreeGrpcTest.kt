@@ -1,6 +1,7 @@
 package org.dbs.tree.user
 
 import io.grpc.ManagedChannel
+import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.dbs.entity.core.EntityStatusEnum
@@ -11,6 +12,7 @@ import org.dbs.tree.repo.user.UserRepo
 import org.dbs.user.FamilyTreeCore.EntityStatus
 import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_ANONYMOUS
 import org.dbs.user.FamilyTreeCore.UserActionEnum.EA_CREATE_OR_UPDATE_USER
+import org.dbs.user.FamilyTreeCore.UserActionEnum.EA_UPDATE_USER_PASSWORD
 import org.dbs.user.FamilyTreeCore.UserActionEnum.EA_UPDATE_USER_STATUS
 import org.dbs.user.FamilyTreeCore.isClosedUser
 import org.dbs.validator.Error
@@ -18,6 +20,7 @@ import org.dbs.validator.Field
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.dbs.tree.client.CreateOrUpdateUserRequest as REQ_CREATE_USER
+import org.dbs.tree.client.UpdateUserPasswordRequest as REQ_UPDATE_USER_PASSWORD
 import org.dbs.tree.client.UpdateUserStatusRequest as REQ_UPDATE_USER_STATUS
 import org.dbs.tree.client.UserCredentialsRequest as REQ_GET_USER_CR
 
@@ -37,6 +40,9 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
     private val userCredentialFactory = GrpcEntityFactory(REQ_GET_USER_CR::newBuilder, REQ_GET_USER_CR.Builder::build)
     private val userStatusFactory =
         GrpcEntityFactory(REQ_UPDATE_USER_STATUS::newBuilder, REQ_UPDATE_USER_STATUS.Builder::build)
+    private val userPasswordFactory =
+        GrpcEntityFactory(REQ_UPDATE_USER_PASSWORD::newBuilder, REQ_UPDATE_USER_PASSWORD.Builder::build)
+
 
     override fun initStubs(channel: ManagedChannel) {
         userStub = Stub(channel)
@@ -171,6 +177,43 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
     ) {
 
         suspend { userStub.updateUserStatus(request) }
+            .shouldFailWithValidation()
+            .shouldContainErrors(*expectedErrors)
+    }
+
+    protected fun buildUserPasswordRequest(
+        login: String,
+        oldPassword: String,
+        newPassword: String,
+    ): REQ_UPDATE_USER_PASSWORD = userPasswordFactory.create {
+        setModifiedLogin(login)
+        setOldPassword(oldPassword)
+        setNewPassword(newPassword)
+    }
+
+    protected suspend fun updateUserPasswordSuccess(request: REQ_UPDATE_USER_PASSWORD) {
+        suspend { userStub.updateUserPassword(request) }
+            .shouldSuccess { response ->
+
+                response.modifiedLogin shouldBe request.modifiedLogin
+
+                verifyModifiedEntity(
+                    userRepo.findByLogin(request.modifiedLogin),
+                    EA_UPDATE_USER_PASSWORD,
+                    verifyAllFields = false,
+                    User::password verify {
+                        passwordEncoder.matches(request.newPassword, it).shouldBeEqual(true)
+                    },
+                )
+            }
+    }
+
+    protected suspend fun updateUserPasswordWithFail(
+        request: REQ_UPDATE_USER_PASSWORD,
+        vararg expectedErrors: Pair<Error, Field>
+    ) {
+
+        suspend { userStub.updateUserPassword(request) }
             .shouldFailWithValidation()
             .shouldContainErrors(*expectedErrors)
     }

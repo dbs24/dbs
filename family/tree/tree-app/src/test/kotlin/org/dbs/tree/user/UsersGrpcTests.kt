@@ -75,6 +75,10 @@ class UsersGrpcTests : BaseTreeGrpcTest() {
             updateUserStatusSuccess(buildUserStatusRequest("validuser1", "CLOSED"))
         }
 
+        "Close user2 via $source" {
+            updateUserStatusSuccess(buildUserStatusRequest("validuser2", "CLOSED"))
+        }
+
         "Try to close user with invalid status via $source" {
             updateUserStatusWithFail(buildUserStatusRequest("validuser1", "CLOSED"),
             Error.INVALID_ENTITY_STATUS to Field.SSS_USER_STATUS)
@@ -82,6 +86,26 @@ class UsersGrpcTests : BaseTreeGrpcTest() {
 
         "Reopen user via $source" {
             updateUserStatusSuccess(buildUserStatusRequest("validuser1", "ACTUAL"))
+        }
+
+        "Update user password via $source" {
+            updateUserPasswordSuccess(buildUserPasswordRequest("validuser1", "Strong1Password", "Strong2Password"))
+        }
+
+
+        "Try to update user with invalid password via $source" {
+            updateUserPasswordWithFail(buildUserPasswordRequest("validuser1", "Strong1Password", "Strong2Password"),
+                Error.INVALID_OLD_ENTITY_PASSWORD to Field.SSS_USER_OLD_PASSWORD)
+        }
+
+        "Try to update user with invalid new password via $source" {
+            updateUserPasswordWithFail(buildUserPasswordRequest("validuser1", "Strong2Password", "Strong2Password"),
+                Error.INVALID_ENTITY_OLD_AND_NEW_PASSWORD to Field.SSS_USER_PASSWORD)
+        }
+
+        "Try to update user password with invalid user status via $source" {
+            updateUserPasswordWithFail(buildUserPasswordRequest("validuser2", "Strong12Password", "Strong2Password"),
+                Error.INVALID_ENTITY_STATUS to Field.SSS_USER_STATUS)
         }
     }
 }
