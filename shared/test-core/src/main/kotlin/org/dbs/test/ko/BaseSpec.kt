@@ -83,13 +83,11 @@ abstract class BaseSpec: StringSpec(), Logging {
     private val fieldsCache by lazy { ConcurrentHashMap<KClass<*>, Set<String>>() }
     private val ignoredTechnicalFields by lazy { setOf("type", "status") }
 
-    // Вспомогательный класс для связки свойства и проверки
     class PropertyValidator<T, V>(
         val property: KProperty1<T, V>,
         val assertion: T.(V) -> Unit
     )
 
-    // Инфиксная функция для синтаксиса: User::login verify { it shouldBe "admin" }
     infix fun <T, V> KProperty1<T, V>.verify(assertion: T.(V) -> Unit) =
         PropertyValidator(this, assertion)
 

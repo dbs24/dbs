@@ -72,8 +72,7 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
             res.email shouldBe req.email
             res.status shouldBe ES_USER_ANONYMOUS.entityStatusName
 
-            verifyModifiedEntity(
-                userRepo.findByLogin(req.login), EA_CREATE_OR_UPDATE_USER, verifyAllFields = true,
+            val userValidators: Array<PropertyValidator<User, *>> = arrayOf(
                 User::entityStatus verify { it shouldBe ES_USER_ANONYMOUS },
                 User::userId verify { it shouldBe entityId },
                 User::entityId verify { it shouldBe userId },
@@ -89,6 +88,9 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
                 User::lastName verify { it shouldBe req.lastName.takeIf { it.isNotEmpty() } },
                 User::password verify { passwordEncoder.matches(req.password, it) },
             )
+
+            verifyModifiedEntity(
+                userRepo.findByLogin(req.login), EA_CREATE_OR_UPDATE_USER, verifyAllFields = true, *userValidators)
 
 //            verifyModifiedEntity2(
 //                userRepo.findByLogin(req.login), EA_CREATE_OR_UPDATE_USER, verifyAllFields = true,
