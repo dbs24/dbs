@@ -1,6 +1,6 @@
 package org.dbs.rest.validation
 
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.runBlocking
 import org.apache.logging.log4j.kotlin.Logging
 import org.dbs.application.core.service.funcs.ServiceFuncs.createCollection
@@ -9,17 +9,18 @@ import org.dbs.enums.I18NEnum.MANDATORY_FIELD_MISSING
 import org.dbs.rest.api.nio.DomainCommand
 import org.dbs.service.I18NService.Companion.findI18nMessage
 import org.dbs.validator.Error
+import org.dbs.validator.Error.INVALID_ATTR_PATTERN_MISMATCH
 import org.dbs.validator.ErrorInfo
 import org.dbs.validator.ErrorInfo.Companion.create
 import org.dbs.validator.Field
 import org.dbs.validator.exception.ValidationException
 import org.springframework.beans.factory.SmartInitializingSingleton
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Executors.newFixedThreadPool
 import java.util.regex.Pattern
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.primaryConstructor
-import org.dbs.validator.Error.*
-import java.util.concurrent.ConcurrentHashMap
 
 interface ValidationStrategy<T : DomainCommand> : Logging, SmartInitializingSingleton {
 
@@ -117,7 +118,7 @@ interface ValidationStrategy<T : DomainCommand> : Logging, SmartInitializingSing
                 }
             }
 
-            if (isEmpty()) runBlocking(Dispatchers.IO) {
+            if (isEmpty()) runBlocking(validationDispatcher) {
                 action(this@apply)
             }
 
@@ -126,6 +127,7 @@ interface ValidationStrategy<T : DomainCommand> : Logging, SmartInitializingSing
                 throw ValidationException(this)
             }
         }
+
     }
 
     fun validate(request: T) {
@@ -147,6 +149,15 @@ interface ValidationStrategy<T : DomainCommand> : Logging, SmartInitializingSing
             field = fld.second,
             getter = { this.get(it) }
         )
+
+    companion object {
+        private val validationDispatcher by lazy {
+            newFixedThreadPool(
+                Runtime.getRuntime().availableProcessors()
+            ).asCoroutineDispatcher()
+        }
+    }
+
 }
 
 data class FieldValidationRule<T : DomainCommand>(
@@ -162,7 +173,6 @@ data class FieldValidationRule<T : DomainCommand>(
         private val rangeCache = ConcurrentHashMap<String, Pair<Int, Int>>()
     }
 
-    // Извлечение из кэша. Метод выполнится только ОДИН раз для уникальной строки паттерна.
     val minMax: Pair<Int, Int> by lazy {
         val patternString = pattern.pattern()
         rangeCache.computeIfAbsent(patternString) { key ->
@@ -178,7 +188,6 @@ data class FieldValidationRule<T : DomainCommand>(
         else -> obj.toString()
     }
 
-    // Полностью переписанный алгоритм парсинга без аллокаций подстрок (p.substring) внутри цикла
     fun extractRange(p: String): Pair<Int, Int> {
         var depth = 0
         var start = -1
@@ -219,7 +228,6 @@ data class FieldValidationRule<T : DomainCommand>(
         return if (found) min to max else 0 to 255
     }
 
-    // Вспомогательный высокопроизводительный инлайн-метод для парсинга чисел без создания String-объектов
     private fun parseTrimmedInt(s: String, start: Int, end: Int): Int? {
         var left = start
         var right = end - 1
