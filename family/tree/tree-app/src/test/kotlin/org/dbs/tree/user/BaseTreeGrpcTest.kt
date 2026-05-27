@@ -1,5 +1,6 @@
 package org.dbs.tree.user
 
+import com.google.protobuf.GeneratedMessage
 import io.grpc.ManagedChannel
 import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.shouldBe
@@ -19,10 +20,11 @@ import org.dbs.validator.Error
 import org.dbs.validator.Field
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.password.PasswordEncoder
-import org.dbs.tree.client.CreateOrUpdateUserRequest as REQ_CREATE_USER
-import org.dbs.tree.client.UpdateUserPasswordRequest as REQ_UPDATE_USER_PASSWORD
-import org.dbs.tree.client.UpdateUserStatusRequest as REQ_UPDATE_USER_STATUS
-import org.dbs.tree.client.UserCredentialsRequest as REQ_GET_USER_CR
+import kotlin.reflect.KClass
+import org.dbs.tree.client.CreateOrUpdateUserRequest as USER
+import org.dbs.tree.client.UpdateUserPasswordRequest as PASSWORD
+import org.dbs.tree.client.UpdateUserStatusRequest as STATUS
+import org.dbs.tree.client.UserCredentialsRequest as CREDS
 
 typealias Stub = UserServiceGrpcKt.UserServiceCoroutineStub
 
@@ -36,13 +38,12 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
 
     private lateinit var userStub: Stub
 
-    private val userFactory = GrpcEntityFactory(REQ_CREATE_USER::newBuilder, REQ_CREATE_USER.Builder::build)
-    private val userCredentialFactory = GrpcEntityFactory(REQ_GET_USER_CR::newBuilder, REQ_GET_USER_CR.Builder::build)
-    private val userStatusFactory =
-        GrpcEntityFactory(REQ_UPDATE_USER_STATUS::newBuilder, REQ_UPDATE_USER_STATUS.Builder::build)
-    private val userPasswordFactory =
-        GrpcEntityFactory(REQ_UPDATE_USER_PASSWORD::newBuilder, REQ_UPDATE_USER_PASSWORD.Builder::build)
-
+    override val grpcFactories: Map<KClass<out GeneratedMessage>, EntityFactory> = mapOf(
+        USER::class to GrpcEntityFactory(USER::newBuilder, USER.Builder::build),
+        CREDS::class to GrpcEntityFactory(CREDS::newBuilder, CREDS.Builder::build),
+        STATUS::class to GrpcEntityFactory(STATUS::newBuilder, STATUS.Builder::build),
+        PASSWORD::class to GrpcEntityFactory(PASSWORD::newBuilder, PASSWORD.Builder::build)
+    )
 
     override fun initStubs(channel: ManagedChannel) {
         userStub = Stub(channel)
@@ -58,9 +59,9 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
         middleName: String = "",
         oldLogin: String = "",
         oldEmail: String = ""
-    ): REQ_CREATE_USER = userFactory.create {
-        setLogin(login)
-        setEmail(email)
+    ): USER = getFactory<USER, USER.Builder>().create {
+        this.login = login
+        this.email = email
         if (password.isNotEmpty()) setPassword(password)
         if (phone.isNotEmpty()) setPhone(phone)
         if (firstName.isNotEmpty()) setFirstName(firstName)
@@ -70,7 +71,7 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
         if (oldEmail.isNotEmpty()) setOldEmail(oldEmail)
     }
 
-    protected suspend fun createOrUpdateSuccess(request: REQ_CREATE_USER) {
+    protected suspend fun createOrUpdateSuccess(request: USER) {
 
         suspend { userStub.createOrUpdateUser(request) }
             .shouldSuccess { response ->
@@ -102,7 +103,7 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
     }
 
     protected suspend fun createOrUpdateUserWithValidationError(
-        request: REQ_CREATE_USER,
+        request: USER,
         vararg expectedErrors: Pair<Error, Field>
     ) {
         suspend { userStub.createOrUpdateUser(request) }
@@ -110,15 +111,16 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
             .shouldContainErrors(*expectedErrors)
     }
 
-    protected suspend fun createOrUpdateUserWithInternalError(request: REQ_CREATE_USER) {
+    protected suspend fun createOrUpdateUserWithInternalError(request: USER) {
         suspend { userStub.createOrUpdateUser(request) }
             .shouldFailWithInternalError()
     }
 
-    protected fun buildUserCredentialsRequest(login: String): REQ_GET_USER_CR =
-        userCredentialFactory.create { setUserLogin(login) }
+    protected fun buildUserCredentialsRequest(login: String): CREDS =
+        GrpcEntityFactory(CREDS::newBuilder, CREDS.Builder::build)
+            .create { setUserLogin(login) }
 
-    protected suspend fun getUserCredentials(request: REQ_GET_USER_CR) {
+    protected suspend fun getUserCredentials(request: CREDS) {
         val response = userStub.getUserCredentials(request)
 
         response.userLogin shouldBe request.userLogin
@@ -128,13 +130,13 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
         }
     }
 
-    protected suspend fun getUserCredentialsWithInternalError(request: REQ_GET_USER_CR) {
+    protected suspend fun getUserCredentialsWithInternalError(request: CREDS) {
         suspend { userStub.getUserCredentials(request) }
             .shouldFailWithInternalError()
     }
 
     protected suspend fun getUserCredentialsWithFails(
-        request: REQ_GET_USER_CR,
+        request: CREDS,
         vararg expectedErrors: Pair<Error, Field>
     ) {
         suspend { userStub.getUserCredentials(request) }
@@ -145,12 +147,13 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
     protected fun buildUserStatusRequest(
         login: String,
         newStatus: String,
-    ): REQ_UPDATE_USER_STATUS = userStatusFactory.create {
-        setModifiedLogin(login)
-        setStatus(newStatus)
-    }
+    ): STATUS = getFactory<STATUS, STATUS.Builder>()
+        .create {
+            setModifiedLogin(login)
+            setStatus(newStatus)
+        }
 
-    protected suspend fun updateUserStatusSuccess(request: REQ_UPDATE_USER_STATUS) {
+    protected suspend fun updateUserStatusSuccess(request: STATUS) {
 
         suspend { userStub.updateUserStatus(request) }
             .shouldSuccess { response ->
@@ -172,7 +175,7 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
     }
 
     protected suspend fun updateUserStatusWithFail(
-        request: REQ_UPDATE_USER_STATUS,
+        request: STATUS,
         vararg expectedErrors: Pair<Error, Field>
     ) {
 
@@ -185,13 +188,13 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
         login: String,
         oldPassword: String,
         newPassword: String,
-    ): REQ_UPDATE_USER_PASSWORD = userPasswordFactory.create {
+    ): PASSWORD = getFactory<PASSWORD, PASSWORD.Builder>().create {
         setModifiedLogin(login)
         setOldPassword(oldPassword)
         setNewPassword(newPassword)
     }
 
-    protected suspend fun updateUserPasswordSuccess(request: REQ_UPDATE_USER_PASSWORD) {
+    protected suspend fun updateUserPasswordSuccess(request: PASSWORD) {
         suspend { userStub.updateUserPassword(request) }
             .shouldSuccess { response ->
 
@@ -209,7 +212,7 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
     }
 
     protected suspend fun updateUserPasswordWithFail(
-        request: REQ_UPDATE_USER_PASSWORD,
+        request: PASSWORD,
         vararg expectedErrors: Pair<Error, Field>
     ) {
 
