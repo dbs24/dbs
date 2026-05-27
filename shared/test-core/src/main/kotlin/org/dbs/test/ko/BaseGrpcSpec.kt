@@ -29,7 +29,7 @@ abstract class BaseGrpcSpec : BaseSpec(), Logging {
 
     override val source = "gRPC"
 
-    protected lateinit var channel: ManagedChannel
+    private lateinit var channel: ManagedChannel
 
     init {
         beforeSpec {

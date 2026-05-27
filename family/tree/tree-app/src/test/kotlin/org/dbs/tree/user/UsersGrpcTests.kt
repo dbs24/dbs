@@ -89,7 +89,7 @@ class UsersGrpcTests : BaseTreeGrpcTest() {
         }
 
         "Update user password via $source" {
-            updateUserPasswordSuccess(buildUserPasswordRequest("validuser1", "Strong1Password", "Strong2Password"))
+            updateUserPasswordSuccess(buildUserPasswordRequest("validuser1", "Strong1Password", "Strong22Password"))
         }
 
 
