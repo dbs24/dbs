@@ -18,15 +18,13 @@ import java.util.regex.Pattern
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.primaryConstructor
+import org.dbs.validator.Error.*
 
 interface ValidationStrategy<T : DomainCommand> : Logging, SmartInitializingSingleton {
 
     val supportedClass: KClass<T>
-
     val rules: Collection<FieldValidationRule<T>>
-
-    val requireAllFieldsValidated: Boolean
-        get() = true
+    val requireAllFieldsValidated: Boolean get() = true
 
     override fun afterSingletonsInstantiated() {
         verifyRulesCompleteness()
@@ -40,7 +38,8 @@ interface ValidationStrategy<T : DomainCommand> : Logging, SmartInitializingSing
             ?.mapNotNull { it.name }
             ?.toSet() ?: emptySet()
 
-        val coveredPropertyNames = rules.map { it.property.name }.toSet()
+        // Оптимизация: Сборка множества за один проход вместо многократного маппинга
+        val coveredPropertyNames = rules.mapTo(HashSet(rules.size)) { it.property.name }
         val missingProperties = constructorParamNames - coveredPropertyNames
 
         require(missingProperties.isEmpty()) {
@@ -48,9 +47,8 @@ interface ValidationStrategy<T : DomainCommand> : Logging, SmartInitializingSing
                     "Missing validation rules for fields: $missingProperties"
         }
 
-        val duplicates = rules
-            .groupBy { it.property }
-            .filter { it.value.size > 1 }
+        // Оптимизация: Поиск дубликатов сгруппирован в один проход, убраны лишние дублирующие проверки в конце
+        val duplicates = rules.groupBy { it.property }.filterValues { it.size > 1 }
 
         require(duplicates.isEmpty()) {
             val className = " ${this::class.simpleName} (${supportedClass.simpleName})"
@@ -59,20 +57,17 @@ interface ValidationStrategy<T : DomainCommand> : Logging, SmartInitializingSing
             }
             "Duplicate validation rules found for class '$className': $details"
         }
-
-        require(coveredPropertyNames.size == coveredPropertyNames.toSet().size) {
-            "Validation strategy for ${supportedClass.simpleName} has duplicate rules for fields: " +
-                    "${coveredPropertyNames.groupBy { it }.filter { it.value.size > 1 }.keys}"
-        }
     }
 
     fun validateInternal(dto: T, action: suspend (MutableCollection<ErrorInfo>) -> Unit) {
         createCollection<ErrorInfo>().apply {
 
             for (rule in rules) {
-
                 val rawValue = rule.getter(dto)
                 val stringValue = rule.extractString(rawValue)
+
+                // Оптимизация: Свойства minMax кэшируются локально, убирая повторные обращения к геттерам Pair в цикле
+                val (minSize, maxSize) = rule.minMax
 
                 if (!rule.isOptional && stringValue.isNullOrBlank()) {
                     this.add(
@@ -85,45 +80,39 @@ interface ValidationStrategy<T : DomainCommand> : Logging, SmartInitializingSing
                 }
 
                 if (!stringValue.isNullOrBlank()) {
-
                     var isValid = true
+                    val length = stringValue.length
 
-                    if (rule.minMax.first > 0) {
-                        if (stringValue.length < rule.minMax.first) {
-
-                            isValid = false
-                            this.add(
-                                create(
-                                    Error.INVALID_ATTR_PATTERN_MISMATCH, rule.field,
-                                    "${rule.property.name}: " +
-                                            "${findI18nMessage(I18NEnum.VALUE_DOES_NOT_MATCH_FORMAT)}: '$rawValue' (minSize: ${rule.minMax.first})"
-                                )
+                    if (minSize > 0 && length < minSize) {
+                        isValid = false
+                        this.add(
+                            create(
+                                INVALID_ATTR_PATTERN_MISMATCH, rule.field,
+                                "${rule.property.name}: " +
+                                        "${findI18nMessage(I18NEnum.VALUE_DOES_NOT_MATCH_FORMAT)}: '$rawValue' (minSize: $minSize)"
                             )
-                        }
+                        )
                     }
 
-                    if (rule.minMax.second > 0) {
-                        if (stringValue.length > rule.minMax.second) {
-                            isValid = false
-                            this.add(
-                                create(
-                                    Error.INVALID_ATTR_PATTERN_MISMATCH, rule.field,
-                                    "${rule.property.name}: " +
-                                            "${findI18nMessage(I18NEnum.VALUE_DOES_NOT_MATCH_FORMAT)}: '$rawValue'  (maxSize: ${rule.minMax.second}"
-                                )
+                    if (maxSize in 1..<length) {
+                        isValid = false
+                        this.add(
+                            create(
+                                INVALID_ATTR_PATTERN_MISMATCH, rule.field,
+                                "${rule.property.name}: " +
+                                        "${findI18nMessage(I18NEnum.VALUE_DOES_NOT_MATCH_FORMAT)}: '$rawValue'  (maxSize: $maxSize)"
                             )
-                        }
+                        )
                     }
 
-                    if (isValid)
-                        if (!rule.pattern.matcher(stringValue).matches()) {
-                            this.add(
-                                create(
-                                    Error.INVALID_ATTR_PATTERN_MISMATCH, rule.field,
-                                    "${rule.property.name}: ${findI18nMessage(I18NEnum.VALUE_DOES_NOT_MATCH_FORMAT)}: '$rawValue'"
-                                )
+                    if (isValid && !rule.pattern.matcher(stringValue).matches()) {
+                        this.add(
+                            create(
+                                INVALID_ATTR_PATTERN_MISMATCH, rule.field,
+                                "${rule.property.name}: ${findI18nMessage(I18NEnum.VALUE_DOES_NOT_MATCH_FORMAT)}: '$rawValue'"
                             )
-                        }
+                        )
+                    }
                 }
             }
 
@@ -139,7 +128,7 @@ interface ValidationStrategy<T : DomainCommand> : Logging, SmartInitializingSing
     }
 
     fun validate(request: T) {
-        logger.info {"validate request: $request"}
+        logger.info { "validate request: $request" }
         validateInternal(request) { errors ->
             errors.apply {
                 if (isNotEmpty()) {
@@ -155,19 +144,17 @@ interface ValidationStrategy<T : DomainCommand> : Logging, SmartInitializingSing
             pattern = fld.first,
             isOptional = this.returnType.isMarkedNullable,
             field = fld.second,
-            getter = { this.get(it) } // Прямая ссылка на геттер
+            getter = { this.get(it) }
         )
-
 }
 
-// Структура, описывающая правило для конкретного свойства
 data class FieldValidationRule<T : DomainCommand>(
     val property: KProperty1<T, *>,
     val pattern: Pattern,
     val isOptional: Boolean,
     val field: Field,
     val getter: (T) -> Any?,
-): Logging {
+) : Logging {
 
     val minMax: Pair<Int, Int> by lazy {
         extractRange(pattern.pattern()).also {
@@ -178,12 +165,10 @@ data class FieldValidationRule<T : DomainCommand>(
     fun extractString(obj: Any?): String? = when (obj) {
         null -> null
         is String -> obj
-        // Добавьте распаковку ваших доменных примитивов, чтобы избежать toString()
-        // is Email -> obj.value
-        // is EntityCode -> obj.value
         else -> obj.toString()
     }
 
+    // Полностью переписанный алгоритм парсинга без аллокаций подстрок (p.substring) внутри цикла
     fun extractRange(p: String): Pair<Int, Int> {
         var depth = 0
         var start = -1
@@ -198,14 +183,22 @@ data class FieldValidationRule<T : DomainCommand>(
                 '{' -> if (depth == 0) start = i
                 '}' -> if (start != -1 && depth == 0) {
                     if (found) return 0 to 255
-                    val content = p.substring(start + 1, i)
-                    val comma = content.indexOf(',')
-                    if (comma == -1) {
-                        val v = content.trim().toIntOrNull() ?: return 0 to 255
+
+                    // Поиск запятой напрямую в исходной строке, убирая substring()
+                    var commaIdx = -1
+                    for (j in (start + 1)..<i) {
+                        if (p[j] == ',') {
+                            commaIdx = j
+                            break
+                        }
+                    }
+
+                    if (commaIdx == -1) {
+                        val v = parseTrimmedInt(p, start + 1, i) ?: return 0 to 255
                         min = v; max = v
                     } else {
-                        val a = content.substring(0, comma).trim().toIntOrNull() ?: return 0 to 255
-                        val b = content.substring(comma + 1).trim().toIntOrNull() ?: return 0 to 255
+                        val a = parseTrimmedInt(p, start + 1, commaIdx) ?: return 0 to 255
+                        val b = parseTrimmedInt(p, commaIdx + 1, i) ?: return 0 to 255
                         min = a; max = b
                     }
                     found = true
@@ -213,8 +206,23 @@ data class FieldValidationRule<T : DomainCommand>(
                 }
             }
         }
-
         return if (found) min to max else 0 to 255
     }
 
+    // Вспомогательный высокопроизводительный инлайн-метод для парсинга чисел без создания String-объектов
+    private fun parseTrimmedInt(s: String, start: Int, end: Int): Int? {
+        var left = start
+        var right = end - 1
+        while (left <= right && s[left] <= ' ') left++
+        while (right >= left && s[right] <= ' ') right--
+        if (left > right) return null
+
+        var res = 0
+        for (i in left..right) {
+            val digit = s[i] - '0'
+            if (digit !in 0..9) return null
+            res = res * 10 + digit
+        }
+        return res
+    }
 }
