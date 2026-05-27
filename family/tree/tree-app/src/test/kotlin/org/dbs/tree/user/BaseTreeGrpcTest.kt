@@ -1,6 +1,5 @@
 package org.dbs.tree.user
 
-import com.google.protobuf.GeneratedMessage
 import io.grpc.ManagedChannel
 import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.shouldBe
@@ -20,7 +19,6 @@ import org.dbs.validator.Error
 import org.dbs.validator.Field
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.password.PasswordEncoder
-import kotlin.reflect.KClass
 import org.dbs.tree.client.CreateOrUpdateUserRequest as USER
 import org.dbs.tree.client.UpdateUserPasswordRequest as PASSWORD
 import org.dbs.tree.client.UpdateUserStatusRequest as STATUS
@@ -38,13 +36,6 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
 
     private lateinit var userStub: Stub
 
-    override val grpcFactories: Map<KClass<out GeneratedMessage>, EntityFactory> = mapOf(
-        USER::class to GrpcEntityFactory(USER::newBuilder, USER.Builder::build),
-        CREDS::class to GrpcEntityFactory(CREDS::newBuilder, CREDS.Builder::build),
-        STATUS::class to GrpcEntityFactory(STATUS::newBuilder, STATUS.Builder::build),
-        PASSWORD::class to GrpcEntityFactory(PASSWORD::newBuilder, PASSWORD.Builder::build)
-    )
-
     override fun initStubs(channel: ManagedChannel) {
         userStub = Stub(channel)
     }
@@ -59,9 +50,9 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
         middleName: String = "",
         oldLogin: String = "",
         oldEmail: String = ""
-    ): USER = getFactory<USER, USER.Builder>().create {
-        this.login = login
-        this.email = email
+    ): USER = buildGrpcRequest<USER, USER.Builder> {
+        setLogin(login)
+        setEmail(email)
         if (password.isNotEmpty()) setPassword(password)
         if (phone.isNotEmpty()) setPhone(phone)
         if (firstName.isNotEmpty()) setFirstName(firstName)
@@ -117,8 +108,8 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
     }
 
     protected fun buildUserCredentialsRequest(login: String): CREDS =
-        GrpcEntityFactory(CREDS::newBuilder, CREDS.Builder::build)
-            .create { setUserLogin(login) }
+        buildGrpcRequest<CREDS, CREDS.Builder>
+        { setUserLogin(login) }
 
     protected suspend fun getUserCredentials(request: CREDS) {
         val response = userStub.getUserCredentials(request)
@@ -147,8 +138,7 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
     protected fun buildUserStatusRequest(
         login: String,
         newStatus: String,
-    ): STATUS = getFactory<STATUS, STATUS.Builder>()
-        .create {
+    ): STATUS = buildGrpcRequest<STATUS, STATUS.Builder> {
             setModifiedLogin(login)
             setStatus(newStatus)
         }
@@ -188,7 +178,7 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
         login: String,
         oldPassword: String,
         newPassword: String,
-    ): PASSWORD = getFactory<PASSWORD, PASSWORD.Builder>().create {
+    ): PASSWORD = buildGrpcRequest<PASSWORD, PASSWORD.Builder> {
         setModifiedLogin(login)
         setOldPassword(oldPassword)
         setNewPassword(newPassword)

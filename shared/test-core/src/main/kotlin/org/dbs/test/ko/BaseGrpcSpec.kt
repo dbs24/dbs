@@ -1,6 +1,6 @@
 package org.dbs.test.ko
 
-import com.google.protobuf.GeneratedMessage
+import com.google.protobuf.MessageLite
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import io.grpc.Metadata
@@ -13,32 +13,15 @@ import org.apache.logging.log4j.kotlin.Logging
 import org.dbs.ext.SpringFuncs.fromErrString
 import org.springframework.beans.factory.annotation.Autowired
 import java.util.concurrent.TimeUnit
-import kotlin.reflect.KClass
 
 
 abstract class BaseGrpcSpec : BaseSpec(), Logging {
 
-    interface EntityFactory {
-        fun <B, M> createFactory(): GrpcEntityFactory<B, M>
-    }
-
-    class GrpcEntityFactory<Builder, Message>(
-        val newBuilder: () -> Builder,
-        val build: (Builder) -> Message
-    ): EntityFactory {
-        inline fun create(configure: Builder.() -> Unit): Message {
-            return build(newBuilder().apply(configure))
-        }
-
+    inline fun <reified M : MessageLite, B : MessageLite.Builder> buildGrpcRequest(block: B.() -> Unit): M {
+        val builderMethod = M::class.java.getMethod("newBuilder")
         @Suppress("UNCHECKED_CAST")
-        override fun <B, M> createFactory(): GrpcEntityFactory<B, M> = this as GrpcEntityFactory<B, M>
-    }
-
-    abstract val grpcFactories: Map<KClass<out GeneratedMessage>, EntityFactory>
-
-    protected inline fun <reified M : GeneratedMessage, B> getFactory(): GrpcEntityFactory<B, M> {
-        val factory = grpcFactories[M::class] ?: error("Factory for ${M::class} not found")
-        return factory.createFactory()
+        val builder = builderMethod.invoke(null) as B
+        return builder.apply(block).build() as M
     }
 
     @Autowired
