@@ -174,4 +174,6 @@ description = CC_TREE
 
 tasks.test {
     useJUnitPlatform()
+    // Включает параллельное выполнение классов (количество потоков = числу ядер)
+    systemProperty("kotest.framework.parallelism", Runtime.getRuntime().availableProcessors().toString())
 }

@@ -19,6 +19,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.primaryConstructor
 import org.dbs.validator.Error.*
+import java.util.concurrent.ConcurrentHashMap
 
 interface ValidationStrategy<T : DomainCommand> : Logging, SmartInitializingSingleton {
 
@@ -156,9 +157,18 @@ data class FieldValidationRule<T : DomainCommand>(
     val getter: (T) -> Any?,
 ) : Logging {
 
+    companion object {
+        // Кэш для хранения вычисленных диапазонов minMax по строке паттерна
+        private val rangeCache = ConcurrentHashMap<String, Pair<Int, Int>>()
+    }
+
+    // Извлечение из кэша. Метод выполнится только ОДИН раз для уникальной строки паттерна.
     val minMax: Pair<Int, Int> by lazy {
-        extractRange(pattern.pattern()).also {
-            logger.info { "calculate pattern: ${pattern.pattern()}, minMax range: $it " }
+        val patternString = pattern.pattern()
+        rangeCache.computeIfAbsent(patternString) { key ->
+            extractRange(key).also { range ->
+                logger.info { "Calculated and cached pattern: $key, minMax range: $range" }
+            }
         }
     }
 
