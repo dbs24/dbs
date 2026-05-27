@@ -55,6 +55,8 @@ abstract class BaseGrpcSpec : BaseSpec(), Logging {
         }
     }
 
+    protected inline fun <T> runCall(crossinline call: suspend () -> T) = suspend { call() }
+
     suspend fun <T> (suspend () -> T).shouldSuccess(validation: suspend (T) -> Unit) {
         runCatching { validation(this.invoke()) }.onFailure {
 

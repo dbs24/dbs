@@ -65,9 +65,6 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
     protected fun buildUserPasswordRequest(login: String, oldP: String, newP: String): PASSWORD =
         PASSWORD.newBuilder().build { setModifiedLogin(login); setOldPassword(oldP); setNewPassword(newP) }
 
-    // --- Абстракция исполнения вызовов (Убирает бойлерплейт suspend { }) ---
-    private inline fun <T> runCall(crossinline call: suspend () -> T) = suspend { call() }
-
     // --- Тестовые шаги: Успешные сценарии ---
     protected suspend fun createOrUpdateSuccess(req: USER) = runCall { userStub.createOrUpdateUser(req) }
         .shouldSuccess { res ->
@@ -92,6 +89,25 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
                 User::lastName verify { it shouldBe req.lastName.takeIf { it.isNotEmpty() } },
                 User::password verify { passwordEncoder.matches(req.password, it) },
             )
+
+//            verifyModifiedEntity2(
+//                userRepo.findByLogin(req.login), EA_CREATE_OR_UPDATE_USER, verifyAllFields = true,
+//                "entityStatus" to { entityStatus verifyThat { this shouldBe ES_USER_ANONYMOUS } },
+//                "userId" to {  userId verifyThat { this shouldBe entityId }},
+//                "birthDate" to { birthDate verifyThat { this shouldBe null }},
+//                "closeDate" to { closeDate verifyThat { this shouldBe null }},
+//                "createDate" to { createDate verifyThat { this shouldNotBe null }},
+//                "modifyDate" to { modifyDate verifyThat { this shouldBe createDate }},
+//                "login" to { login verifyThat { this shouldBe req.login }},
+//                "email" to { email verifyThat { this shouldBe req.email }},
+//                "phone" to { phone verifyThat { this shouldBe req.phone.takeIf { it.isNotEmpty() } }},
+//                "firstName" to { firstName verifyThat { this shouldBe req.firstName.takeIf { it.isNotEmpty() } }},
+//                "middleName" to { middleName verifyThat { this shouldBe req.middleName.takeIf { it.isNotEmpty() } }},
+//                "lastName" to { lastName verifyThat { this shouldBe req.lastName.takeIf { it.isNotEmpty() } }},
+//                "password" to { password verifyThat { passwordEncoder.matches(req.password, this) }},
+//
+//            )
+
         }
 
     protected suspend fun getUserCredentials(req: CREDS) {

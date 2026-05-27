@@ -48,6 +48,7 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
+typealias FieldValidator<T> = Pair<String, T.() -> Unit>
 
 @Testcontainers
 @ContextConfiguration
@@ -164,6 +165,79 @@ abstract class BaseSpec: StringSpec(), Logging {
             }
         }
     }
+
+    inline infix fun <V> V.verifyThat(crossinline assertion: V.() -> Unit) {
+        this.assertion()
+    }
+
+    // 2й способ верификации entity без рефлексии (KProperty1)
+    suspend fun <T : EntityCore> verifyModifiedEntity2(
+        entity: T?,
+        actionEnum: EntityActionEnum,
+        verifyAllFields: Boolean = true,
+        vararg validators: FieldValidator<T>,
+    ) {
+        val nonNullEntity = entity ?: error("entity not found")
+
+        with(nonNullEntity) {
+            val entityId = entityId ?: error("entityId is null")
+            val entityClass = this::class
+
+            logger.info { "Verify entity: $entityId ($entityClass)" }
+
+            if (verifyAllFields) {
+                // Извлекаем имена из кэша по ключу KClass
+                val expectedFieldNames = fieldsCache.getOrPut(entityClass) {
+                    // entityClass.java возвращает java.lang.Class, у которого гарантированно есть declaredFields
+                    entityClass.java.declaredFields.map { it.name }.toSet() - ignoredTechnicalFields
+                }
+
+                val providedFieldNames = validators.map { it.first }.toSet()
+
+                val missingFields = expectedFieldNames - providedFieldNames
+                require(missingFields.isEmpty()) {
+                    "Missing tests for fields in ${entityClass.simpleName}: $missingFields"
+                }
+
+                val unknownFields = providedFieldNames - expectedFieldNames
+                require(unknownFields.isEmpty()) {
+                    "Unknown fields in validators for ${entityClass.simpleName}: $unknownFields"
+                }
+            }
+
+            // Проверка на дубликаты
+            val duplicates = validators.groupBy { it.first }.filter { it.value.size > 1 }
+            require(duplicates.isEmpty()) { "Duplicate validators found for fields: ${duplicates.keys}" }
+
+            // Запуск проверок в контексте сущности
+            validators.forEach { (_, assertionBlock) ->
+                nonNullEntity.assertionBlock()
+            }
+
+
+            val count = databaseClient.sql(
+                """
+                    SELECT CASE
+                        WHEN EXISTS (
+                            SELECT 1
+                            FROM core_actions
+                            WHERE entity_id = :E AND action_code = :AC
+                        ) THEN 1
+                        ELSE 0
+                    END as cnt
+                """
+            )
+                .bind("E", entityId)
+                .bind("AC", actionEnum.actionCodeId)
+                .map { row, _ -> row.get("cnt", Int::class.java) ?: 0 }
+                .awaitOne()
+
+            require(count > 0) {
+                "Action record not found (entity: $entityId, action: $actionEnum)"
+            }
+        }
+    }
+
 
     companion object {
 
