@@ -45,6 +45,7 @@ import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.TestPropertySource
 import org.testcontainers.junit.jupiter.Testcontainers
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
@@ -125,6 +126,11 @@ abstract class BaseSpec : StringSpec(), Logging {
     }
 
     companion object {
+
+        private val atomicTestNum = AtomicInteger(0)
+        @JvmStatic
+        protected val testNum: Int get() = atomicTestNum.incrementAndGet()
+
         val postgresR2dbcContainer = PostgresR2dbcContainer(SQL_TEST_DB_NAME, SQL_TEST_DB_USER)
         private val kafkaTestContainer = KafkaTestContainer()
         private val redisTestContainer = RedisTestContainer()

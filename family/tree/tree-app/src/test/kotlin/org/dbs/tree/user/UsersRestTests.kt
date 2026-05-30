@@ -22,6 +22,7 @@ import org.springframework.context.annotation.Import
 class UsersRestTests : BaseTreeRestTest() {
 
     override val requestMapping = "/users"
+    private val newUserLogin: String  get() = "validrestuser$testNum"
 
     init {
 
@@ -31,7 +32,7 @@ class UsersRestTests : BaseTreeRestTest() {
 
         "Create user via $source" {
 
-            val hotUserLogin = "validrestuser1"
+            val hotUserLogin = newUserLogin
 
             val dto = createUserDto(hotUserLogin, "$hotUserLogin@test.com", "rest_Strong1Password")
 
@@ -42,7 +43,7 @@ class UsersRestTests : BaseTreeRestTest() {
 
         "Create another user via $source" {
 
-            val hotUserLogin = "validrestuser2"
+            val hotUserLogin = newUserLogin
             val dto = createUserDto(hotUserLogin, "$hotUserLogin@test.com", "rest_Strong2Password")
 
             postQuery<CreateOrUpdateUserDto, CreatedUserDto>("/createOrUpdate", dto) { response ->
@@ -52,7 +53,7 @@ class UsersRestTests : BaseTreeRestTest() {
 
         "Create invalid exists user via $source" {
 
-            val hotUserLogin = "validrestuser3"
+            val hotUserLogin = newUserLogin
             val dto = createUserDto(hotUserLogin, "$hotUserLogin@test.com", "rest_Strong2Password")
             postQuery<CreateOrUpdateUserDto, CreatedUserDto>("/createOrUpdate", dto) { response ->
                 assertCreatedUser(dto, response)
@@ -71,7 +72,7 @@ class UsersRestTests : BaseTreeRestTest() {
         }
 
         "Try to create user with invalid email via $source" {
-            val hotUserLogin = "validrestuser5"
+            val hotUserLogin = newUserLogin
             val invalidEmail = "invalid_mail"
             val dto = createUserDto(login = hotUserLogin, email = invalidEmail, password = "Strong12Password")
             postQueryShouldFailWithValidationError("/createOrUpdate", dto)
