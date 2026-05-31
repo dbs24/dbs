@@ -17,6 +17,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.MediaType.APPLICATION_JSON
 import java.io.Serializable
 
+@Deprecated("to remove")
 abstract class HttpResponseBody<T : ResponseDto>(private val requestId: RequestId) : Logging, Serializable {
     lateinit var responseCode: RestOperCodeEnum
     lateinit var message: String

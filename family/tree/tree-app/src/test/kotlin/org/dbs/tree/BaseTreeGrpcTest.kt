@@ -3,6 +3,7 @@ package org.dbs.tree
 import com.google.protobuf.MessageLite
 import io.grpc.ManagedChannel
 import org.dbs.consts.SysConst.UNCHECKED_CAST
+import org.dbs.ext.lateInitProperty
 import org.dbs.test.ko.BaseGrpcSpec
 import org.dbs.tree.client.ProjectServiceGrpcKt
 import org.dbs.tree.client.UserServiceGrpcKt
@@ -25,8 +26,8 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
     @Autowired
     lateinit var projectRepo: ProjectRepo
 
-    lateinit var userStub: UserStub
-    lateinit var projectStub: ProjectStub
+    var userStub: UserStub by lateInitProperty()
+    var projectStub: ProjectStub by lateInitProperty()
 
     override fun initStubs(channel: ManagedChannel) {
         userStub = UserStub(channel)

@@ -9,6 +9,7 @@ import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.function.Consumer
 
+@Deprecated("to remove")
 class QueryMetrics : Logging {
     val qryCounter = AtomicInteger()
 

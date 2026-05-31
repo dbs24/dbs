@@ -17,7 +17,7 @@ import reactor.core.publisher.Mono.just
 import java.util.function.Consumer
 import java.util.function.Predicate
 
-
+@Deprecated("to remove")
 abstract class ReactiveRestProcessor : AbstractApplicationService() {
 
     @Value("\${$CONFIG_REACTOR_REST_DEBUG:$VALUE_REACTOR_REST_DEBUG}")

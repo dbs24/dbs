@@ -5,5 +5,6 @@ import org.dbs.rest.api.nio.HttpResponseBody
 import org.dbs.rest.api.nio.RequestDto
 import org.dbs.rest.api.nio.ResponseDto
 
+@Deprecated("to remove")
 interface HttpReactivePostRequest<REQ : RequestDto, T : AbstractHttpRequestBody<REQ>, RESP : ResponseDto,
         V : HttpResponseBody<RESP>>

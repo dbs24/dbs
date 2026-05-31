@@ -20,6 +20,7 @@ import org.dbs.validator.WarnInfo
 import java.io.Serializable
 import java.util.*
 
+@Deprecated("to remove")
 open class ResponseBody<T : EntityInfo> : Logging, Serializable {
     var code: RestOperCodeEnum = OC_UNKNOWN_ERROR
     var message: String? = STRING_NULL

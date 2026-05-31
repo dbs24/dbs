@@ -8,6 +8,7 @@ import java.io.Closeable
 
 object EMPTYOBJECT
 
+@Deprecated("replace with lateInitProperty")
 class LateInitVal<T : Any>(
     private val initValue: T? = null,
     private val propName: String = "PropertyName",

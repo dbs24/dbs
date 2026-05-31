@@ -50,6 +50,7 @@ import java.util.regex.Pattern
 import kotlin.Int.Companion.MAX_VALUE
 
 @Suppress("IMPLICIT_CAST_TO_ANY")
+@Deprecated("to remove")
 object FieldValidators {
 
     fun <T : ResponseDto> HttpResponseBody<T>.validateNullableField(
