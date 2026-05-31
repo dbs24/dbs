@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
 @Component
+@Deprecated("to remove")
 class GrpcYmlConfig {
     @Value("\${$GRPC_MAX_EXEC_TIME:$GRPC_MAX_EXEC_TIME_VALUE}")
     val maxTimeExec = GRPC_MAX_EXEC_TIME_VALUE

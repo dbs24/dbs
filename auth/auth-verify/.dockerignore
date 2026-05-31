@@ -1,9 +1,0 @@
-/out
-/tmp
-/build
-/.gradle/
-/.idea/
-/.git/
-/Dockerfile
-/docker-compose*
-!/build/libs/auth-verify.jar

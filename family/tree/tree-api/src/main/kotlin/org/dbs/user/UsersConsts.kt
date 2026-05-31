@@ -19,30 +19,4 @@ object UsersConsts {
         const val PROJECT = "Project"
     }
 
-
-    object Routes {
-        const val URI_USER = "/user"
-
-        private const val URI_STATUS = "/status"
-        private const val URI_CREDENTIALS = "/credentials"
-        private const val URI_PASSWORD = "/password"
-
-        const val ROUTE_CREATE_OR_UPDATE_USER = URI_API + URI_USER + URI_V1 + URI_CREATE_OR_UPDATE
-        const val ROUTE_UPDATE_USER_STATUS = URI_API + URI_USER + URI_STATUS + URI_V1 + URI_UPDATE
-        const val ROUTE_GET_USER_CREDENTIALS = URI_API + URI_USER + URI_CREDENTIALS + URI_V1 + URI_GET
-        const val ROUTE_UPDATE_USER_PASSWORD = URI_API + URI_USER + URI_PASSWORD + URI_V1 + URI_UPDATE
-
-        object Tags {
-            const val ROUTE_TAG_USER = "User"
-        }
-    }
-
-    object Claims {
-        const val CL_USER_LOGIN = "USER_LOGIN"
-        const val CL_USER_PRIVILEGES = "USER_PRIVILEGES"
-    }
-
-    object CmQueryParams {
-        const val QP_USER_LOGIN = "UserLogin"
-    }
 }

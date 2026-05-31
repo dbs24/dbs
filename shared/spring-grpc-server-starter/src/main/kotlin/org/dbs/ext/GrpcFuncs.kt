@@ -9,8 +9,6 @@ import org.dbs.application.core.service.funcs.StringFuncs.ends
 import org.dbs.consts.GrpcConsts.MetadataKeys.GRPC_USER_AGENT
 import org.dbs.consts.GrpcConsts.MetadataKeys.X_REAL_IP
 import org.dbs.consts.IpAddress
-import org.dbs.consts.NoArg2Mono
-import org.dbs.consts.NoArg2Unit
 import org.dbs.consts.SysConst.EMPTY_STRING
 import org.dbs.enums.I18NEnum
 import org.dbs.enums.I18NEnum.GRPC_PROCEDURE_NAME_IS_NOT_ASSIGNED
@@ -19,9 +17,6 @@ import org.dbs.rest.api.consts.RestApiConst.Headers.allowedIpV4Regex
 import org.dbs.rest.api.ext.AbstractWebClientServiceExt.ipAddress
 import org.dbs.rest.api.ext.AbstractWebClientServiceExt.isValidIp
 import org.dbs.service.I18NService.Companion.findI18nMessage
-import org.dbs.service.MonoRAB
-import org.dbs.service.RAB
-import org.dbs.service.validator.GrpcValidators.inTransaction
 
 object GrpcFuncs {
     fun <T, V> ServerCall<T, V>.log() =
@@ -43,14 +38,6 @@ object GrpcFuncs {
         }
     }"
 
-    fun <T : Any> RAB.fmStart(f: NoArg2Mono<T>): MonoRAB = f().map { this }
-
-    fun <T : Any> MonoRAB.fmInTransaction(f: NoArg2Mono<T>): MonoRAB =
-        flatMap { rab -> rab.inTransaction { f().map { rab } } }
-
-    fun <T : Any> MonoRAB.fmRab(f: NoArg2Mono<T>): MonoRAB = flatMap { rab -> f().map { rab } }
-
-    fun MonoRAB.fmFinish(f: NoArg2Unit): MonoRAB = map { rab -> f(); rab }
 
     fun <ReqT, RespT> ServerCall<ReqT, RespT>.getProcedureName(): String = methodDescriptor.bareMethodName
         ?.also {

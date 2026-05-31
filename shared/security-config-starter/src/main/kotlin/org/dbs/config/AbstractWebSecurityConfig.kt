@@ -20,11 +20,8 @@ import org.dbs.ext.CollectionFuncs.ensureNoDuplicates
 import org.dbs.ref.serv.enums.CountryEnum
 import org.dbs.ref.serv.enums.CurrencyEnum
 import org.dbs.ref.serv.enums.RegionEnum
-import org.dbs.rest.api.enums.RestOperCode2HttpEnum
 import org.dbs.rest.api.enums.RestOperCodeEnum
-import org.dbs.rest.service.CommonRest
 import org.dbs.rest.service.ReqRespSuspend
-import org.dbs.rest.service.SecurityRest
 import org.dbs.validator.Error
 import org.dbs.validator.Field
 import org.springframework.beans.factory.annotation.Autowired
@@ -39,21 +36,18 @@ import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.reactive.CorsWebFilter
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource
 import org.springframework.web.reactive.function.server.CoRouterFunctionDsl
-import org.springframework.web.reactive.function.server.HandlerFunction
 import org.springframework.web.reactive.function.server.RequestPredicates.accept
-import org.springframework.web.reactive.function.server.ServerResponse
 import java.time.Duration.ofHours
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.system.measureTimeMillis
 
 
 @Suppress("UnusedPrivateMember")
+@Deprecated("to remove")
 abstract class AbstractWebSecurityConfig(private val appUriPrefix: String? = STRING_NULL) : MainApplicationConfig() {
 
     private val securityWebFilterChainConfig by lazy { LateInitVal<SecurityWebFilterChainConfig>("securityWebFilterChainConfig") }
     private val environment by lazy { LateInitVal<Environment>("environment") }
-    private val commonRest by lazy { LateInitVal<CommonRest>("commonRest") }
-    private val securityRest by lazy { LateInitVal<SecurityRest>("securityRest") }
 
     private val endpointsAmount = AtomicInteger()
 
@@ -61,13 +55,9 @@ abstract class AbstractWebSecurityConfig(private val appUriPrefix: String? = STR
     fun initBeans(
         securityWebFilterChainConfig: SecurityWebFilterChainConfig,
         environment: Environment,
-        commonRest: CommonRest,
-        securityRest: SecurityRest,
     ) {
         this.securityWebFilterChainConfig.init(securityWebFilterChainConfig)
         this.environment.init(environment)
-        this.commonRest.init(commonRest)
-        this.securityRest.init(securityRest)
     }
 
     @Value("\${$NETWORK_CORS_ALLOWED_ADDITIONAL_PATH:$VALUE_NETWORK_CORS_ALLOWED_ADDITIONAL_PATH}")
@@ -105,11 +95,6 @@ abstract class AbstractWebSecurityConfig(private val appUriPrefix: String? = STR
         .also { logRoute(route, "GET") }
 
     //==========================================================================
-    val loginHandlerFunction: HandlerFunction<ServerResponse>
-        get() = getExternalLoginHandlerFunction()
-
-    open fun getExternalLoginHandlerFunction(): HandlerFunction<ServerResponse> =
-        HandlerFunction(securityRest.value::login)
 
     @Order(HIGHEST_PRECEDENCE)
     @Bean
@@ -179,14 +164,14 @@ abstract class AbstractWebSecurityConfig(private val appUriPrefix: String? = STR
                         .size
                 }
 
-                val r2http = async {
-                    // RestOperCode2HttpEnum
-                    RestOperCode2HttpEnum.entries.toList()
-                        .ensureNoDuplicates({ ::httpCode })
-                        .size
-                }
+//                val r2http = async {
+//                    // RestOperCode2HttpEnum
+//                    RestOperCode2HttpEnum.entries.toList()
+//                        .ensureNoDuplicates({ ::httpCode })
+//                        .size
+//                }
 
-                val records = r2http.await() + region.await() + currency.await() + country.await() + errs.await() +
+                val records = /*r2http.await()*/ + region.await() + currency.await() + country.await() + errs.await() +
                         fld.await() + roc.await()
 
                 logger.debug { "synchronize ref records: $records" }

@@ -6,7 +6,6 @@ import dsl.Dependencies.Projects.CACHE_STARTER
 import dsl.Dependencies.Projects.CC_TREE
 import dsl.Dependencies.Projects.CC_TREE_API
 import dsl.Dependencies.Projects.CC_TREE_PROTO_API
-import dsl.Dependencies.Projects.GRPC_HTTP_API
 import dsl.Dependencies.Projects.GRPC_SERVER_STARTER
 import dsl.Dependencies.Projects.KAFKA_API
 import dsl.Dependencies.Projects.NO_VERSION_ASSIGNED
@@ -46,7 +45,6 @@ dependencies {
     api(project(CACHE_STARTER))
     api(project(CC_TREE_API))
     api(project(GRPC_SERVER_STARTER))
-    api(project(GRPC_HTTP_API))
     api(project(KAFKA_API))
     api(project(R2DBC_API))
     api(project(R2DBC_STARTER))

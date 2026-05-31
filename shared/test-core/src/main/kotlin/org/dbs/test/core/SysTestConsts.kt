@@ -1,8 +1,5 @@
 package org.dbs.test.core
 
-import org.dbs.rest.api.action.RestAction.MODIFY_ENTITY
-import org.dbs.rest.api.action.SimpleActionInfo
-
 object SysTestConsts {
 
     object Postgres {
@@ -14,6 +11,5 @@ object SysTestConsts {
     object Grpc {
         const val GRPC_RANDOM_SERVER_PORT = "\${random.int[10000,32767]}"
     }
-    val MODIFY_ACTION = SimpleActionInfo.createSimpleActionInfo(MODIFY_ENTITY)
 
 }
