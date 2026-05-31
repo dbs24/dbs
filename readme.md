@@ -1,3 +1,3 @@
-## Chess24 readme
+## readme
 
-description1
+description
