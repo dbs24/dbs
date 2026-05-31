@@ -3,8 +3,21 @@ package org.dbs.tree.user
 import io.kotest.core.annotation.Isolate
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.test.TestCaseOrder
+import org.dbs.tree.BaseTreeGrpcTest
 import org.dbs.tree.TreeApplication
 import org.dbs.tree.config.TreeConfig
+import org.dbs.tree.user.UserGrpcFuncs.buildUserCredentialsRequest
+import org.dbs.tree.user.UserGrpcFuncs.buildUserPasswordRequest
+import org.dbs.tree.user.UserGrpcFuncs.buildUserRequest
+import org.dbs.tree.user.UserGrpcFuncs.buildUserStatusRequest
+import org.dbs.tree.user.UserGrpcFuncs.createOrUpdateUserSuccess
+import org.dbs.tree.user.UserGrpcFuncs.createOrUpdateUserWithValidationError
+import org.dbs.tree.user.UserGrpcFuncs.getUserCredentials
+import org.dbs.tree.user.UserGrpcFuncs.getUserCredentialsWithFails
+import org.dbs.tree.user.UserGrpcFuncs.updateUserPasswordSuccess
+import org.dbs.tree.user.UserGrpcFuncs.updateUserPasswordWithFail
+import org.dbs.tree.user.UserGrpcFuncs.updateUserStatusSuccess
+import org.dbs.tree.user.UserGrpcFuncs.updateUserStatusWithFail
 import org.dbs.validator.Error.ALREADY_EXISTS
 import org.dbs.validator.Error.INVALID_ATTR_PATTERN_MISMATCH
 import org.dbs.validator.Error.INVALID_ENTITY_OLD_AND_NEW_PASSWORD
@@ -12,6 +25,7 @@ import org.dbs.validator.Error.INVALID_ENTITY_STATUS
 import org.dbs.validator.Error.INVALID_OLD_ENTITY_PASSWORD
 import org.dbs.validator.Error.MANDATORY_FIELD_MISSING
 import org.dbs.validator.Error.UNKNOWN_ENTITY_STATUS
+import org.dbs.validator.Error.USER_DOES_NOT_EXISTS
 import org.dbs.validator.Field.SSS_USER_LOGIN
 import org.dbs.validator.Field.SSS_USER_OLD_PASSWORD
 import org.dbs.validator.Field.SSS_USER_PASSWORD
@@ -41,20 +55,20 @@ class UsersGrpcTests : BaseTreeGrpcTest() {
 
             val hotUserLogin = newUserLogin
 
-            createOrUpdateSuccess(buildUserRequest(hotUserLogin, "$hotUserLogin@test.com", "Strong1Password"))
+            createOrUpdateUserSuccess(buildUserRequest(hotUserLogin, "$hotUserLogin@test.com", "Strong1Password"))
         }
 
         "Create another user$viaSource" {
 
             val hotUserLogin = newUserLogin
-            createOrUpdateSuccess(buildUserRequest(hotUserLogin, "$hotUserLogin@test.com", "Strong12Password"))
+            createOrUpdateUserSuccess(buildUserRequest(hotUserLogin, "$hotUserLogin@test.com", "Strong12Password"))
         }
 
         "Try to create invalid exists user$viaSource" {
 
             val hotUserLogin = newUserLogin
 
-            createOrUpdateSuccess(buildUserRequest(hotUserLogin, "$hotUserLogin@test.com", "Strong12Password"))
+            createOrUpdateUserSuccess(buildUserRequest(hotUserLogin, "$hotUserLogin@test.com", "Strong12Password"))
 
             createOrUpdateUserWithValidationError(
                 buildUserRequest(login = hotUserLogin, email = "$hotUserLogin@test.com", password = "Strong12Password"),
@@ -76,14 +90,28 @@ class UsersGrpcTests : BaseTreeGrpcTest() {
             )
         }
 
+        "Update user $viaSource" {
+
+            val hotUserLogin = newUserLogin
+            createOrUpdateUserSuccess(buildUserRequest(hotUserLogin, "$hotUserLogin@test.com", "Strong12Password"))
+
+            createOrUpdateUserSuccess(buildUserRequest(login = hotUserLogin, oldLogin = hotUserLogin,
+                email = "$hotUserLogin@test.com", password = "Strong12Password", firstName = "firstName"))
+
+        }
+
         "Get user1 credentials$viaSource" {
             val hotUserLogin = newUserLogin
-            createOrUpdateSuccess(buildUserRequest(hotUserLogin, "$hotUserLogin@test.com", "Strong12Password"))
+            createOrUpdateUserSuccess(buildUserRequest(hotUserLogin, "$hotUserLogin@test.com", "Strong12Password"))
+            updateUserStatusSuccess(buildUserStatusRequest(login = hotUserLogin, newStatus = "ACTUAL"))
             getUserCredentials(buildUserCredentialsRequest(hotUserLogin))
         }
 
         "Get user credentials with fail$viaSource" {
-            getUserCredentialsWithInternalError(buildUserCredentialsRequest("invalidgrpcuser0"))
+            getUserCredentialsWithFails(
+                buildUserCredentialsRequest("invalidgrpcuser0"),
+                USER_DOES_NOT_EXISTS to SSS_USER_LOGIN
+            )
         }
 
         "Get user credentials with invalid login$viaSource" {
@@ -95,13 +123,14 @@ class UsersGrpcTests : BaseTreeGrpcTest() {
 
         "Get user2 credentials$viaSource" {
             val hotUserLogin = newUserLogin
-            createOrUpdateSuccess(buildUserRequest(hotUserLogin, "$hotUserLogin@test.com", "Strong12Password"))
+            createOrUpdateUserSuccess(buildUserRequest(hotUserLogin, "$hotUserLogin@test.com", "Strong12Password"))
+            updateUserStatusSuccess(buildUserStatusRequest(login = hotUserLogin, newStatus = "ACTUAL"))
             getUserCredentials(buildUserCredentialsRequest(hotUserLogin))
         }
 
         "Try to close user with unknown status$viaSource" {
             val hotUserLogin = newUserLogin
-            createOrUpdateSuccess(buildUserRequest(hotUserLogin, "$hotUserLogin@test.com", "Strong12Password"))
+            createOrUpdateUserSuccess(buildUserRequest(hotUserLogin, "$hotUserLogin@test.com", "Strong12Password"))
 
             updateUserStatusWithFail(
                 buildUserStatusRequest(login = hotUserLogin, newStatus = "FAKED_STATUS"),
@@ -111,19 +140,19 @@ class UsersGrpcTests : BaseTreeGrpcTest() {
 
         "Close user$viaSource" {
             val hotUserLogin = newUserLogin
-            createOrUpdateSuccess(buildUserRequest(hotUserLogin, "$hotUserLogin@test.com", "Strong12Password"))
+            createOrUpdateUserSuccess(buildUserRequest(hotUserLogin, "$hotUserLogin@test.com", "Strong12Password"))
             updateUserStatusSuccess(buildUserStatusRequest(login = hotUserLogin, newStatus = "CLOSED"))
         }
 
         "Close user2$viaSource" {
             val hotUserLogin = newUserLogin
-            createOrUpdateSuccess(buildUserRequest(hotUserLogin, "$hotUserLogin@test.com", "Strong12Password"))
+            createOrUpdateUserSuccess(buildUserRequest(hotUserLogin, "$hotUserLogin@test.com", "Strong12Password"))
             updateUserStatusSuccess(buildUserStatusRequest(login = hotUserLogin, newStatus = "CLOSED"))
         }
 
         "Try to close user with invalid status$viaSource" {
             val hotUserLogin = newUserLogin
-            createOrUpdateSuccess(buildUserRequest(hotUserLogin, "$hotUserLogin@test.com", "Strong12Password"))
+            createOrUpdateUserSuccess(buildUserRequest(hotUserLogin, "$hotUserLogin@test.com", "Strong12Password"))
             updateUserStatusSuccess(buildUserStatusRequest(login = hotUserLogin, newStatus = "CLOSED"))
             updateUserStatusWithFail(
                 buildUserStatusRequest(login = hotUserLogin, newStatus = "CLOSED"),
@@ -133,7 +162,7 @@ class UsersGrpcTests : BaseTreeGrpcTest() {
 
         "Reopen user$viaSource" {
             val hotUserLogin = newUserLogin
-            createOrUpdateSuccess(buildUserRequest(hotUserLogin, "$hotUserLogin@test.com", "Strong12Password"))
+            createOrUpdateUserSuccess(buildUserRequest(hotUserLogin, "$hotUserLogin@test.com", "Strong12Password"))
             updateUserStatusSuccess(buildUserStatusRequest(login = hotUserLogin, newStatus = "CLOSED"))
 
             updateUserStatusSuccess(buildUserStatusRequest(login = hotUserLogin, newStatus = "ACTUAL"))
@@ -142,7 +171,7 @@ class UsersGrpcTests : BaseTreeGrpcTest() {
         "Update user password$viaSource" {
             val hotUserLogin = newUserLogin
             val password = "Strong12Password"
-            createOrUpdateSuccess(buildUserRequest(hotUserLogin, "$hotUserLogin@test.com", password))
+            createOrUpdateUserSuccess(buildUserRequest(hotUserLogin, "$hotUserLogin@test.com", password))
             updateUserStatusSuccess(buildUserStatusRequest(login = hotUserLogin, newStatus = "ACTUAL"))
 
             updateUserPasswordSuccess(
@@ -154,7 +183,7 @@ class UsersGrpcTests : BaseTreeGrpcTest() {
 
             val hotUserLogin = newUserLogin
             val password = "Strong12Password"
-            createOrUpdateSuccess(buildUserRequest(hotUserLogin, "$hotUserLogin@test.com", password))
+            createOrUpdateUserSuccess(buildUserRequest(hotUserLogin, "$hotUserLogin@test.com", password))
 
             updateUserPasswordWithFail(
                 buildUserPasswordRequest(login = hotUserLogin, oldP = password+"1", newP = "Strong2Password"),
@@ -166,7 +195,7 @@ class UsersGrpcTests : BaseTreeGrpcTest() {
 
             val hotUserLogin = newUserLogin
             val password = "Strong13Password"
-            createOrUpdateSuccess(buildUserRequest(hotUserLogin, "$hotUserLogin@test.com", password))
+            createOrUpdateUserSuccess(buildUserRequest(hotUserLogin, "$hotUserLogin@test.com", password))
 
             updateUserStatusSuccess(buildUserStatusRequest(login = hotUserLogin, newStatus = "CLOSED"))
 
@@ -180,7 +209,7 @@ class UsersGrpcTests : BaseTreeGrpcTest() {
 
             val hotUserLogin = newUserLogin
             val password = "Strong13Password"
-            createOrUpdateSuccess(buildUserRequest(hotUserLogin, "$hotUserLogin@test.com", password))
+            createOrUpdateUserSuccess(buildUserRequest(hotUserLogin, "$hotUserLogin@test.com", password))
 
             updateUserPasswordWithFail(
                 buildUserPasswordRequest(login = hotUserLogin, oldP = password, newP = password),

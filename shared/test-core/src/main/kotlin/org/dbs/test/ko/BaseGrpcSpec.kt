@@ -1,6 +1,5 @@
 package org.dbs.test.ko
 
-import com.google.protobuf.MessageLite
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import io.grpc.Metadata
@@ -16,13 +15,6 @@ import java.util.concurrent.TimeUnit
 
 
 abstract class BaseGrpcSpec : BaseSpec(), Logging {
-
-    inline fun <reified M : MessageLite, B : MessageLite.Builder> buildGrpcRequest(block: B.() -> Unit): M {
-        val builderMethod = M::class.java.getMethod("newBuilder")
-        @Suppress("UNCHECKED_CAST")
-        val builder = builderMethod.invoke(null) as B
-        return builder.apply(block).build() as M
-    }
 
     @Autowired
     lateinit var grpcServerProperties: GrpcServerProperties
@@ -55,9 +47,9 @@ abstract class BaseGrpcSpec : BaseSpec(), Logging {
         }
     }
 
-    protected inline fun <T> runCall(crossinline call: suspend () -> T) = suspend { call() }
+    inline fun <T> runCall(crossinline call: suspend () -> T) = suspend { call() }
 
-    suspend fun <T> (suspend () -> T).shouldSuccess(validation: suspend (T) -> Unit) {
+    suspend fun <T, E> (suspend () -> T).shouldSuccess(validation: suspend (T) -> E): E =
         runCatching { validation(this.invoke()) }.onFailure {
 
             logger.error(it)
@@ -72,8 +64,7 @@ abstract class BaseGrpcSpec : BaseSpec(), Logging {
                 logger.error(errors, it)
             }
             throw it
-        }
-    }
+        }.getOrThrow()
 
     suspend fun <T> (suspend () -> T).shouldFailWithValidation(): ErrorBox {
         val ex = shouldThrowAny { this.invoke() }

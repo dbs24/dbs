@@ -84,7 +84,7 @@ abstract class BaseSpec : StringSpec(), Logging {
         actionEnum: EntityActionEnum,
         verifyAllFields: Boolean = true,
         vararg validators: PropertyValidator<T, *>,
-    ) {
+    ): T {
         requireNotNull (entity ) { "entity not found" }
         requireNotNull (entity.entityId ) { "entityId is null" }
 
@@ -123,6 +123,8 @@ abstract class BaseSpec : StringSpec(), Logging {
             .awaitOne()
 
         require(hasAction) { "Action record not found (entity: $entityId, action: $actionEnum)" }
+
+        return entity
     }
 
     companion object {

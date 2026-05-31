@@ -25,7 +25,9 @@ import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_ACTUAL
 import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_ANONYMOUS
 import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_BANNED
 import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_CLOSED
+import org.dbs.user.FamilyTreeCore.EntityTypes.ET_PROJECT
 import org.dbs.user.FamilyTreeCore.EntityTypes.ET_USER
+import org.dbs.user.UsersConsts.Names.PROJECT
 import org.dbs.user.UsersConsts.Names.USER
 
 object FamilyTreeCore : EntityCoreInitializer {
@@ -37,9 +39,15 @@ object FamilyTreeCore : EntityCoreInitializer {
             override val entityTypeName = USER
             override val module = FAMILY_TREE
         },
+        ET_PROJECT {
+            override val entityTypeId = 100200
+            override val entityTypeName = PROJECT
+            override val module = FAMILY_TREE
+        },
     }
 
     enum class EntityStatus : EntityStatusEnum {
+        // User
         ES_USER_ANONYMOUS {
             override val statusCode = EGS_ANONYMOUS
             override val entityType = ET_USER
@@ -59,7 +67,25 @@ object FamilyTreeCore : EntityCoreInitializer {
             override val statusCode = EGS_BANNED
             override val entityType = ET_USER
             override val entityStatusName = BANNED
+        },
+        // Project
+        //-------------------------------------------
+        ES_PROJECT_ACTUAL {
+            override val statusCode = EGS_ACTUAL
+            override val entityType = ET_PROJECT
+            override val entityStatusName = ACTUAL
+        },
+        ES_PROJECT_CLOSED {
+            override val statusCode = EGS_CLOSED
+            override val entityType = ET_PROJECT
+            override val entityStatusName = CLOSED
+        },
+        ES_PROJECT_BANNED {
+            override val statusCode = EGS_BANNED
+            override val entityType = ET_PROJECT
+            override val entityStatusName = BANNED
         }
+
     }
 
     enum class UserActionEnum : EntityActionEnum {
@@ -77,21 +103,36 @@ object FamilyTreeCore : EntityCoreInitializer {
             override val actionCode = EGAS_UPDATE_PASSWORD
             override val entityType = ET_USER
             override val actionName = "update user password"
-        }
+        },
+        EA_CREATE_OR_UPDATE_PROJECT {
+            override val actionCode = EGAS_CREATE_OR_UPDATE
+            override val entityType = ET_PROJECT
+            override val actionName = "Create or update project"
+        },
     }
 
     //
     // cache keys
     enum class CacheKeyUserEnum : EntityCacheKeyEnum {
-        CC_USER_ID {
+        FT_USER_ID {
             override val keyCode = CC_ID
             override val entityType = ET_USER
             override val cacheCode = "USER.ID"
         },
-        CC_USER_LOGIN {
+        FT_USER_LOGIN {
             override val keyCode = CC_CODE
             override val entityType = ET_USER
             override val cacheCode = "USER.LOGIN"
+        },
+        FT_PROJECT_ID {
+            override val keyCode = CC_ID
+            override val entityType = ET_PROJECT
+            override val cacheCode = "PROJECT.ID"
+        },
+        FT_PROJECT_CODE {
+            override val keyCode = CC_CODE
+            override val entityType = ET_PROJECT
+            override val cacheCode = "PROJECT.CODE"
         },
     }
 

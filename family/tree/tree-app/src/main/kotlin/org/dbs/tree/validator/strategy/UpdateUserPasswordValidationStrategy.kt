@@ -40,6 +40,8 @@ class UpdateUserPasswordValidationStrategy(
                 userService.findUserByLogin(login)
                     ?.apply user@{
 
+                        updatedUser = this
+
                         if (status != EntityStatus.ES_USER_ACTUAL) {
                             errors.add(
                                 create(

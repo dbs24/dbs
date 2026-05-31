@@ -7,11 +7,11 @@ import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_ACTUAL
 import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_ANONYMOUS
 import org.dbs.user.UserLogin
 import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.stereotype.Service
+import org.springframework.stereotype.Component
 import java.time.LocalDateTime.now
 import org.dbs.tree.model.user.User as ENTITY
 
-@Service
+@Component
 class UserFactory(
     val passwordEncoder: PasswordEncoder
 ) : AbstractApplicationService() {

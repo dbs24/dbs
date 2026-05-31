@@ -13,6 +13,7 @@ import org.dbs.consts.SuspendGenericArg2Unit
 import org.dbs.ext.CoroutineFuncs.isReadyToReceive
 
 
+@Deprecated("to Remove")
 abstract class AbstractChannel<T> : Logging {
 
     private val channel by lazy { Channel<T>(UNLIMITED) }

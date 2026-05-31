@@ -1,46 +1,30 @@
 package org.dbs.tree.user
 
-import io.grpc.ManagedChannel
+import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import com.google.protobuf.MessageLite
 import org.dbs.entity.core.EntityStatusEnum
-import org.dbs.test.ko.BaseGrpcSpec
-import org.dbs.tree.client.UserServiceGrpcKt
+import org.dbs.test.ko.BaseSpec.PropertyValidator
+import org.dbs.tree.BaseTreeGrpcTest
 import org.dbs.tree.model.user.User
-import org.dbs.tree.repo.user.UserRepo
 import org.dbs.user.FamilyTreeCore.EntityStatus
 import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_ANONYMOUS
-import org.dbs.user.FamilyTreeCore.UserActionEnum.*
+import org.dbs.user.FamilyTreeCore.EntityTypes.ET_USER
+import org.dbs.user.FamilyTreeCore.UserActionEnum.EA_CREATE_OR_UPDATE_USER
+import org.dbs.user.FamilyTreeCore.UserActionEnum.EA_UPDATE_USER_PASSWORD
+import org.dbs.user.FamilyTreeCore.UserActionEnum.EA_UPDATE_USER_STATUS
 import org.dbs.user.FamilyTreeCore.isClosedUser
 import org.dbs.validator.Error
 import org.dbs.validator.Field
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.dbs.tree.client.CreateOrUpdateUserRequest as USER
 import org.dbs.tree.client.UpdateUserPasswordRequest as PASSWORD
 import org.dbs.tree.client.UpdateUserStatusRequest as STATUS
 import org.dbs.tree.client.UserCredentialsRequest as CREDS
 
-typealias Stub = UserServiceGrpcKt.UserServiceCoroutineStub
+object UserGrpcFuncs {
 
-abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
-
-    @Autowired lateinit var userRepo: UserRepo
-    @Autowired lateinit var passwordEncoder: PasswordEncoder
-    private lateinit var userStub: Stub
-
-    override fun initStubs(channel: ManagedChannel) {
-        userStub = Stub(channel)
-    }
-
-    // --- Высокопроизводительные хелперы билдеров (Без рефлексии) ---
-    private inline fun <B : MessageLite.Builder, M : MessageLite> B.build(block: B.() -> Unit): M =
-        apply(block).build() as M
-
-    // --- Билдеры запросов ---
-    protected fun buildUserRequest(
+    fun BaseTreeGrpcTest.buildUserRequest(
         login: String, email: String, password: String = "", phone: String = "",
         firstName: String = "", lastName: String = "", middleName: String = "",
         oldLogin: String = "", oldEmail: String = ""
@@ -56,17 +40,16 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
         if (oldEmail.isNotEmpty()) setOldEmail(oldEmail)
     }
 
-    protected fun buildUserCredentialsRequest(login: String): CREDS =
+    fun BaseTreeGrpcTest.buildUserCredentialsRequest(login: String): CREDS =
         CREDS.newBuilder().build { setUserLogin(login) }
 
-    protected fun buildUserStatusRequest(login: String, newStatus: String): STATUS =
+    fun BaseTreeGrpcTest.buildUserStatusRequest(login: String, newStatus: String): STATUS =
         STATUS.newBuilder().build { setModifiedLogin(login); setStatus(newStatus) }
 
-    protected fun buildUserPasswordRequest(login: String, oldP: String, newP: String): PASSWORD =
+    fun BaseTreeGrpcTest.buildUserPasswordRequest(login: String, oldP: String, newP: String): PASSWORD =
         PASSWORD.newBuilder().build { setModifiedLogin(login); setOldPassword(oldP); setNewPassword(newP) }
 
-    // --- Тестовые шаги: Успешные сценарии ---
-    protected suspend fun createOrUpdateSuccess(req: USER) = runCall { userStub.createOrUpdateUser(req) }
+    suspend fun BaseTreeGrpcTest.createOrUpdateUserSuccess(req: USER): User = runCall { userStub.createOrUpdateUser(req) }
         .shouldSuccess { res ->
             res.userLogin shouldBe req.login
             res.email shouldBe req.email
@@ -79,7 +62,7 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
                 User::birthDate verify { it shouldBe null },
                 User::closeDate verify { it shouldBe null },
                 User::createDate verify { it shouldNotBe null },
-                User::modifyDate verify { it shouldBe createDate },
+                User::modifyDate verify { if (req.oldLogin == "") it shouldBe createDate else it shouldBeGreaterThan createDate },
                 User::login verify { it shouldBe req.login },
                 User::email verify { it shouldBe req.email },
                 User::phone verify { it shouldBe req.phone.takeIf { it.isNotEmpty() } },
@@ -90,7 +73,8 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
             )
 
             verifyModifiedEntity(
-                userRepo.findByLogin(req.login), EA_CREATE_OR_UPDATE_USER, verifyAllFields = true, *userValidators)
+                userRepo.findByLogin(req.login), EA_CREATE_OR_UPDATE_USER, verifyAllFields = true, *userValidators
+            )
 
 //            verifyModifiedEntity2(
 //                userRepo.findByLogin(req.login), EA_CREATE_OR_UPDATE_USER, verifyAllFields = true,
@@ -112,18 +96,19 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
 
         }
 
-    protected suspend fun getUserCredentials(req: CREDS) {
+    suspend fun BaseTreeGrpcTest.getUserCredentials(req: CREDS) {
         val res = userStub.getUserCredentials(req)
         res.userLogin shouldBe req.userLogin
         userRepo.findByLogin(req.userLogin)?.let { res.userPassword shouldBe it.password }
     }
 
-    protected suspend fun updateUserStatusSuccess(req: STATUS) = runCall { userStub.updateUserStatus(req) }
+    suspend fun BaseTreeGrpcTest.updateUserStatusSuccess(req: STATUS) = runCall { userStub.updateUserStatus(req) }
         .shouldSuccess { res ->
             res.modifiedLogin shouldBe req.modifiedLogin
             res.newStatus shouldBe req.status
 
-            val statusEnum = EntityStatusEnum.findStatus<EntityStatus>(req.status)!!
+            val statusEnum = EntityStatusEnum.findStatus<EntityStatus>(req.status, ET_USER)
+                ?: error("Status not found: ${req.status}, entityType: $ET_USER")
             val isClosed = isClosedUser(statusEnum)
 
             verifyModifiedEntity(
@@ -133,7 +118,7 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
             )
         }
 
-    protected suspend fun updateUserPasswordSuccess(req: PASSWORD) = runCall { userStub.updateUserPassword(req) }
+    suspend fun BaseTreeGrpcTest.updateUserPasswordSuccess(req: PASSWORD) = runCall { userStub.updateUserPassword(req) }
         .shouldSuccess { res ->
             res.modifiedLogin shouldBe req.modifiedLogin
             verifyModifiedEntity(
@@ -143,21 +128,21 @@ abstract class BaseTreeGrpcTest : BaseGrpcSpec() {
         }
 
     // --- Тестовые шаги: Обработка ошибок ---
-    protected suspend fun createOrUpdateUserWithValidationError(req: USER, vararg errs: Pair<Error, Field>) =
+    suspend fun BaseTreeGrpcTest.createOrUpdateUserWithValidationError(req: USER, vararg errs: Pair<org.dbs.validator.Error, Field>) =
         runCall { userStub.createOrUpdateUser(req) }.shouldFailWithValidation().shouldContainErrors(*errs)
 
-    protected suspend fun createOrUpdateUserWithInternalError(req: USER) =
+    suspend fun BaseTreeGrpcTest.createOrUpdateUserWithInternalError(req: USER) =
         runCall { userStub.createOrUpdateUser(req) }.shouldFailWithInternalError()
 
-    protected suspend fun getUserCredentialsWithInternalError(req: CREDS) =
+    suspend fun BaseTreeGrpcTest.getUserCredentialsWithInternalError(req: CREDS) =
         runCall { userStub.getUserCredentials(req) }.shouldFailWithInternalError()
 
-    protected suspend fun getUserCredentialsWithFails(req: CREDS, vararg errs: Pair<Error, Field>) =
+    suspend fun BaseTreeGrpcTest.getUserCredentialsWithFails(req: CREDS, vararg errs: Pair<org.dbs.validator.Error, Field>) =
         runCall { userStub.getUserCredentials(req) }.shouldFailWithValidation().shouldContainErrors(*errs)
 
-    protected suspend fun updateUserStatusWithFail(req: STATUS, vararg errs: Pair<Error, Field>) =
+    suspend fun BaseTreeGrpcTest.updateUserStatusWithFail(req: STATUS, vararg errs: Pair<org.dbs.validator.Error, Field>) =
         runCall { userStub.updateUserStatus(req) }.shouldFailWithValidation().shouldContainErrors(*errs)
 
-    protected suspend fun updateUserPasswordWithFail(req: PASSWORD, vararg errs: Pair<Error, Field>) =
+    suspend fun BaseTreeGrpcTest.updateUserPasswordWithFail(req: PASSWORD, vararg errs: Pair<Error, Field>) =
         runCall { userStub.updateUserPassword(req) }.shouldFailWithValidation().shouldContainErrors(*errs)
 }

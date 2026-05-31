@@ -122,6 +122,7 @@ object Patterns {
     val TEXT400F by lazy { compile("[a-zA-Z0-9\\.\\,\\:\\;\\_\\%\\-\\(\\)$WHITESPACE_CHARS]{0,400}") }
     val TEXT10000F by lazy { compile("[a-zA-Z0-9\\.\\,\\:\\;\\_\\%\\-\\(\\)$WHITESPACE_CHARS]{0,10000}") }
     val TEXT4096F by lazy { compile("^.{3,4096}$") }
+    val COMMON_DESCRIPTION by lazy { buildPatternSet(NOTE_GENERIC_PATTER, 200) }
 
     val SEARCH_MASK_PATTERN by lazy { compile("\\w{1,50}") }
     val BOOLEAN_PATTERN by lazy { compile("^(?i)(true|false)$") }

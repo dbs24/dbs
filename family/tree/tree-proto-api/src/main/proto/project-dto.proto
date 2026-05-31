@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package projectClient;
+import "protobuf-response.proto";
+import "google/protobuf/wrappers.proto";
+
+option java_package = "org.dbs.tree.client";
+option java_multiple_files = true;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// createOrUpdate
+//======================================================================================================================
+
+message CreateOrUpdateProjectRequest {
+  reserved                      1 ;
+  reserved                      "projectId"; // 1
+  optional string oldProjectShortName = 2;
+  string          projectShortName = 3;
+  optional string projectFullName = 4;
+  string projectOwner = 5; // user login
+  //optional string status       016;
+}
+
+message  CreateOrUpdateProjectResponse {
+  string          projectShortName = 1;
+  string          status = 3;
+}
+
+// updateStatus
+//======================================================================================================================
+message UpdateProjectStatusRequest {
+  string modifiedProjectShortName = 1;
+  string status = 2;
+}
+
+message UpdateProjectStatusResponse {
+  string modifiedProjectShortName = 1;
+  string newStatus = 2;
+}

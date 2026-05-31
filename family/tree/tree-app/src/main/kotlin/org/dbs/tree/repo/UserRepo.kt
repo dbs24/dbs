@@ -1,4 +1,4 @@
-package org.dbs.tree.repo.user
+package org.dbs.tree.repo
 
 import org.dbs.consts.Email
 import org.dbs.consts.EntityCode

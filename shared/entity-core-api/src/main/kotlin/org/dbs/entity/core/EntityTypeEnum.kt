@@ -1,5 +1,6 @@
 package org.dbs.entity.core
 
+import org.apache.logging.log4j.kotlin.Logging
 import org.dbs.consts.ActionCodeId
 import org.dbs.consts.EntityTypeId
 import org.dbs.entity.core.v2.consts.ActionName
@@ -26,11 +27,15 @@ interface EntityStatusEnum {
     val entityType: EntityTypeEnum
     val entityStatusName: EntityStatusName
 
-    companion object {
+    val status: String
+        get() = (entityStatusName+"_"+entityType.entityTypeName).uppercase()
+
+    companion object: Logging {
         inline fun <reified T> findStatus(
-            status: EntityStatusName
+            status: EntityStatusName,
+            entityType: EntityTypeEnum
         ): T? where T : Enum<T>, T : EntityStatusEnum =
-            enumValues<T>().firstOrNull { it.entityStatusName == status }
+            enumValues<T>().firstOrNull { it.entityType == entityType && it.entityStatusName == status }
     }
 }
 

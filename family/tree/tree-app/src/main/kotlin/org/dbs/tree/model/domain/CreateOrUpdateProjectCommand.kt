@@ -1,0 +1,35 @@
+package org.dbs.tree.model.domain
+
+import org.dbs.ext.lateInitProperty
+import org.dbs.rest.api.nio.DomainCommand
+import org.dbs.tree.model.project.Project
+import org.dbs.tree.model.user.User
+
+data class CreateOrUpdateProjectCommand(
+    val oldProjectShortName: String?,
+    val projectShortName: String,
+    val projectFullName: String?,
+    val projectOwner: String
+) : DomainCommand {
+
+    var owner: User by lateInitProperty()
+    var updated: Project by lateInitProperty()
+
+    val isNewProject: Boolean = oldProjectShortName == null
+    val isUpdateProject: Boolean = !isNewProject && (oldProjectShortName != projectShortName)
+}
+
+//data class GetProjectCredentialsCommand(
+//    val login: String,
+//) : DomainCommand
+//
+//data class UpdateProjectStatusCommand(
+//    val login: String,
+//    val status: String,
+//) : DomainCommand
+//
+//data class UpdateProjectPasswordCommand(
+//    val login: String,
+//    val oldPassword: String,
+//    val newPassword: String,
+//) : DomainCommand

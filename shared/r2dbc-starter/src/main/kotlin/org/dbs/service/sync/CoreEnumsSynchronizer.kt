@@ -103,7 +103,7 @@ class CoreEnumsSynchronizer(
                         EntityStatus(
                             entityStatus = e.entityStatusId,
                             entityType = e.entityType.entityTypeId,
-                            entityStatusName = e.entityStatusName
+                            entityStatusName = e.status
                         )
                     },
                     uniqueBy = arrayOf(

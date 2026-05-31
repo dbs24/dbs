@@ -13,6 +13,7 @@ import org.dbs.tree.model.domain.UpdateUserPasswordCommand
 import org.dbs.tree.model.domain.UpdateUserStatusCommand
 import org.dbs.user.FamilyTreeCore.EntityStatus
 import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_ANONYMOUS
+import org.dbs.user.FamilyTreeCore.EntityTypes.ET_USER
 import org.dbs.user.FamilyTreeCore.isClosedUser
 import org.dbs.user.UserLogin
 import org.springframework.boot.context.event.ApplicationReadyEvent
@@ -48,7 +49,7 @@ class UserService(
     suspend fun createOrUpdateUser(request: CreateOrUpdateUserCommand): ENTITY {
 
         val updatedUser = if (request.isNewUser) createNewUser(request.login)
-        else (dao.findUserByLogin(request.login) ?: error("User not found (${request.login})"))
+        else (request.updatedUser)
 
         return dao.saveUser(
             updatedUser.copy(
@@ -64,7 +65,7 @@ class UserService(
 
     @ValidateDto
     suspend fun getUserCredentials(request: GetUserCredentialsCommand): ENTITY {
-        return (dao.findUserByLogin(request.login) ?: error("User not found (${request.login})"))
+        return request.updatedUser
     }
 
     @ValidateDto
@@ -72,8 +73,8 @@ class UserService(
     @Transactional
     suspend fun updateUserStatus(request: UpdateUserStatusCommand): ENTITY {
 
-        val updatedUser = dao.findUserByLogin(request.login) ?: error("User not found (${request.login})")
-        val newStatus = EntityStatusEnum.findStatus<EntityStatus>(request.status)
+        val updatedUser = request.updatedUser
+        val newStatus = EntityStatusEnum.findStatus<EntityStatus>(request.status, ET_USER)
             ?: error("EntityStatus not found: (${request.status})")
         val modifyDate = now()
         val closeDate = if (isClosedUser(newStatus)) modifyDate else null
@@ -83,7 +84,8 @@ class UserService(
                 entityStatus = newStatus,
                 modifyDate = modifyDate,
                 closeDate = closeDate
-            ))
+            )
+        )
     }
 
     @ValidateDto
@@ -91,12 +93,13 @@ class UserService(
     @Transactional
     suspend fun updateUserPassword(request: UpdateUserPasswordCommand): ENTITY {
 
-        val updatedUser = dao.findUserByLogin(request.login) ?: error("User not found (${request.login})")
+        val updatedUser = request.updatedUser
 
         return dao.saveUser(
             updatedUser.copy(
                 password = passwordEncoder.encode(request.newPassword)
-            ))
+            )
+        )
     }
 
     private fun createNewUser(userLogin: UserLogin): ENTITY =

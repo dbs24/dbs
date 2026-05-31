@@ -16,6 +16,7 @@ object UsersConsts {
 
     object Names {
         const val USER = "User"
+        const val PROJECT = "Project"
     }
 
 

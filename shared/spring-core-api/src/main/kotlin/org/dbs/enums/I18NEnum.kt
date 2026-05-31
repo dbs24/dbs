@@ -34,7 +34,8 @@ enum class I18NEnum(
     INVALID_ENTITY_STATUS("Entity has invalid status ({0})"),
     ENTITY_ALREADY_HAS_APPLIED_STATUS("Entity already has applied status ({0})"),
     ENTITY_CODE_EXISTS("Entity code (%s) already exists"),
-    ENTITY_NOT_FOUND("Entity isn`t found"),
+    ENTITY_NOT_FOUND("Entity not found"),
+    ENTITY_NOT_FOUND_WITH_ID("Entity not found ({0})"),
     INVALID_IP_ADDRESS("IP address is invalid or empty ({0})"),
     VENDOR_MUST_OWN_ITEMS("Vendor must own all of the input order items"),
     CUSTOMER_NOT_FOUND("Customer not found, schoolUserId"),
@@ -385,4 +386,6 @@ enum class I18NEnum(
 
     // Invite
     UNKNOWN_INVITE_CODE("Unknown invite code"),
+    //Project
+    EXIST_PROJECT_SHORT_NAME("Project short name is exists"),
 }

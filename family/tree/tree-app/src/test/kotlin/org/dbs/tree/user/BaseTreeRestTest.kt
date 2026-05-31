@@ -5,7 +5,7 @@ import io.kotest.matchers.shouldNotBe
 import org.dbs.consts.PasswordNull
 import org.dbs.test.ko.BaseRestSpec
 import org.dbs.tree.model.user.User
-import org.dbs.tree.repo.user.UserRepo
+import org.dbs.tree.repo.UserRepo
 import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_ANONYMOUS
 import org.dbs.user.FamilyTreeCore.UserActionEnum.EA_CREATE_OR_UPDATE_USER
 import org.dbs.user.dto.user.CreateOrUpdateUserDto

@@ -9,6 +9,7 @@ import org.dbs.rest.validation.ValidationStrategy
 import org.dbs.service.I18NService.Companion.findI18nMessage
 import org.dbs.tree.service.UserService
 import org.dbs.user.FamilyTreeCore.EntityStatus
+import org.dbs.user.FamilyTreeCore.EntityTypes.ET_USER
 import org.dbs.validator.Error
 import org.dbs.validator.ErrorInfo.Companion.create
 import org.dbs.validator.Field.SSS_USER_LOGIN
@@ -36,7 +37,9 @@ class UpdateUserStatusValidationStrategy(
                 userService.findUserByLogin(login)
                     ?.apply user@{
 
-                        EntityStatusEnum.findStatus<EntityStatus>(request.status)?.apply status@{
+                        updatedUser = this
+
+                        EntityStatusEnum.findStatus<EntityStatus>(request.status, ET_USER)?.apply status@{
                             if (this@status == this@user.status) {
                                 errors.add(
                                     create(
@@ -49,7 +52,7 @@ class UpdateUserStatusValidationStrategy(
                         } ?: errors.add(
                             create(
                                 Error.UNKNOWN_ENTITY_STATUS, SSS_USER_STATUS,
-                                findI18nMessage(I18NEnum.UNKNOWN_ENTITY_STATUS, request.status)
+                                findI18nMessage(I18NEnum.UNKNOWN_ENTITY_STATUS, "${request.status}, $ET_USER")
                             )
                         )
 

@@ -41,6 +41,7 @@ class GrpcExceptionInterceptor(
                         err.toErrString().toByteArray()
                     )
                 }
+                logger.error("$path: ${e.toString()}, ${e.errors}")
                 Status.INVALID_ARGUMENT.withDescription("Validation failed: (${e.errors.size} error(s)").withCause(e) to metadata
             }
 

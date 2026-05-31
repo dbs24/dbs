@@ -14,6 +14,7 @@ enum class Field(private val value: String, private val code: Int) : RefEnum {
     FLD_ACCESS_JWT("sss.jwt.access", 60),
     FLD_REFRESH_JWT("sss.jwt.refresh", 61),
     SSS_JWT("sss.jwt", 62),
+    FLD_DESCRIPTION("sss.jwt.refresh", 63),
     CORE_ACTION1("field.general", 100),
     CORE_ACTION2("field1", 101),
     CORE_ACTION3("field2", 102),
@@ -28,7 +29,7 @@ enum class Field(private val value: String, private val code: Int) : RefEnum {
     COUNTRY_ID("fld.countryId", 100002),
     PROXY_PROVIDER_ID("fld.proxyProviderId", 100003),
     ALG_UNKNOWN("usage.unknown", 200000),
-    CREATION_DATE("CREATION_DATE", 100004),
+    CREATION_DATE("CREATION_DATE", 200004),
     // Contracts
     CONTRACT_ID("cntr.contract_id", 300001),
     CONTRACT_DATE("cntr.contract_date", 300011),
@@ -524,6 +525,9 @@ enum class Field(private val value: String, private val code: Int) : RefEnum {
     SSS_INVITE("sss.invite", 5400000),
     SSS_INVITE_CODE("sss.invite.code", 5400010),
     SSS_INVITE_STATUS("sss.invite.status", 5400020),
+    // Tree
+    SSS_PROJECT("sss.project.short.name", 6100000),
+    SSS_PROJECT_SHORT_NAME("sss.project.short.name", 6100010),
     ;
 
     override fun getValue() = this.value
