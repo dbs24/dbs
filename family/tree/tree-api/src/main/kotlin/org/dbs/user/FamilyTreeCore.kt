@@ -89,6 +89,7 @@ object FamilyTreeCore : EntityCoreInitializer {
     }
 
     enum class UserActionEnum : EntityActionEnum {
+        // User actions
         EA_CREATE_OR_UPDATE_USER {
             override val actionCode = EGAS_CREATE_OR_UPDATE
             override val entityType = ET_USER
@@ -97,13 +98,14 @@ object FamilyTreeCore : EntityCoreInitializer {
         EA_UPDATE_USER_STATUS {
             override val actionCode = EGAS_UPDATE
             override val entityType = ET_USER
-            override val actionName = "update user status"
+            override val actionName = "Update user status"
         },
         EA_UPDATE_USER_PASSWORD {
             override val actionCode = EGAS_UPDATE_PASSWORD
             override val entityType = ET_USER
-            override val actionName = "update user password"
+            override val actionName = "Update user password"
         },
+        // Project actions
         EA_CREATE_OR_UPDATE_PROJECT {
             override val actionCode = EGAS_CREATE_OR_UPDATE
             override val entityType = ET_PROJECT

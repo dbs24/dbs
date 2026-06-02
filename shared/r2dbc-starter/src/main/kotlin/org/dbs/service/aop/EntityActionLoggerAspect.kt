@@ -10,6 +10,8 @@ import org.aspectj.lang.reflect.MethodSignature
 import org.dbs.consts.RemoteAddressCoroutineContext
 import org.dbs.consts.RestHttpConsts.REMOTE_IP_KEY
 import org.dbs.consts.SysConst.STRING_NULL
+import org.dbs.entity.core.EntityActionEnum
+import org.dbs.entity.core.EntityTypeEnum
 import org.dbs.entity.core.v2.model.EntityCore
 import org.dbs.entity.core.v2.model.LogEntityAction
 import org.dbs.ext.SpringFuncs.registryEntityEvent
@@ -27,6 +29,7 @@ import org.springframework.util.ClassUtils
 import reactor.core.publisher.Mono
 import java.lang.reflect.Method
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.collections.getOrPut
 import kotlin.coroutines.Continuation
 
 @Aspect
@@ -39,17 +42,18 @@ class EntityActionLoggerAspect(
     private val coreEnumsSynchronizer: CoreEnumsSynchronizer
 ) : Logging {
 
-    // Кеш сигнатур методов → ускоряет AOP ×3–×5
     private val methodCache = ConcurrentHashMap<Signature, Method>()
 
-    // Кеш actionCodeId → исключает поиск по enum
-    private val actionCache = ConcurrentHashMap<String, Int>()
+    private val actionCache = ConcurrentHashMap<String, EntityActionEnum>()
 
-    // Кэшируем имена ENUM в HashSet для мгновенного поиска O(1) как при старте, так и в рантайме
     private val validActionNames by lazy {
         coreEnumsSynchronizer.metadata.actions.mapTo(HashSet(coreEnumsSynchronizer.metadata.actions.size))
         { (it as Enum<*>).name }
     }
+
+    private fun validateAction(entityActionEnum: EntityActionEnum, entityType: EntityTypeEnum) =
+        require(entityActionEnum.entityType == entityType)
+        { "action $entityActionEnum (type:${entityActionEnum.entityType}) does not match to $entityType entity type" }
 
     @Around("@annotation(org.dbs.entity.core.v2.model.LogEntityAction)")
     fun logEntityAction(joinPoint: ProceedingJoinPoint): Any {
@@ -61,8 +65,8 @@ class EntityActionLoggerAspect(
         val annotation = method.getAnnotation(LogEntityAction::class.java)
             ?: error("Annotation @LogEntityAction not found on ${method.name}")
 
-        val actionCodeId = actionCache.getOrPut(annotation.action) {
-            coreEnumsSynchronizer.metadata.actions.firstOrNull { (it as Enum<*>).name == annotation.action }?.actionCodeId
+        val action = actionCache.getOrPut(annotation.action) {
+            coreEnumsSynchronizer.metadata.actions.firstOrNull { (it as Enum<*>).name == annotation.action }
                 ?: error("Enum '${annotation.action}' not found")
         }
 
@@ -85,8 +89,9 @@ class EntityActionLoggerAspect(
                     val reactiveStart = System.currentTimeMillis()
                     result.doOnNext { entity ->
                         if (entity is EntityCore) {
+                            validateAction(action, entity.type)
                             val duration = System.currentTimeMillis() - reactiveStart
-                            publishRegistryEvent(entity, actionCodeId, method, duration, ip)
+                            registryActionEvent(entity, action.actionCodeId, method, duration, ip)
                         } else {
                             error("Unsupported Mono<type>: ${entity::class.java.canonicalName}")
                         }
@@ -96,9 +101,10 @@ class EntityActionLoggerAspect(
 
             // --- Синхронный EntityCore ---
             is EntityCore -> {
-                publishRegistryEvent(
+                validateAction(action, result.type)
+                registryActionEvent(
                     result,
-                    actionCodeId,
+                    action.actionCodeId,
                     method,
                     System.currentTimeMillis() - startTime,
                     ip
@@ -110,7 +116,7 @@ class EntityActionLoggerAspect(
         }
     }
 
-    private fun publishRegistryEvent(entity: EntityCore, actionCodeId: Int, method: Method, duration: Long, ip: String) {
+    private fun registryActionEvent(entity: EntityCore, actionCodeId: Int, method: Method, duration: Long, ip: String) {
         val entityId = entity.entityId ?: error("entityId must be set")
 
         logger.trace {
