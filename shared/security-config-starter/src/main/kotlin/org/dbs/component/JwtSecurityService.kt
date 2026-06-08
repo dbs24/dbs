@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import org.dbs.application.core.service.funcs.GetNetworkAddress.allAddresses
 import org.dbs.application.core.service.funcs.GetNetworkAddress.getAddress
+import org.dbs.application.core.service.funcs.LocalDateTimeFuncs.toLong
 import org.dbs.application.core.service.funcs.ServiceFuncs.createMap
 import org.dbs.application.core.service.funcs.StringFuncs.getJwtFromBearer
 import org.dbs.application.core.service.funcs.StringFuncs.last15
@@ -13,8 +14,10 @@ import org.dbs.consts.ClaimsGet
 import org.dbs.consts.RestHttpConsts.BEARER
 import org.dbs.consts.RestHttpConsts.URI_IP
 import org.dbs.consts.RestHttpConsts.isLocalAddress
+import org.dbs.consts.SecurityConsts.Claims.CL_ACCESS_TOKEN
 import org.dbs.consts.SecurityConsts.Claims.CL_INTERNAL_SERVICE
 import org.dbs.consts.SecurityConsts.Claims.CL_IP
+import org.dbs.consts.SecurityConsts.Claims.CL_REFRESH_TOKEN
 import org.dbs.consts.SecurityConsts.Claims.CL_USER_AGENT
 import org.dbs.consts.SecurityConsts.JWT_MIN_SIZE_DEF
 import org.dbs.consts.SecurityConsts.SERV_JWT_EXPIRATION_TIME
@@ -24,25 +27,93 @@ import org.dbs.consts.StringMap
 import org.dbs.consts.SysConst.EMPTY_STRING
 import org.dbs.consts.SysConst.MILLIS_1000
 import org.dbs.consts.SysConst.UNKNOWN
+import org.dbs.dto.jwt.LoginUserResponseDto
+import org.dbs.model.IssuedJwt
+import org.dbs.model.RefreshJwt
+import org.dbs.model.domain.LoginUserCommand
+import org.dbs.repo.AccessJwtRepo
+import org.dbs.repo.RefreshJwtRepo
 import org.dbs.rest.api.consts.RestApiConst.Headers.X_REAL_IP
 import org.dbs.rest.api.consts.RestApiConst.Headers.allowedIpV4Regex
 import org.dbs.rest.service.ServerWebExchangeExt.log
+import org.dbs.rest.validation.ValidateDto
 import org.dbs.security.jwt.Jwt
 import org.dbs.spring.core.api.AbstractApplicationService
 import org.dbs.spring.security.api.JwtSecurityServiceApi
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.server.ServerWebExchange
+import java.time.LocalDateTime
 import java.util.*
 import javax.crypto.SecretKey
 
 @Service
-class JwtSecurityService : AbstractApplicationService(), JwtSecurityServiceApi {
+class JwtSecurityService(
+    private val accessJwtRepo: AccessJwtRepo,
+    private val refreshJwtRepo: RefreshJwtRepo
+) : AbstractApplicationService(), JwtSecurityServiceApi {
     @Value("\${$CONFIG_RESTFUL_SECURITY_SSS_JWT_SECRET_KEY:$VALUE_RESTFUL_SECURITY_SSS_JWT_SECRET_KEY}")
     private val secretKey = EMPTY_STRING
     private val key by lazy { buildKey(secretKey) }
     private val internalServiceJwt by lazy { buildInternalServiceJwt() }
+
+    @ValidateDto
+    @Transactional
+    suspend fun loginUser(request: LoginUserCommand): LoginUserResponseDto {
+
+
+        val accessExpTime = 3600L
+        val refreshExpTime = 3600*24L
+        val now = LocalDateTime.now()
+
+        val accessToken = createMap<String, String>().run {
+            generateJwt(
+                CL_ACCESS_TOKEN,
+                this,
+                accessExpTime,
+                key
+            ).also {
+                logger.debug { "build access security jwt '${it.last15()}'" }
+            }
+        }
+
+        val refreshToken = createMap<String, String>().run {
+            generateJwt(
+                CL_REFRESH_TOKEN,
+                this,
+                refreshExpTime,
+                key
+            ).also {
+                logger.debug { "build refresh security jwt '${it.last15()}'" }
+            }
+        }
+
+        val accessUntil = now.plusSeconds(accessExpTime)
+        val refreshUntil = now.plusSeconds(refreshExpTime)
+
+        val issuedJwt = accessJwtRepo.save(
+            IssuedJwt(
+                issueDate = now,
+                validUntil = accessUntil,
+                jwt = accessToken,
+                issuedTo = request.login,
+                isRevoked = false,
+            )
+        )
+
+        refreshJwtRepo.save(RefreshJwt(
+            issueDate = now,
+            jwt = refreshToken,
+            parentJwtId = issuedJwt.jwtId ?: error("parent jwt is null"),
+            validUntil = refreshUntil,
+            isRevoked = false
+        ))
+        
+        return LoginUserResponseDto(accessToken, accessUntil.toLong(), refreshToken, refreshUntil.toLong())
+
+    }
 
     override fun buildKey(secretKey: String): SecretKey =
         Keys.hmacShaKeyFor(secretKey.toByteArray())
@@ -58,9 +129,9 @@ class JwtSecurityService : AbstractApplicationService(), JwtSecurityServiceApi {
         logger.debug("${javaClass.simpleName}: all addresses: $allAddresses")
     }
 
-    override fun getServiceJwt(): org.dbs.consts.Jwt = internalServiceJwt
+    override fun getServiceJwt(): String = internalServiceJwt
 
-    override fun getBearerServiceJwt(): org.dbs.consts.Jwt = BEARER + internalServiceJwt
+    override fun getBearerServiceJwt(): String = BEARER + internalServiceJwt
 
     fun buildInternalServiceJwt(): String = createMap<String, String>().run {
         this[CL_INTERNAL_SERVICE] = CL_INTERNAL_SERVICE
@@ -98,9 +169,9 @@ class JwtSecurityService : AbstractApplicationService(), JwtSecurityServiceApi {
     fun generateJwt(subject: String, claims: StringMap, expirationTime: Long): String =
         buildJwt(subject, claims, expirationTime, key)
 
-    override fun getAllClaimsFromJwt(jwt: org.dbs.consts.Jwt): Claims = claims(jwt)
+    override fun getAllClaimsFromJwt(jwt: String): Claims = claims(jwt)
 
-    fun getAllClaimsFromExpiredToken(jwt: org.dbs.consts.Jwt): Claims =
+    fun getAllClaimsFromExpiredToken(jwt: String): Claims =
         runCatching {
             claims(jwt)
         }.getOrElse {
@@ -159,12 +230,12 @@ class JwtSecurityService : AbstractApplicationService(), JwtSecurityServiceApi {
             )
         }
 
-    override fun getClaim(jwt: org.dbs.consts.Jwt, claimName: String) = jwt.let {
+    override fun getClaim(jwt: String, claimName: String) = jwt.let {
         require(it.length > JWT_MIN_SIZE_DEF) { "$claimName: invalid jwt - '$jwt'" }
         getAllClaimsFromJwt(it)[claimName] as String?
     }
 
-    override fun getClaimExpired(jwt: org.dbs.consts.Jwt, claimName: String) = jwt.let {
+    override fun getClaimExpired(jwt: String, claimName: String) = jwt.let {
         require(it.length > JWT_MIN_SIZE_DEF) { "$claimName: invalid jwt - '$jwt'" }
         getAllClaimsFromExpiredToken(it)[claimName] as String?
     }

@@ -1,7 +1,6 @@
 package org.dbs.rest.service
 
 import org.dbs.application.core.service.funcs.StringFuncs.getJwtFromBearer
-import org.dbs.consts.Jwt
 import org.dbs.consts.QueryParamName
 import org.dbs.consts.SysConst.EMPTY_STRING
 import org.dbs.consts.SysConst.NOT_ASSIGNED
@@ -18,7 +17,7 @@ import org.springframework.http.HttpHeaders.USER_AGENT
 import org.springframework.web.reactive.function.server.ServerRequest
 
 object ServerRequestFuncs {
-    fun ServerRequest.extractJwt(): Jwt =
+    fun ServerRequest.extractJwt(): String =
         this.headers().firstHeader(AUTHORIZATION)?.getJwtFromBearer() ?: EMPTY_STRING
 
     fun ServerRequest.qp(queryParamName: QueryParamName): String = qpDef(queryParamName, NOT_DEFINED)

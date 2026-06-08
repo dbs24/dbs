@@ -51,12 +51,13 @@ abstract class BaseRestSpec : BaseSpec(), Logging {
     }
 
     inline fun <reified T : RequestDto, reified R : Any> executePost(
+        defMapping: String = requestMapping,
         uri: String,
         requestBody: T,
         statusCheck: WebTestClient.ResponseSpec.() -> WebTestClient.ResponseSpec
     ): R = getExistsWebTestClient
             .post()
-            .uri(requestMapping + uri)
+            .uri(defMapping + uri)
             .contentType(APPLICATION_JSON)
             .accept(APPLICATION_JSON)
             .body(Mono.just(requestBody), T::class.java)
@@ -71,7 +72,7 @@ abstract class BaseRestSpec : BaseSpec(), Logging {
         requestBody: T,
         successAction: (V) -> Unit,
     ) {
-        val response = executePost<T, V>(uri, requestBody) { expectStatus().isOk }
+        val response = executePost<T, V>(requestMapping, uri, requestBody) { expectStatus().isOk }
         successAction(response)
     }
 
@@ -79,7 +80,7 @@ abstract class BaseRestSpec : BaseSpec(), Logging {
         uri: String,
         requestBody: T,
     ): ErrorBox {
-        val response = executePost<T, ValidationErrorResponse>(uri, requestBody) {
+        val response = executePost<T, ValidationErrorResponse>(requestMapping, uri, requestBody) {
             expectStatus().is4xxClientError
         }
         return ErrorBox(response.errors)
@@ -89,7 +90,7 @@ abstract class BaseRestSpec : BaseSpec(), Logging {
         uri: String,
         requestBody: T,
     ) {
-        executePost<T, ValidationErrorResponse>(uri, requestBody) {
+        executePost<T, ValidationErrorResponse>(requestMapping, uri, requestBody) {
             expectStatus().is5xxServerError
         }
 

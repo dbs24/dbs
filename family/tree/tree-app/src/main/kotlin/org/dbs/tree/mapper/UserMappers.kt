@@ -16,6 +16,8 @@ import org.dbs.tree.model.domain.UpdateUserStatusCommand
 import org.dbs.tree.model.user.User
 import org.dbs.user.dto.user.CreateOrUpdateUserDto
 import org.dbs.user.dto.user.CreatedUserDto
+import org.dbs.user.dto.user.UpdateUserStatusDto
+import org.dbs.user.dto.user.UpdatedUserDto
 
 object UserMappers {
 
@@ -57,6 +59,17 @@ object UserMappers {
             lastName = lastName,
             phone = phone
         )
+
+    fun UpdateUserStatusDto.toCommand() : UpdateUserStatusCommand =
+        UpdateUserStatusCommand(
+            login,
+            status
+        )
+
+    fun User.toModifiedUserDto(): UpdatedUserDto = UpdatedUserDto(
+        modifiedLogin = login,
+        newStatus = status.entityStatusName
+    )
 
     fun UserCredentialsRequest.toCommand(): GetUserCredentialsCommand =
         GetUserCredentialsCommand(

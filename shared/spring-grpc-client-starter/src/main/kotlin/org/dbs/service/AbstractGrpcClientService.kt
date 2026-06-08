@@ -11,7 +11,6 @@ import kotlinx.coroutines.runBlocking
 import org.dbs.application.core.service.funcs.ServiceFuncs.createCollection
 import org.dbs.consts.GenericArg2Unit
 import org.dbs.consts.GrpcConsts.MetadataKeys.GRPC_BEARER_AUTHORIZATION
-import org.dbs.consts.Jwt
 import org.dbs.consts.RestHttpConsts.BEARER
 import org.dbs.consts.SysConst.TIMEOUT_10000_MILLIS_LONG
 import org.dbs.consts.SysConst.UNCHECKED_CAST
@@ -150,7 +149,7 @@ abstract class AbstractGrpcClientService<T : AbstractCoroutineStub<T>>(
 }
 
 // for internal calls
-class BearerJwtCredentials(private val serviceJwt: Jwt) : CallCredentials() {
+class BearerJwtCredentials(private val serviceJwt: String) : CallCredentials() {
     override fun applyRequestMetadata(
         requestInfo: RequestInfo,
         appExecutor: Executor,

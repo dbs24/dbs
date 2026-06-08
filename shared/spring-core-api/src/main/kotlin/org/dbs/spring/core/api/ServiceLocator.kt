@@ -33,6 +33,7 @@ object ServiceLocator : Logging {
                 this.getBean(beanName)
             } else null
         } catch (e: Exception) {
+            logger.warn(e) { "failed to find bean: $beanName" }
             null
         }
     }

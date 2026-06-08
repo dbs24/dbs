@@ -1,10 +1,13 @@
 package org.dbs.tree.rest
 
 import org.dbs.tree.mapper.UserMappers.toCommand
+import org.dbs.tree.mapper.UserMappers.toModifiedUserDto
 import org.dbs.tree.mapper.UserMappers.toUserDto
 import org.dbs.tree.service.UserService
 import org.dbs.user.dto.user.CreateOrUpdateUserDto
 import org.dbs.user.dto.user.CreatedUserDto
+import org.dbs.user.dto.user.UpdateUserStatusDto
+import org.dbs.user.dto.user.UpdatedUserDto
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -17,4 +20,9 @@ class RestUserController(private val service: UserService) {
     @PostMapping("/createOrUpdate")
     suspend fun createOrUpdate(@RequestBody dto: CreateOrUpdateUserDto): CreatedUserDto =
         service.createOrUpdateUser(dto.toCommand()).toUserDto()
+
+    @PostMapping("/updateStatus")
+    suspend fun updateStatus(@RequestBody dto: UpdateUserStatusDto): UpdatedUserDto =
+        service.updateUserStatus(dto.toCommand()).toModifiedUserDto()
+
 }

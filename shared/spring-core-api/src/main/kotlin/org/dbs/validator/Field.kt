@@ -14,7 +14,7 @@ enum class Field(private val value: String, private val code: Int) : RefEnum {
     FLD_ACCESS_JWT("sss.jwt.access", 60),
     FLD_REFRESH_JWT("sss.jwt.refresh", 61),
     SSS_JWT("sss.jwt", 62),
-    FLD_DESCRIPTION("sss.jwt.refresh", 63),
+    FLD_DESCRIPTION("sss.fld.description", 63),
     CORE_ACTION1("field.general", 100),
     CORE_ACTION2("field1", 101),
     CORE_ACTION3("field2", 102),
@@ -526,7 +526,7 @@ enum class Field(private val value: String, private val code: Int) : RefEnum {
     SSS_INVITE_CODE("sss.invite.code", 5400010),
     SSS_INVITE_STATUS("sss.invite.status", 5400020),
     // Tree
-    SSS_PROJECT("sss.project.short.name", 6100000),
+    SSS_PROJECT("sss.project.name", 6100000),
     SSS_PROJECT_SHORT_NAME("sss.project.short.name", 6100010),
     ;
 

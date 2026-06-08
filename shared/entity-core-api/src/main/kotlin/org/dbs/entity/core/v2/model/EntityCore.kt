@@ -6,8 +6,6 @@ import org.dbs.consts.OperDateNull
 import org.dbs.entity.core.EntityStatusEnum
 import org.dbs.entity.core.EntityTypeEnum
 import java.io.Serializable
-import kotlin.properties.ReadWriteProperty
-import kotlin.reflect.KProperty
 
 interface EntityCore : Serializable {
 

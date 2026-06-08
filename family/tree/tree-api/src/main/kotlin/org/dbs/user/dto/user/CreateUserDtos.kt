@@ -25,3 +25,14 @@ data class CreatedUserDto(
     val email: String?,
     val status: String
 ) : ResponseDto
+
+
+data class UpdateUserStatusDto(
+    val login: String,
+    val status: String,
+) : RequestDto
+
+data class UpdatedUserDto(
+    val modifiedLogin: String,
+    val newStatus: String
+) : ResponseDto

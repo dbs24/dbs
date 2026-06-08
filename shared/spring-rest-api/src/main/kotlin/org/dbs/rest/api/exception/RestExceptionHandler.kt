@@ -102,7 +102,7 @@ class RestExceptionHandler(
 }
 
 data class ValidationErrorResponse(
-    val type: String = "about:blank",
+    val type: String = "default errorType",
     val title: String = "Validation Failed",
     val status: Int = BAD_REQUEST.value(),
     val detail: String = "One or more fields failed validation.",

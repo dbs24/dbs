@@ -5,8 +5,8 @@ import io.kotest.core.spec.IsolationMode
 import io.kotest.core.test.TestCaseOrder
 import org.dbs.tree.TreeApplication
 import org.dbs.tree.config.TreeConfig
-import org.dbs.user.dto.user.CreateOrUpdateUserDto
-import org.dbs.user.dto.user.CreatedUserDto
+import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_CLOSED
+import org.dbs.user.dto.user.UpdateUserStatusDto
 import org.dbs.validator.Error
 import org.dbs.validator.Field
 import org.springframework.boot.test.context.SpringBootTest
@@ -35,10 +35,8 @@ class UsersRestTests : BaseTreeRestTest() {
             val hotUserLogin = newUserLogin
 
             val dto = createUserDto(hotUserLogin, "$hotUserLogin@test.com", "rest_Strong1Password")
+            createUser(dto)
 
-            postQuery<CreateOrUpdateUserDto, CreatedUserDto>("/createOrUpdate", dto) { response ->
-                assertCreatedUser(dto, response)
-            }
         }
 
         "Create another user via $source" {
@@ -46,18 +44,14 @@ class UsersRestTests : BaseTreeRestTest() {
             val hotUserLogin = newUserLogin
             val dto = createUserDto(hotUserLogin, "$hotUserLogin@test.com", "rest_Strong2Password")
 
-            postQuery<CreateOrUpdateUserDto, CreatedUserDto>("/createOrUpdate", dto) { response ->
-                assertCreatedUser(dto, response)
-            }
+            createUser(dto)
         }
 
         "Create invalid exists user via $source" {
 
             val hotUserLogin = newUserLogin
             val dto = createUserDto(hotUserLogin, "$hotUserLogin@test.com", "rest_Strong2Password")
-            postQuery<CreateOrUpdateUserDto, CreatedUserDto>("/createOrUpdate", dto) { response ->
-                assertCreatedUser(dto, response)
-            }
+            createUser(dto)
 
             val invalidDto = createUserDto(hotUserLogin, "$hotUserLogin@test.com", "rest_Strong2Password")
 
@@ -76,6 +70,18 @@ class UsersRestTests : BaseTreeRestTest() {
             val invalidEmail = "invalid_mail"
             val dto = createUserDto(login = hotUserLogin, email = invalidEmail, password = "Strong12Password")
             postQueryShouldFailWithValidationError("/createOrUpdate", dto)
+        }
+
+        "Close user via $source" {
+
+            val hotUserLogin = newUserLogin
+            val dto = createUserDto(hotUserLogin, "$hotUserLogin@test.com", "rest_Strong2Password")
+
+            createUser(dto)
+
+            val updateDto = UpdateUserStatusDto(hotUserLogin, ES_USER_CLOSED.entityStatusName)
+            updateUserStatus(updateDto)
+
         }
     }
 }

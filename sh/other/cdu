@@ -2,7 +2,7 @@
 clear
 TASK_START=$(date +%s.%N)
 
-REGEX_TEMPLATE_IGNORE_VERSIONS="((rc-|-rc|rc.|-M|alpha|beta)[0-9]\])|((-rc)\])"
+REGEX_TEMPLATE_IGNORE_VERSIONS="((rc-|-rc|rc.|-M|alpha|beta|Beta)[0-9]\])|((-rc)\])"
 REGEX_TEMPLATE_SKIP_LIBRARIES="(javax.servlet-api|javax.ws.rs-api|spring-boot-devtools|commons-lang3)"
 REGEX_TEMPLATE_IGNORE_DEFECTIVE_UPDATES="((1.5.0 -> 6f774052d1d6923f8af2e0023886d69949b695ee)|(2.8.16 -> 3.0.3)|(1.21.4 -> 2.0.4)|(1.21.4 -> 2.0.5))"
 LINE="#######################################################"

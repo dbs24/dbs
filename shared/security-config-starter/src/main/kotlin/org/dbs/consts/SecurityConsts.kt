@@ -10,7 +10,7 @@ import org.dbs.consts.SpringCoreConst.PropertiesNames.NETWORK_CORS_ALLOWED_PATH
 import org.dbs.consts.SpringCoreConst.PropertiesNames.NETWORK_CORS_MAX_AGE
 import org.dbs.consts.SysConst.EMPTY_STRING
 
-typealias ClaimsGet = (Jwt) -> Claims
+typealias ClaimsGet = (String) -> Claims
 
 object SecurityConsts {
 
@@ -22,6 +22,8 @@ object SecurityConsts {
         const val CL_IP = "IP_ADDRESS"
         const val CL_AUTH_SERVICE = "AUTH_SERVICE"
         const val CL_INTERNAL_SERVICE = "INTERNAL_SERVICE"
+        const val CL_ACCESS_TOKEN = "ACCESS_TOKEN"
+        const val CL_REFRESH_TOKEN = "REFRESH_TOKEN"
         const val CL_USER_AGENT = "USER_AGENT"
     }
 

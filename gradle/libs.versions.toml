@@ -11,28 +11,28 @@ springdoc = "2.8.16"
 # Data / Persistence
 redisClients = "7.5.0"
 postgres = "42.7.11"
-flyway = "12.6.2"
+flyway = "12.8.1"
 r2dbcPool = "1.0.2.RELEASE"
 r2dbcPostgres = "1.1.1.RELEASE"
 queryDsl = "5.1.0"
 
 # Kotlin
-kotlin = "2.2.21"
+kotlin = "2.4.0"
 kotlinx-coroutines = "1.11.0"
 kotlinxLincheck = "2.39"
 kotlinSerialization = "1.11.0"
 
 # Reactor / Netty
-reactorTools = "3.8.5"
-reactorTest = "3.8.5"
-reactorNetty = "1.3.5"
-reactorKotlinExtensions = "1.3.0"
-blockhoundJunitPlatform = "1.0.16.RELEASE"
+reactorTools = "3.8.6"
+reactorTest = "3.8.6"
+reactorNetty = "1.3.6"
+reactorKotlinExtensions = "1.3.1"
+blockhoundJunitPlatform = "1.0.17.RELEASE"
 
 # gRPC / Protobuf
 grpc = "1.81.0"
 grpcKotlinStub = "1.5.0"
-grpcGateway = "2.92.0"
+grpcGateway = "2.93.0"
 grpcServerSpringBoot = "3.1.0.RELEASE"
 grpcServerSpringBootAutoconfigure = "2.15.0.RELEASE"
 grpcSpringBoot = "4.5.10"
@@ -43,9 +43,9 @@ jakartaAnnotation = "3.0.0"
 jakartaValidation = "4.0.0-M1"
 
 # Jackson
-fasterXmlJacksonDataformat = "2.21.3"
-fasterXmlJacksonDataType = "2.21.3"
-fasterXmlJacksonModule = "2.21.3"
+fasterXmlJacksonDataformat = "2.22.0"
+fasterXmlJacksonDataType = "2.22.0"
+fasterXmlJacksonModule = "2.22.0"
 
 # Testing
 kotest = "6.1.11"
@@ -66,7 +66,7 @@ jbossMarshalling = "2.3.0"
 # Security / Auth
 jwt = "4.5.2"
 jjwtApi = "0.13.0"
-nimbusJoseJwt = "10.9"
+nimbusJoseJwt = "10.9.1"
 
 # Observability
 micrometerPrometheus = "1.16.5"
@@ -107,9 +107,9 @@ johnRengelman = "7.1.2"
 cryptoChecksum = "1.4.0"
 javaGradlePlugin = "1.6.9"
 gradleTestRetryPlugin = "1.6.5"
-diffPlugSpotless = "8.5.1"
-checkstylePlugin="13.4.2"
-jacocoPlugin="0.8.14"
+diffPlugSpotless = "8.6.0"
+checkstylePlugin="13.5.0"
+jacocoPlugin="0.8.15"
 
 [libraries]
 # Spring Boot starters

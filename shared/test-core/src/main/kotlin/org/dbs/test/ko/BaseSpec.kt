@@ -79,19 +79,13 @@ abstract class BaseSpec : StringSpec(), Logging {
     infix fun <T, V> KProperty1<T, V>.verify(assertion: T.(V) -> Unit) = PropertyValidator(this, assertion)
 
     @Suppress("UNCHECKED_CAST")
-    suspend fun <T : EntityCore> verifyModifiedEntity(
-        entity: T?,
-        actionEnum: EntityActionEnum,
-        verifyAllFields: Boolean = true,
-        vararg validators: PropertyValidator<T, *>,
-    ): T {
-        requireNotNull (entity ) { "entity not found" }
-        requireNotNull (entity.entityId ) { "entityId is null" }
-
-        val entityId = entity.entityId
+    private fun <T : Any> validateEntityFields(
+        entity: T,
+        verifyAllFields: Boolean,
+        validators: Array<out PropertyValidator<T, *>>
+    ) {
         val entityClass = entity::class
-
-        logger.info { "Verify entity: $entityId ($entityClass)" }
+        logger.info { "Verify entity fields for: $entityClass" }
 
         if (verifyAllFields) {
             val expectedFieldNames = fieldsCache.getOrPut(entityClass) {
@@ -112,15 +106,40 @@ abstract class BaseSpec : StringSpec(), Logging {
             require(seenProperties.add(v.property)) {
                 "Duplicate validators found: Field '${v.property.name}' of '${entityClass.qualifiedName}' appears multiple times"
             }
-            // Прямой вызов без создания временных переменных, context receiver / lambda call
             (v as PropertyValidator<T, Any?>).assertion(entity, v.property.get(entity))
         }
+    }
 
-        val hasAction = databaseClient.sql("SELECT EXISTS(SELECT 1 FROM core_actions WHERE entity_id = :E AND action_code = :AC LIMIT 1)")
-            .bind("E", entityId)
-            .bind("AC", actionEnum.actionCodeId)
-            .map { row, _ -> row.get(0, java.lang.Boolean::class.java)?.booleanValue() ?: false }
-            .awaitOne()
+    fun <T : Any> verifyModifiedEntity(
+        entity: T?,
+        verifyAllFields: Boolean = true,
+        vararg validators: PropertyValidator<T, *>,
+    ): T {
+        requireNotNull(entity) { "entity not found" }
+        validateEntityFields(entity, verifyAllFields, validators)
+        return entity
+    }
+
+    suspend fun <T : EntityCore> verifyModifiedEntity(
+        entity: T?,
+        actionEnum: EntityActionEnum,
+        verifyAllFields: Boolean = true,
+        vararg validators: PropertyValidator<T, *>,
+    ): T {
+        requireNotNull(entity) { "entity not found" }
+        val entityId = requireNotNull(entity.entityId) { "entityId is null" }
+
+        logger.info { "Verify entity actions: $entityId (${entity::class.simpleName})" }
+
+        // Переиспользуем общий метод валидации полей
+        validateEntityFields(entity, verifyAllFields, validators)
+
+        val hasAction =
+            databaseClient.sql("SELECT EXISTS(SELECT 1 FROM core_actions WHERE entity_id = :E AND action_code = :AC LIMIT 1)")
+                .bind("E", entityId)
+                .bind("AC", actionEnum.actionCodeId)
+                .map { row, _ -> row.get(0, java.lang.Boolean::class.java)?.booleanValue() ?: false }
+                .awaitOne()
 
         require(hasAction) { "Action record not found (entity: $entityId, action: $actionEnum)" }
 
@@ -128,8 +147,8 @@ abstract class BaseSpec : StringSpec(), Logging {
     }
 
     companion object {
-
         private val atomicTestNum = AtomicInteger(0)
+
         @JvmStatic
         protected val testNum: Int get() = atomicTestNum.incrementAndGet()
 
@@ -162,4 +181,3 @@ value class ErrorBox(val errors: Collection<ErrorInfo>) {
         }
     }
 }
-

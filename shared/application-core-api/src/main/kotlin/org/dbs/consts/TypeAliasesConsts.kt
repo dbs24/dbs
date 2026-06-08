@@ -161,8 +161,6 @@ typealias PrivilegeGroupCode = AnyCode
 typealias JavaLong = java.lang.Long
 // Security
 typealias JwtId = Long
-typealias Jwt = String
-typealias JwtNull = Jwt?
 // funcs
 typealias NoArg2Unit = () -> Unit
 typealias GenericArg2Unit<T> = (T) -> Unit

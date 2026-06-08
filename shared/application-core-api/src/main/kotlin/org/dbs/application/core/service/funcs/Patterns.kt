@@ -137,7 +137,7 @@ object Patterns {
     val LOGIN_PATTERN by lazy { compile("[a-z0-9]{5,19}") } // 6-20 symbols
     val LOGINS_PATTERN by lazy { compile("[a-z0-9,]{5,1000}") } // 6-20 symbols
     val LOGIN_PATTERN_MASK by lazy { compile("[a-z0-9]{1,19}") } // 6-20 symbols
-    val PASSWORD_PATTERN by lazy { compile("(?=^.{6,20}$)((?=.*\\d)|(?=.*W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*") }
+    val PASSWORD_PATTERN by lazy { compile("(?=^.{6,50}$)((?=.*\\d)|(?=.*W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*") }
     val USER_NAME_PATTERN_MASK by lazy { buildPatternSet("\\-", 50) }
     val USER_FIRST_NAME_PATTERN by lazy { buildPatternSet("\\-\\u0020", 80) }
     val USER_LAST_NAME_PATTERN by lazy { buildPatternSet("\\-\\u0020", 80) }

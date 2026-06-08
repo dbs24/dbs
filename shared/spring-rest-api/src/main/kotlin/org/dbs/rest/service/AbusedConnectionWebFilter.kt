@@ -1,6 +1,5 @@
 package org.dbs.rest.service
 
-import org.dbs.application.core.api.LateInitVal
 import org.dbs.application.core.service.funcs.GetNetworkAddress.currentHostName
 import org.dbs.application.core.service.funcs.Patterns.LEGAL_DOMAIN
 import org.dbs.consts.SpringCoreConst.PropertiesNames.CONFIG_SECURITY
@@ -11,6 +10,7 @@ import org.dbs.consts.SysConst.SLASH
 import org.dbs.consts.SysConst.STRING_FALSE
 import org.dbs.consts.SysConst.UNKNOWN
 import org.dbs.ext.LoggerFuncs.measureExecTime
+import org.dbs.ext.lateInitProperty
 import org.dbs.rest.service.AbusedConnectionWebFilter.AbuseReasonEnum.AR_ACTUATOR
 import org.dbs.rest.service.AbusedConnectionWebFilter.AbuseReasonEnum.AR_EMPTY_HOST
 import org.dbs.rest.service.AbusedConnectionWebFilter.AbuseReasonEnum.AR_ILLEGAL_HEADER
@@ -52,7 +52,9 @@ class AbusedConnectionWebFilter(val headerService: HeaderService) : AbstractAppl
         serverWebExchange.run {
             logger.info { request.log() }
 
-            val abusedConnection by lazy { LateInitVal<AbusedConnection>() }
+            val delegate = lateInitProperty<AbusedConnection>()
+            var abusedConnection: AbusedConnection by delegate
+
             val ip = (request.remoteAddress?.address?.toString()?.replace(SLASH.toRegex(), EMPTY_STRING) ?: UNKNOWN)
 
             request.uri.host?.let {
@@ -60,13 +62,12 @@ class AbusedConnectionWebFilter(val headerService: HeaderService) : AbstractAppl
                 if (headerService.whiteHosts != MASK_ALL) {
                     // legal domain name
                     if (!LEGAL_DOMAIN.matcher(request.uri.host).matches()) {
-                        abusedConnection.init(
+                        abusedConnection =
                             AbusedConnection(
                                 AR_ILLEGAL_HOST,
                                 "$currentHostName: Suspicious host in request: ${request.uri.host}), " +
                                         "allowed hosts: [${headerService.whiteHostsLists}])"
                             )
-                        )
                     } else {
 
                         // unknown host
@@ -74,9 +75,7 @@ class AbusedConnectionWebFilter(val headerService: HeaderService) : AbstractAppl
                             val errMsg = "$currentHostName: Suspicious host in request: ${request.uri.host}), " +
                                     "allowed hosts: [${headerService.whiteHostsLists}])"
                             if (headerService.breakIllegalHost) {
-                                abusedConnection.update(
-                                    AbusedConnection(AR_ILLEGAL_HOST, errMsg)
-                                )
+                                abusedConnection= AbusedConnection(AR_ILLEGAL_HOST, errMsg)
                             } else
                                 logger.warn { errMsg }
                         }
@@ -84,27 +83,25 @@ class AbusedConnectionWebFilter(val headerService: HeaderService) : AbstractAppl
                 }
 
             } ?: run {
-                abusedConnection.init(AbusedConnection(AR_EMPTY_HOST, "Host is not specified in header"))
+                abusedConnection = AbusedConnection(AR_EMPTY_HOST, "Host is not specified in header")
             }
 
             // temporary
             if (request.path.toString().contains("/actuator/gateway")) {
-                abusedConnection.init(AbusedConnection(AR_ACTUATOR, "abused connection to actuator"))
+                abusedConnection = AbusedConnection(AR_ACTUATOR, "abused connection to actuator")
             }
 
             // White headers
-            if (abusedConnection.isNotInitialized() && headerService.whiteHeaders != MASK_ALL) {
+            if (delegate.isInitialized() && headerService.whiteHeaders != MASK_ALL) {
                 logger.measureExecTime("headers white list filter") {
                     request.headers.asSequence().all { header ->
                         headerService.whiteHeadersLists.contains(header.key.lowercase()).also {
                             if (!it)
                                 if (headerService.breakIllegalHeader) {
-                                    abusedConnection.update(
-                                        AbusedConnection(
+                                    abusedConnection = AbusedConnection(
                                             AR_ILLEGAL_HEADER,
                                             "$currentHostName: Illegal header: ${header.key}): $header)"
                                         )
-                                    )
                                 } else
                                     logger.warn {
                                         "illegal header in request (${header.key}): $header)" +
@@ -116,21 +113,20 @@ class AbusedConnectionWebFilter(val headerService: HeaderService) : AbstractAppl
             }
 
             // Query params
-            if (abusedConnection.isNotInitialized() && headerService.abusedQueryParamsValues.isNotEmpty()) {
+            if (delegate.isNotInitialized() && headerService.abusedQueryParamsValues.isNotEmpty()) {
                 request.queryParams.entries.firstOrNull { qp ->
                     headerService.abusedQueryParamsValues.any { qp.value.toString().contains(it) }
                 }?.apply {
-                    abusedConnection.update(
+                    abusedConnection =
                         AbusedConnection(
                             AR_ILLEGAL_QUERY_PARAM,
                             "Illegal query param value: $this})"
                         )
-                    )
                 }
             }
 
-            if (abusedConnection.isInitialized()) {
-                logger.error { "### Abused connection from $ip: [${abusedConnection.value}], (${log()})" }
+            if (delegate.isInitialized()) {
+                logger.error { "### Abused connection from $ip: [${abusedConnection}], (${log()})" }
                 response.statusCode = FORBIDDEN
                 // invalidate session
                 session.logAndInvalidate(logger)

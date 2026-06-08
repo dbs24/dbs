@@ -18,6 +18,7 @@ dependencies {
 
     implementation(libs.spring.security)
     implementation(libs.spring.webflux)
+    implementation(libs.spring.data.r2dbc)
     implementation(libs.reactor.kotlin.extensions)
     implementation(libs.log4j.api.kotlin)
     implementation(libs.coroutines.core)

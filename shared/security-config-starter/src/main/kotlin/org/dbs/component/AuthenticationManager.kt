@@ -6,6 +6,7 @@ import org.dbs.consts.RestHttpConsts.DEFAULT_ACCESS_ROLE
 import org.dbs.security.RestApiSecurityService
 import org.dbs.security.jwt.Jwt
 import org.dbs.spring.core.api.AbstractApplicationService
+import org.dbs.spring.security.api.JwtSecurityServiceApi
 import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
@@ -20,7 +21,7 @@ import reactor.kotlin.core.publisher.toMono
 
 @Service
 class AuthenticationManager(
-    private val jwtSecurityService: JwtSecurityService,
+    private val jwtSecurityService: JwtSecurityServiceApi,
     private val restApiSecurityService: RestApiSecurityService
 ) : AbstractApplicationService(),
     ReactiveAuthenticationManager {

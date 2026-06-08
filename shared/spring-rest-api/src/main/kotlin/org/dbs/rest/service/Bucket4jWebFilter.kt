@@ -20,8 +20,7 @@ class Bucket4jWebFilter(
 ) : AbstractApplicationService(), WebFilter {
     override fun filter(serverWebExchange: ServerWebExchange, webFilterChain: WebFilterChain): Mono<Void> =
         serverWebExchange.run {
-            if (!bucket4jService.validateRateLimit(ip())
-            ) {
+            if (!bucket4jService.validateRateLimit(ip())) {
                 mutate()
                     .request { it.headers { hs -> hs.add(USER_ACCESS_DENIED.name, "Too many requests or access denied") } }
                     .build()
