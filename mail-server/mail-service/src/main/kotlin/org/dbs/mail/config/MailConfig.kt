@@ -31,7 +31,6 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.autoconfigure.aop.AopAutoConfiguration
 import org.springframework.boot.autoconfigure.context.ConfigurationPropertiesAutoConfiguration
 import org.springframework.boot.autoconfigure.context.LifecycleAutoConfiguration
-import org.springframework.boot.autoconfigure.context.MessageSourceAutoConfiguration
 import org.springframework.boot.autoconfigure.data.r2dbc.R2dbcDataAutoConfiguration
 import org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
 import org.springframework.boot.autoconfigure.groovy.template.GroovyTemplateAutoConfiguration
@@ -126,6 +125,6 @@ class MailConfig {
         logger.trace("init i18n: $i18NService")
         setBasename(MESSAGE_SOURCE_BASE_NAME)
         setDefaultEncoding(UTF_8.name())
-        setDefaultLocale(I18NService.systemLocale.value)
+        setDefaultLocale(I18NService.systemLocale)
     }
 }

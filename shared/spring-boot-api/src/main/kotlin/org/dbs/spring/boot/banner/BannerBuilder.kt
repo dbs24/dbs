@@ -1,7 +1,6 @@
 package org.dbs.spring.boot.banner
 
 import org.apache.logging.log4j.kotlin.Logging
-import org.dbs.application.core.api.LateInitVal
 import org.dbs.application.core.service.funcs.SysEnvFuncs.findResourceFile
 import org.dbs.consts.SpringCoreConst.DELIMITER
 import org.dbs.consts.SpringCoreConst.PropertiesNames.BANNER_ROW_DELIMITER
@@ -21,6 +20,7 @@ import org.dbs.consts.StringMap
 import org.dbs.consts.SysConst.EMPTY_STRING
 import org.dbs.consts.SysConst.RESOURCE_FLD
 import org.dbs.consts.SysConst.SB_ROW_CAPACITY
+import org.dbs.utils.lateInitProperty
 import java.io.File
 import java.nio.charset.Charset.defaultCharset
 import kotlin.reflect.KClass
@@ -41,11 +41,11 @@ value class BannerBuilder(private val properties: StringMap) : Logging {
     }
 
     private fun readLogo(appNameFromPackage: String) = run {
-        val bannerHolder by lazy { LateInitVal<String>() }
+        var bannerHolder: String by lateInitProperty()
         findResourceFile("logo.txt", appNameFromPackage) {
-            bannerHolder.init("\n" + File(it).readText(defaultCharset()) + "\n")
+            bannerHolder = ("\n" + File(it).readText(defaultCharset()) + "\n")
         }
-        bannerHolder.valueOrDefault(defaultLogo)
+        bannerHolder.takeIf { it.isNotEmpty() } ?: defaultLogo
     }
 
     private fun <T : Any> processBannerUpdate(clazz: KClass<T>) {

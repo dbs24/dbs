@@ -292,7 +292,7 @@ enum class Field(private val value: String, private val code: Int) : RefEnum {
 
     //==============================================================================================
     SSS_PRODUCT_2_ATTR("sss.product2attr", 1033101),
-    SSS_PRODUCT_2_ATTR_VALUE("sss.product2attr.value()", 1033102),
+    SSS_PRODUCT_2_ATTR_VALUE("sss.product2attr.value", 1033102),
     SSS_PRODUCT_2_ATTR_STATUS("sss.product2attr.status", 1033103),
     SSS_PRODUCT_2_ATTR_ID("sss.product2attr.id", 1033104),
     SSS_PRODUCT_2_ATTR_VALUE_MEASURE("sss.product2attr.value.measure", 1033105),

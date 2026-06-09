@@ -1,9 +1,9 @@
 package org.dbs.tree.model.domain
 
-import org.dbs.ext.lateInitProperty
-import org.dbs.rest.api.nio.DomainCommand
-import org.dbs.tree.model.project.Project
-import org.dbs.tree.model.user.User
+ import org.dbs.rest.api.nio.DomainCommand
+ import org.dbs.tree.model.project.Project
+ import org.dbs.tree.model.user.User
+ import org.dbs.utils.lateInitProperty
 
 data class CreateOrUpdateProjectCommand(
     val oldProjectShortName: String?,

@@ -3,7 +3,6 @@ package org.dbs.config
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
-import org.dbs.application.core.api.LateInitVal
 import org.dbs.consts.SpringCoreConst.PropertiesNames.NETWORK_CORS_ALLOWED_ADDITIONAL_PATH
 import org.dbs.consts.SpringCoreConst.PropertiesNames.NETWORK_CORS_ALLOWED_CREDENTIALS
 import org.dbs.consts.SpringCoreConst.PropertiesNames.NETWORK_CORS_ALLOWED_HEADERS
@@ -13,7 +12,6 @@ import org.dbs.consts.SpringCoreConst.PropertiesNames.VALUE_NETWORK_CORS_ALLOWED
 import org.dbs.consts.SpringCoreConst.PropertiesNames.YML_CORS_CONFIG_ENABLED
 import org.dbs.consts.SysConst.EMPTY_STRING
 import org.dbs.consts.SysConst.STRING_FALSE
-import org.dbs.consts.SysConst.STRING_NULL
 import org.dbs.consts.SysConst.STRING_ONE
 import org.dbs.consts.SysConst.STRING_TRUE
 import org.dbs.ext.CollectionFuncs.ensureNoDuplicates
@@ -22,6 +20,7 @@ import org.dbs.ref.serv.enums.CurrencyEnum
 import org.dbs.ref.serv.enums.RegionEnum
 import org.dbs.rest.api.enums.RestOperCodeEnum
 import org.dbs.rest.service.ReqRespSuspend
+import org.dbs.utils.lateInitProperty
 import org.dbs.validator.Error
 import org.dbs.validator.Field
 import org.springframework.beans.factory.annotation.Autowired
@@ -44,10 +43,10 @@ import kotlin.system.measureTimeMillis
 
 @Suppress("UnusedPrivateMember")
 @Deprecated("to remove")
-abstract class AbstractWebSecurityConfig(private val appUriPrefix: String? = STRING_NULL) : MainApplicationConfig() {
+abstract class AbstractWebSecurityConfig : MainApplicationConfig() {
 
-    private val securityWebFilterChainConfig by lazy { LateInitVal<SecurityWebFilterChainConfig>("securityWebFilterChainConfig") }
-    private val environment by lazy { LateInitVal<Environment>("environment") }
+    private var securityWebFilterChainConfig: SecurityWebFilterChainConfig by lateInitProperty("securityWebFilterChainConfig")
+    private var environment: Environment by lateInitProperty("environment")
 
     private val endpointsAmount = AtomicInteger()
 
@@ -56,8 +55,8 @@ abstract class AbstractWebSecurityConfig(private val appUriPrefix: String? = STR
         securityWebFilterChainConfig: SecurityWebFilterChainConfig,
         environment: Environment,
     ) {
-        this.securityWebFilterChainConfig.init(securityWebFilterChainConfig)
-        this.environment.init(environment)
+        this.securityWebFilterChainConfig = securityWebFilterChainConfig
+        this.environment = environment
     }
 
     @Value("\${$NETWORK_CORS_ALLOWED_ADDITIONAL_PATH:$VALUE_NETWORK_CORS_ALLOWED_ADDITIONAL_PATH}")
@@ -84,7 +83,7 @@ abstract class AbstractWebSecurityConfig(private val appUriPrefix: String? = STR
         }
         logger.debug {
             "${endpointsAmount.incrementAndGet()}. " +
-                    "${securityWebFilterChainConfig.value.getRouteStatus(route)} route $routeName $route"
+                    "${securityWebFilterChainConfig.getRouteStatus(route)} route $routeName $route"
         }
     }
 

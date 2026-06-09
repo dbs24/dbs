@@ -2,7 +2,6 @@ package org.dbs.spring.boot.api
 
 import com.sun.management.HotSpotDiagnosticMXBean
 import org.apache.logging.log4j.kotlin.Logging
-import org.dbs.application.core.api.LateInitVal
 import org.dbs.application.core.nullsafe.StopWatcher.Companion.defaultZoneId
 import org.dbs.application.core.service.funcs.GetNetworkAddress
 import org.dbs.application.core.service.funcs.GetNetworkAddress.currentHostName
@@ -44,6 +43,7 @@ import java.util.concurrent.atomic.AtomicReference
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
+
 @ConfigurationPropertiesScan(basePackages = [ALL_PACKAGES])
 abstract class AbstractSpringBootApplication : Logging {
 
@@ -79,8 +79,8 @@ abstract class AbstractSpringBootApplication : Logging {
             }
         }
 
-        appCreateTime.updateOnce(buildProperties.time)
-        userApplicationName.updateOnce(buildProperties.name)
+        appCreateTime = buildProperties.time
+        userApplicationName = buildProperties.name
     }
 
     @Bean
@@ -95,7 +95,7 @@ abstract class AbstractSpringBootApplication : Logging {
         CommandLineRunner { args: Array<String> -> this.run(args) }
 
     companion object : Logging {
-        val userApplicationName by lazy { LateInitVal<String>() }
+        lateinit var userApplicationName: String
 
         @Volatile var isRunning = false
         @Volatile var serverPort = 0
@@ -154,7 +154,7 @@ abstract class AbstractSpringBootApplication : Logging {
                         context.displayName = clazz.simpleName ?: clazz.toString()
                     }
 
-                    logger.info { "finally initialization '${userApplicationName.value}' ($applicationName)" }
+                    logger.info { "finally initialization '${userApplicationName}' ($applicationName)" }
 
                 } catch (t: Throwable) {
                     val devToolsExceptionClass = "org.springframework.boot.devtools.restart.SilentExitExceptionHandler\$SilentExitException"
@@ -183,7 +183,7 @@ abstract class AbstractSpringBootApplication : Logging {
                 logger.info { memoryStatistics }
 
                 val currentAppName = this.javaClass.canonicalName
-                logger.info { "█($currentAppName, ${userApplicationName.valueOrNull})" }
+                logger.info { "█($currentAppName, $userApplicationName)" }
             }
         }
 

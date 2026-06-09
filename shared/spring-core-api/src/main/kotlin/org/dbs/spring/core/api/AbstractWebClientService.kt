@@ -2,7 +2,6 @@ package org.dbs.spring.core.api
 
 import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory.INSTANCE
-import org.dbs.application.core.api.LateInitVal
 import org.dbs.application.core.nullsafe.StopWatcher
 import org.dbs.consts.RestHttpConsts.ONE_ATTEMPT
 import org.dbs.consts.RestHttpConsts.URI_HTTP
@@ -18,6 +17,7 @@ import org.dbs.consts.WebClientUriBuilder
 import org.dbs.ext.LoggerFuncs.logRequestInternal
 import org.dbs.ext.LoggerFuncs.measureExecTime
 import org.dbs.spring.core.api.ServiceLocator.findService
+import org.dbs.utils.lateInitProperty
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus.NOT_ACCEPTABLE
 import org.springframework.http.HttpStatusCode
@@ -49,8 +49,8 @@ typealias WebClientCall<R> = () -> Mono<R>
 @Suppress("TooManyFunctions")
 abstract class AbstractWebClientService : AbstractApplicationService() {
 
-    private val serverUri by lazy { LateInitVal<String>() }
-    private val initialUri by lazy { LateInitVal<String>() }
+    private var serverUri : String by lateInitProperty()
+    private var initialUri : String by lateInitProperty()
     override val env by lazy { findService(AbstractApplicationConfig::class) }
 
     private val isClientError = Predicate { httpStatusCode: HttpStatusCode ->
@@ -58,8 +58,8 @@ abstract class AbstractWebClientService : AbstractApplicationService() {
     }
 
     val webClient: WebClient by lazy {
-        (setupClientConnector(WebClient.builder(), serverUri.value)
-            .baseUrl(serverUri.value)
+        (setupClientConnector(WebClient.builder(), serverUri)
+            .baseUrl(serverUri)
             .exchangeStrategies(
                 ExchangeStrategies.builder()
                     .codecs {
@@ -79,8 +79,8 @@ abstract class AbstractWebClientService : AbstractApplicationService() {
     }
 
     protected fun prepareDefaultWebClient(uriBase: String) = uriBase.let {
-        initialUri.init(it)
-        serverUri.init(
+        initialUri = it
+        serverUri = (
             (if (!it.startsWith(URI_HTTPS)) {
                 if (it.startsWith(URI_HTTP)) it else URI_HTTPS + it
             } else it).trim()
@@ -91,7 +91,7 @@ abstract class AbstractWebClientService : AbstractApplicationService() {
                     "${if (serverUri != initialUri) "($initialUri)" else EMPTY_STRING})"
         }
 
-        addUrl4LivenessTracking(serverUri.value, javaClass.simpleName)
+        addUrl4LivenessTracking(serverUri, javaClass.simpleName)
     }
 
     //==========================================================================
@@ -131,12 +131,12 @@ abstract class AbstractWebClientService : AbstractApplicationService() {
 
     //===========================================================================
     fun <T: Any> Mono<T>.monoMeasureTimeMillis(uriPath: String): Mono<T> = transform {
-        val sw = LateInitVal<StopWatcher>()
-        doOnSubscribe { sw.init(StopWatcher(javaClass.simpleName)) }
+        var sw: StopWatcher by lateInitProperty()
+        doOnSubscribe { sw = StopWatcher(javaClass.simpleName) }
             .doOnSuccess {
-                val uriInfo = "$serverUri$uriPath]::${sw.value.stringExecutionTime}"
+                val uriInfo = "$serverUri$uriPath]::${sw.stringExecutionTime}"
                 logger.debug { "webClient request [$uriInfo]" }
-                logger.logRequestInternal(sw.value.executionTime, env.queryMaxTimeExec) { "[$uriInfo]" }
+                logger.logRequestInternal(sw.executionTime, env.queryMaxTimeExec) { "[$uriInfo]" }
             }
     }
 
@@ -270,13 +270,13 @@ abstract class AbstractWebClientService : AbstractApplicationService() {
             // retry call
             logger.error { it }.run {
                 if (isHostPortAvailable()) {
-                    logger.warn { "retry call 2 ${serverUri.value} " }
+                    logger.warn { "retry call 2 ${serverUri} " }
                 }
                 webClientCall()
             }
         }
 
-    private fun isHostPortAvailable(): Boolean = URI(serverUri.value).toURL().run {
+    private fun isHostPortAvailable(): Boolean = URI(serverUri).toURL().run {
         val actualPort = port.let { if (it > 0) it else 443 }
         val connectString = "$host:$actualPort"
         runCatching {

@@ -1,6 +1,5 @@
 package org.dbs.spring.core.api
 
-import org.dbs.application.core.api.LateInitVal
 import org.dbs.application.core.exception.InternalAppException.Companion.getSuppressedErrMessage
 import org.dbs.application.core.service.funcs.TestFuncs.generateTestInteger
 import org.dbs.application.core.service.funcs.ThrowableFuncs.getExtendedErrMessage
@@ -11,6 +10,7 @@ import org.dbs.consts.SysConst.STRING_NULL
 import org.dbs.spring.core.api.ApplicationBean.Companion.externalAddresses
 import org.dbs.spring.core.api.liveness.LivenessHost
 import org.dbs.spring.core.api.liveness.TrackingHost
+import org.dbs.utils.lateInitProperty
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationEventPublisherAware
 import java.net.URI
@@ -25,11 +25,11 @@ abstract class AbstractApplicationBean : ApplicationBean, ApplicationEventPublis
         //th.printStackTrace() ?: run { logger.error("### throwable object is invalid") }
 
     }
-    val eventPublisher by lazy { LateInitVal<ApplicationEventPublisher>() }
+    var eventPublisher : ApplicationEventPublisher by lateInitProperty()
 
     override fun setApplicationEventPublisher(applicationEventPublisher: ApplicationEventPublisher) {
         applicationEventPublisher.also {
-            eventPublisher.init(it)
+            eventPublisher = it
             //logger.debug {"initialize applicationEventPublisher (${applicationEventPublisher::class.java.canonicalName})"}
             logger.trace { "initialize applicationEventPublisher for (${this::class.java.canonicalName})" }
         }

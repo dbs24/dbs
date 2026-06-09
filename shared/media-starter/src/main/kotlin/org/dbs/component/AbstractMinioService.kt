@@ -7,16 +7,16 @@ import io.minio.MinioClient
 import io.minio.RemoveObjectArgs
 import io.minio.SetBucketPolicyArgs
 import io.minio.UploadObjectArgs
-import org.dbs.application.core.api.LateInitVal
 import org.dbs.consts.RestHttpConsts.URI_HTTPS
 import org.dbs.spring.core.api.AbstractApplicationService
 import org.dbs.spring.core.api.ApplicationBean.Companion.findCanonicalService
+import org.dbs.utils.lateInitProperty
 import org.springframework.core.io.InputStreamResource
 import java.io.ByteArrayInputStream
 
 
 abstract class AbstractMinioService : AbstractApplicationService() {
-    private val minioClient = LateInitVal<MinioClient>()
+    private var minioClient: MinioClient by lateInitProperty()
 
     private val props by lazy { findCanonicalService(MediaProperties::class) }
 
@@ -28,32 +28,32 @@ abstract class AbstractMinioService : AbstractApplicationService() {
         logger.debug(
             "initialize minio client (${props.minioHost}, accessKey = ${props.accessKey}, secretKey = [protected])"
         )
-        minioClient.init(MinioClient.builder()
+        minioClient = MinioClient.builder()
             .endpoint(props.minioHost)
             .credentials(props.accessKey, props.secretKey)
-            .build())
+            .build()
 
         addUrl4LivenessTracking(props.minioHost, javaClass.simpleName)
 
         if (!props.minioHost.startsWith(URI_HTTPS)) {
             logger.warn("SSL is off, disable CertCheck")
-            minioClient.value.ignoreCertCheck()
+            minioClient.ignoreCertCheck()
         }
 
-        logger.debug("listBuckets.count: ${minioClient.value.listBuckets().count()}")
+        logger.debug("listBuckets.count: ${minioClient.listBuckets().count()}")
     }
 
     fun uploadFile(fileName: String, filePath: String, bucketName: String) =
         minioClient.run {
-            if (!minioClient.value.bucketExists(
+            if (!minioClient.bucketExists(
                     BucketExistsArgs.builder()
                         .bucket(bucketName)
                         .build()
                 )
             ) {
                 //logger.debug("create new bucket {}/{}", minioHost, bucketName)
-                minioClient.value.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build())
-                minioClient.value.setBucketPolicy(
+                minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build())
+                minioClient.setBucketPolicy(
                     SetBucketPolicyArgs.builder()
                         .bucket(bucketName)
                         .config(getJsonBucketPolicy(bucketName))
@@ -63,7 +63,7 @@ abstract class AbstractMinioService : AbstractApplicationService() {
 
             //logger.debug("Upload '{}' to {}/{}", fileName, minioHost, bucketName)
 
-            minioClient.value.uploadObject(
+            minioClient.uploadObject(
                 UploadObjectArgs.builder()
                     .bucket(bucketName)
                     .`object`(fileName)
@@ -77,7 +77,7 @@ abstract class AbstractMinioService : AbstractApplicationService() {
         }
 
     fun removeFile(fileName: String, bucketName: String) {
-        minioClient.value.removeObject(
+        minioClient.removeObject(
             RemoveObjectArgs.builder()
                 .bucket(bucketName)
                 .`object`(fileName)
@@ -86,7 +86,7 @@ abstract class AbstractMinioService : AbstractApplicationService() {
     }
 
     fun downloadFile(fileName: String, bucketName: String): InputStreamResource = run {
-        val result = minioClient.value.getObject(
+        val result = minioClient.getObject(
             GetObjectArgs.builder()
                 .`object`(fileName)
                 .bucket(bucketName)

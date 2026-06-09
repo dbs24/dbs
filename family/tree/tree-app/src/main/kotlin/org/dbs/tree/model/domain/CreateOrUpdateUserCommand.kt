@@ -1,9 +1,9 @@
 package org.dbs.tree.model.domain
 
 import org.dbs.consts.Password
-import org.dbs.ext.lateInitProperty
 import org.dbs.rest.api.nio.DomainCommand
 import org.dbs.tree.model.user.User
+import org.dbs.utils.lateInitProperty
 
 data class CreateOrUpdateUserCommand(
     val oldLogin: String?,

@@ -1,7 +1,6 @@
 package org.dbs.service
 
 import org.apache.logging.log4j.kotlin.Logging
-import org.dbs.application.core.api.LateInitVal
 import org.dbs.consts.SpringCoreConst.PropertiesNames.SPRING_WEB_LOCALE
 import org.dbs.consts.SpringCoreConst.PropertiesNames.SPRING_WEB_LOCALE_DEF_VAL
 import org.dbs.consts.SysConst.EMPTY_STRING
@@ -11,6 +10,7 @@ import org.dbs.ext.LocaleFuncs.isValidLocale
 import org.dbs.ext.LocaleFuncs.locale
 import org.dbs.spring.core.api.AbstractApplicationService
 import org.dbs.spring.core.api.ApplicationBean.Companion.findCanonicalService
+import org.dbs.utils.lateInitProperty
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.MessageSource
 import org.springframework.context.annotation.Lazy
@@ -23,44 +23,47 @@ class I18NService : AbstractApplicationService() {
     @Value("\${$SPRING_WEB_LOCALE:$SPRING_WEB_LOCALE_DEF_VAL}")
     fun initDefaultWebLocale(defaultWebLocale: String) {
 
-        systemLocale.updateOnce(let {
-            logger.debug { "defaultWebLocale: $defaultWebLocale" }
+        if (delegate.isNotInitialized()) {
+            systemLocale = let {
+                logger.debug { "defaultWebLocale: $defaultWebLocale" }
 
-            require(defaultWebLocale.isValidLocale())
-            { "$SPRING_WEB_LOCALE: Illegal web locale value - '$defaultWebLocale'" }
+                require(defaultWebLocale.isValidLocale())
+                { "$SPRING_WEB_LOCALE: Illegal web locale value - '$defaultWebLocale'" }
 
-            defaultWebLocale.locale().also {
-                Locale.setDefault(it)
+                defaultWebLocale.locale().also {
+                    Locale.setDefault(it)
+                }
+            }.also {
+                logger.debug { "application system locale: $it" }
             }
-        }.also {
-            logger.debug { "application system locale: $it" }
-        })
+        }
     }
 
     companion object : Logging {
 
         private val messageSource by lazy { findCanonicalService(MessageSource::class) }
-        val systemLocale by lazy { LateInitVal<Locale>() }
+        val delegate = lateInitProperty<Locale>()
+        var systemLocale by delegate
 
         fun getLocaleOrSystemLocale(locale: String?): Locale =
             locale?.let {
                 if (locale.isValidLocale()) {
                     locale.locale()
                 } else {
-                    systemLocale.value
+                    systemLocale
                 }
-            } ?: systemLocale.value
+            } ?: systemLocale
 
         fun findI18nMessage(i18nEnum: I18NEnum) =
-            messageSource.getMessage(i18nEnum.name, null, i18nEnum.defaultMsgValue, systemLocale.value)
+            messageSource.getMessage(i18nEnum.name, null, i18nEnum.defaultMsgValue, systemLocale)
                 ?: i18nEnum.defaultMsgValue
 
         fun findI18nMessage(i18nEnum: I18NEnum, vararg args: String) =
-            messageSource.getMessage(i18nEnum.name, args, i18nEnum.defaultMsgValue, systemLocale.value)
+            messageSource.getMessage(i18nEnum.name, args, i18nEnum.defaultMsgValue, systemLocale)
                 ?: i18nEnum.defaultMsgValue
 
         fun findI18nMessage(messageCode: String, vararg args: String) =
-            messageSource.getMessage(messageCode, args, messageCode, systemLocale.value) ?: EMPTY_STRING
+            messageSource.getMessage(messageCode, args, messageCode, systemLocale) ?: EMPTY_STRING
 
         init {
             I18NEnum.entries.toList()

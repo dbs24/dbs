@@ -1,6 +1,5 @@
 package org.dbs.application.core.service.funcs
 
-import org.dbs.application.core.api.LateInitVal
 import org.dbs.application.core.service.funcs.LocalDateTimeFuncs.toNum
 import org.dbs.application.core.service.funcs.LongFuncs.toLocalDateTime
 import org.dbs.application.core.service.funcs.LongFuncs.toNumber
@@ -19,7 +18,7 @@ typealias FoundFileAction = (String) -> Unit
 object SysEnvFuncs {
     //==========================================================================
 
-    val appCreateTime by lazy { LateInitVal<Instant>() }
+    lateinit var appCreateTime: Instant
     private val maxOpenFilesCalc by lazy { MaxOpenFilesCalc() }
     const val defaultDepth = 10
 
@@ -57,7 +56,7 @@ object SysEnvFuncs {
 
     @JvmStatic
     val processBuildInfo
-        get() = appCreateTime.value.toEpochMilli().toLocalDateTime().toNum()
+        get() = appCreateTime.toEpochMilli().toLocalDateTime().toNum()
 
     @JvmStatic
     fun runTimeExec(cmd: String) = let {

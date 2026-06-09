@@ -1,10 +1,10 @@
 package org.dbs.model.domain
 
 import org.dbs.consts.Password
-import org.dbs.ext.lateInitProperty
 import org.dbs.model.IssuedJwt
 import org.dbs.model.RefreshJwt
 import org.dbs.rest.api.nio.DomainCommand
+import org.dbs.utils.lateInitProperty
 
 data class LoginUserCommand(
     val login: String,

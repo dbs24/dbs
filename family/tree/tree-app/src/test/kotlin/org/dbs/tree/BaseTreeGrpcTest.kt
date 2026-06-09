@@ -3,12 +3,12 @@ package org.dbs.tree
 import com.google.protobuf.MessageLite
 import io.grpc.ManagedChannel
 import org.dbs.consts.SysConst.UNCHECKED_CAST
-import org.dbs.ext.lateInitProperty
 import org.dbs.test.ko.BaseGrpcSpec
 import org.dbs.tree.client.ProjectServiceGrpcKt
 import org.dbs.tree.client.UserServiceGrpcKt
 import org.dbs.tree.repo.ProjectRepo
 import org.dbs.tree.repo.UserRepo
+import org.dbs.utils.lateInitProperty
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.password.PasswordEncoder
 

@@ -2,9 +2,9 @@ package org.dbs.test.core
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.logging.log4j.kotlin.Logging
-import org.dbs.application.core.api.LateInitVal
 import org.dbs.consts.NoArg2Generic
 import org.dbs.consts.NoArg2Unit
+import org.dbs.utils.lateInitProperty
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.env.Environment
@@ -18,13 +18,13 @@ abstract class AbstractJUnitTest : Logging {
     @Value("\${reactive.rest.timeout:200000}")
     protected val timeoutDefault: Int = 200000
 
-    private val environment by lazy { LateInitVal<Environment>() }
-    private val objectMapper by lazy { LateInitVal<ObjectMapper>() }
+    private var environment : Environment by lateInitProperty()
+    private var objectMapper : ObjectMapper by lateInitProperty()
 
     @Autowired
     fun initBeans(environment: Environment, objectMapper: ObjectMapper) {
-        this.environment.init(environment)
-        this.objectMapper.init(objectMapper)
+        this.environment = environment
+        this.objectMapper = objectMapper
     }
 
     //==========================================================================

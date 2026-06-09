@@ -4,7 +4,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import org.dbs.application.core.api.LateInitVal
 import org.dbs.application.core.service.funcs.ServiceFuncs.createCollection
 import org.dbs.consts.SpringCoreConst.PropertiesNames.CONFIG_LIVENESS
 import org.dbs.consts.SpringCoreConst.PropertiesNames.JUNIT_MODE
@@ -16,6 +15,7 @@ import org.dbs.spring.core.api.AbstractApplicationService
 import org.dbs.spring.core.api.ApplicationBean.Companion.externalAddresses
 import org.dbs.spring.core.api.liveness.LivenessHost
 import org.dbs.spring.core.api.liveness.TrackingHost
+import org.dbs.utils.lateInitProperty
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.scheduling.annotation.Scheduled
@@ -60,7 +60,7 @@ class LivenessService : AbstractApplicationService() {
                     failAttempts: Int,
                 ) =
                     let {
-                        val connectionInfo = LateInitVal<ConnectionInfo>()
+                        var connectionInfo: ConnectionInfo by lateInitProperty()
                         val limitAttempts = 5
                         var currAttempt = 1
                         var currTimeout = timeout
@@ -71,15 +71,15 @@ class LivenessService : AbstractApplicationService() {
                                 Socket().use { socket ->
 
                                     socket.connect(InetSocketAddress(host, port), timeout.toInt())
-                                    connectionInfo.init(
+                                    connectionInfo = (
                                         ConnectionInfo(socket.toString()).also { it.failAttempts = failAttempts })
                                     successConnection = true
 
                                     if (needLogging)
                                         logger.debug(
-                                            "* $host:$port ($serviceName) [${connectionInfo.value.connectionInfo}, " +
-                                                    "${connectionInfo.value.note}, " +
-                                                    "failAttempts = ${connectionInfo.value.failAttempts}]"
+                                            "* $host:$port ($serviceName) [${connectionInfo.connectionInfo}, " +
+                                                    "${connectionInfo.note}, " +
+                                                    "failAttempts = ${connectionInfo.failAttempts}]"
                                         )
 
                                     try {
@@ -90,15 +90,15 @@ class LivenessService : AbstractApplicationService() {
                                 }
                             } catch (e: Throwable) {
                                 if (currAttempt == limitAttempts) {
-                                    connectionInfo.init(ConnectionInfo("### can't connect 2 $host:$port ($serviceName), ($currTimeout ms)"))
+                                    connectionInfo = ConnectionInfo("### can't connect 2 $host:$port ($serviceName), ($currTimeout ms)")
                                         .also {
                                             it.note = e.toString()
                                             it.failAttempts = failAttempts + 1
                                         }
                                     logger.error {
-                                        "${connectionInfo.value.connectionInfo}, " +
-                                                "${connectionInfo.value.note}, " +
-                                                "failAttempts = ${connectionInfo.value.failAttempts}"
+                                        "${connectionInfo.connectionInfo}, " +
+                                                "${connectionInfo.note}, " +
+                                                "failAttempts = ${connectionInfo.failAttempts}"
                                     }
                                 } else {
                                     delay(currTimeout)
@@ -112,7 +112,7 @@ class LivenessService : AbstractApplicationService() {
                         if ((successConnection) && (currAttempt > 1))
                             logger.warn {
                                 "too slow connection to $host:$port ($serviceName) ($currTimeout ms, " +
-                                        "fails attempts: ${connectionInfo.value.failAttempts})"
+                                        "fails attempts: ${connectionInfo.failAttempts})"
                             }
                         connectionInfo
                     }
@@ -129,9 +129,9 @@ class LivenessService : AbstractApplicationService() {
                     )
                         .apply {
                             it.needLogging = true
-                            it.connectionInfo = this.value.connectionInfo
-                            it.note = this.value.note
-                            it.failAttempts = this.value.failAttempts
+                            it.connectionInfo = this.connectionInfo
+                            it.note = this.note
+                            it.failAttempts = this.failAttempts
                             it.note ?: run {
                                 // success
                                 it.lastOnline = it.lastTestAttempt
