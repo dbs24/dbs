@@ -59,6 +59,7 @@ enum class I18NEnum(
     FLD_UNKNOWN_USER_LOGIN("UNKNOWN USER LOGIN ({0})"),
     // AUTH
     FLD_INVALID_JWT("Invalid or inactive user jwt ({0})"),
+    FLD_JWT_IS_REVOKED("User jwt was revoked ({0})"),
     UNKNOWN_JWT("Unknown user jwt ({0})"),
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -81,7 +82,7 @@ enum class I18NEnum(
     FLD_INVALID_USER_ID_IN_JWT_CLAIMS("Invalid user id in jwt claims"),
     FLD_INVALID_FIN_MANAGER_LOGIN_IN_JWT_CLAIMS("Invalid fin manager login in jwt claims"),
     JWT_IS_MISSING("jwt is missing"),
-    JWT_CLAIM_IS_MISSING("Claim [%s] is missing in jwt token (%s)"),
+    JWT_CLAIM_IS_MISSING("Claim {0} is missing in jwt token ({1})"),
     INCORRECT_JWT("Incorrect jwt"),
     JWT_WAS_EXPIRED("jwt was expired"),
     // endregion

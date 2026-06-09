@@ -16,6 +16,7 @@ import org.dbs.consts.SpringCoreConst.App.BUFFER_APP_SIZE
 import org.dbs.consts.SpringCoreConst.PropertiesNames.JUNIT_MODE
 import org.dbs.consts.SpringCoreConst.PropertiesNames.SPRING_DEVTOOLS_RESTART_ENABLED
 import org.dbs.consts.SpringCoreConst.PropertiesNames.USER_TIME_ZONE
+import org.dbs.consts.SysConst.ALL_PACKAGES
 import org.dbs.consts.SysConst.DEF_EXIT_PROCESS
 import org.dbs.consts.SysConst.HotSpotConsts.VMS
 import org.dbs.consts.SysConst.MN42
@@ -30,6 +31,7 @@ import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.ExitCodeGenerator
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.context.metrics.buffering.BufferingApplicationStartup
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.boot.info.BuildProperties
 import org.springframework.boot.web.reactive.context.ReactiveWebServerApplicationContext
 import org.springframework.context.ApplicationContext
@@ -42,6 +44,7 @@ import java.util.concurrent.atomic.AtomicReference
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
+@ConfigurationPropertiesScan(basePackages = [ALL_PACKAGES])
 abstract class AbstractSpringBootApplication : Logging {
 
     @Value("\${config.security.secured-params:password,username}")

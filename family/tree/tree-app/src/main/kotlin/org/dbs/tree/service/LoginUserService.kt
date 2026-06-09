@@ -20,10 +20,10 @@ class LoginUserService(
 
     private val userService by lazy { findService(UserService::class) }
 
-    override suspend fun login(user: String, password: String): Collection<ErrorInfo> =
+    override suspend fun login(user: String, password: String?): Collection<ErrorInfo> =
         mutableListOf<ErrorInfo>().also { errors ->
 
-            userService.findUserByLogin(user)?.apply {
+            userService.findUserByLogin(user)?.apply user@ {
 
                 if (status != ES_USER_ACTUAL) {
                     errors.add(
@@ -33,14 +33,15 @@ class LoginUserService(
                         )
                     )
                 } else
-
-                    if (!passwordEncoder.matches(password, this.password)) {
-                        errors.add(
-                            create(
-                                Error.INVALID_ENTITY_PASSWORD, Field.SSS_USER_PASSWORD,
-                                findI18nMessage(I18NEnum.FLD_INVALID_USER_PASSWORD)
+                    password?.apply {
+                        if (!passwordEncoder.matches(this, this@user.password)) {
+                            errors.add(
+                                create(
+                                    Error.INVALID_ENTITY_PASSWORD, Field.SSS_USER_PASSWORD,
+                                    findI18nMessage(I18NEnum.FLD_INVALID_USER_PASSWORD)
+                                )
                             )
-                        )
+                        }
                     }
 
             } ?: errors.add(
@@ -50,5 +51,4 @@ class LoginUserService(
                 )
             )
         }
-
 }

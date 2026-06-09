@@ -85,7 +85,6 @@ abstract class BaseSpec : StringSpec(), Logging {
         validators: Array<out PropertyValidator<T, *>>
     ) {
         val entityClass = entity::class
-        logger.info { "Verify entity fields for: $entityClass" }
 
         if (verifyAllFields) {
             val expectedFieldNames = fieldsCache.getOrPut(entityClass) {
@@ -129,9 +128,8 @@ abstract class BaseSpec : StringSpec(), Logging {
         requireNotNull(entity) { "entity not found" }
         val entityId = requireNotNull(entity.entityId) { "entityId is null" }
 
-        logger.info { "Verify entity actions: $entityId (${entity::class.simpleName})" }
+        //logger.info { "Verify entity actions: $entityId (${entity::class.simpleName})" }
 
-        // Переиспользуем общий метод валидации полей
         validateEntityFields(entity, verifyAllFields, validators)
 
         val hasAction =

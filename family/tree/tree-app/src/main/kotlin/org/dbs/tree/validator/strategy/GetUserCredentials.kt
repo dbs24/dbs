@@ -19,8 +19,6 @@ class GetUserCredentials(
     private val userService: UserService
 ) : ValidationStrategy<DTO> {
 
-    override val supportedClass = DTO::class
-
     override val rules: Collection<FieldValidationRule<DTO>> = listOf(
         DTO::login matches (LOGIN_PATTERN to SSS_USER_LOGIN),
     )

@@ -16,7 +16,6 @@ data class LoginUserResponseDto(
     val refreshValidUntil: Long,
 ) : ResponseDto
 
-
 data class RefreshTokensDto(
     val accessToken: String,
     val refreshToken: String,

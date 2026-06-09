@@ -24,8 +24,6 @@ class UpdateUserPasswordValidationStrategy(
     private val passwordEncoder: PasswordEncoder,
 ) : ValidationStrategy<DTO> {
 
-    override val supportedClass = DTO::class
-
     override val rules: Collection<FieldValidationRule<DTO>> = listOf(
         DTO::login matches (LOGIN_PATTERN to SSS_USER_LOGIN),
         DTO::oldPassword matches (PASSWORD_PATTERN to SSS_USER_PASSWORD),

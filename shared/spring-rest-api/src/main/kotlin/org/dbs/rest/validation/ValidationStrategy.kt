@@ -15,6 +15,7 @@ import org.dbs.validator.ErrorInfo.Companion.create
 import org.dbs.validator.Field
 import org.dbs.validator.exception.ValidationException
 import org.springframework.beans.factory.SmartInitializingSingleton
+import java.lang.reflect.ParameterizedType
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors.newFixedThreadPool
 import java.util.regex.Pattern
@@ -24,7 +25,16 @@ import kotlin.reflect.full.primaryConstructor
 
 interface ValidationStrategy<T : DomainCommand> : Logging, SmartInitializingSingleton {
 
+    @Suppress("UNCHECKED_CAST")
     val supportedClass: KClass<T>
+        get() = classCache.computeIfAbsent(this::class) {
+            (this::class.java.genericInterfaces
+                .firstNotNullOfOrNull { it as? ParameterizedType }
+                ?.actualTypeArguments
+                ?.firstOrNull() as? Class<T>)?.kotlin
+                ?: error("Cannot dynamically resolve generic type T for ${this::class.simpleName}")
+        } as KClass<T>
+
     val rules: Collection<FieldValidationRule<T>>
     val requireAllFieldsValidated: Boolean get() = true
 
@@ -151,6 +161,7 @@ interface ValidationStrategy<T : DomainCommand> : Logging, SmartInitializingSing
         )
 
     companion object {
+        private val classCache = ConcurrentHashMap<KClass<*>, KClass<*>>()
         private val validationDispatcher by lazy {
             newFixedThreadPool(
                 Runtime.getRuntime().availableProcessors()

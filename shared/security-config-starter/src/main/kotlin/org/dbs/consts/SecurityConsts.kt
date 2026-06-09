@@ -20,6 +20,7 @@ object SecurityConsts {
 
     object Claims {
         const val CL_IP = "IP_ADDRESS"
+        const val CL_USER = "USER"
         const val CL_AUTH_SERVICE = "AUTH_SERVICE"
         const val CL_INTERNAL_SERVICE = "INTERNAL_SERVICE"
         const val CL_ACCESS_TOKEN = "ACCESS_TOKEN"

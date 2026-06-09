@@ -8,12 +8,14 @@ import io.kotest.matchers.shouldNotBe
 import org.dbs.consts.PasswordNull
 import org.dbs.dto.jwt.LoginUserDto
 import org.dbs.dto.jwt.LoginUserResponseDto
+import org.dbs.dto.jwt.RefreshTokensDto
 import org.dbs.entity.core.EntityStatusEnum
 import org.dbs.model.IssuedJwt
 import org.dbs.model.RefreshJwt
 import org.dbs.repo.AccessJwtRepo
 import org.dbs.repo.RefreshJwtRepo
 import org.dbs.test.ko.BaseRestSpec
+import org.dbs.test.ko.ErrorBox
 import org.dbs.tree.model.user.User
 import org.dbs.tree.repo.UserRepo
 import org.dbs.user.FamilyTreeCore.EntityStatus
@@ -28,20 +30,12 @@ import org.dbs.user.dto.user.UpdatedUserDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.password.PasswordEncoder
 
-interface TestAccessJwtRepo : AccessJwtRepo {
-    suspend fun findByJwt(jwt: String): IssuedJwt?
-}
-
-interface TestRefreshJwtRepo : RefreshJwtRepo {
-    suspend fun findByJwt(jwt: String): RefreshJwt?
-}
-
 abstract class BaseTreeRestTest: BaseRestSpec() {
 
     @Autowired lateinit var userRepo: UserRepo
     @Autowired lateinit var passwordEncoder: PasswordEncoder
-    @Autowired lateinit var accessJwtRepo: TestAccessJwtRepo
-    @Autowired lateinit var refreshJwtRepo: TestRefreshJwtRepo
+    @Autowired lateinit var accessJwtRepo: AccessJwtRepo
+    @Autowired lateinit var refreshJwtRepo: RefreshJwtRepo
 
     protected fun createUserDto(
         login: String,
@@ -135,16 +129,45 @@ abstract class BaseTreeRestTest: BaseRestSpec() {
 
     protected fun createLoginUserDto(login: String, password: String) = LoginUserDto(login, password)
 
+    protected fun createRefreshTokenDto(dto: LoginUserResponseDto) = RefreshTokensDto(dto.accessToken, dto.refreshToken)
+
     suspend fun loginUser(
         requestBody: LoginUserDto,
-        rm: String = "/security") {
+        rm: String = "/security"): LoginUserResponseDto
+    {
         val response =
             executePost<LoginUserDto, LoginUserResponseDto>(rm, "/login", requestBody) { expectStatus().isOk }
-        assertCreatedJwts(requestBody, response)
+
+        return response.also {
+            assertCreatedJwts(requestBody.login, it)
+        }
+    }
+
+    fun loginUserWithErrors( requestBody: LoginUserDto): ErrorBox
+    {
+        return postQueryShouldFailWithValidationError("/login", requestBody)
+    }
+
+    fun refreshJwtsWithErrors(requestBody: RefreshTokensDto): ErrorBox
+    {
+        return postQueryShouldFailWithValidationError("/refresh", requestBody)
+    }
+
+    suspend fun refresh(
+        requestBody: RefreshTokensDto,
+        login: String,
+        rm: String = "/security"): LoginUserResponseDto {
+        val response =
+            executePost<RefreshTokensDto, LoginUserResponseDto>(rm, "/refresh", requestBody) { expectStatus().isOk }
+        return response.also {
+            assertRevokedJwts(login, requestBody)
+            assertCreatedJwts(login, it)
+        }
+
     }
 
     protected suspend fun assertCreatedJwts(
-        dto: LoginUserDto,
+        login: String,
         response: LoginUserResponseDto
     ) {
         response.accessToken shouldNotBeNull {}
@@ -156,7 +179,7 @@ abstract class BaseTreeRestTest: BaseRestSpec() {
             IssuedJwt::issueDate verify { it shouldNotBe null },
             IssuedJwt::validUntil verify { it shouldNotBe null; it shouldBeGreaterThan issueDate},
             IssuedJwt::jwt verify { it shouldBe response.accessToken },
-            IssuedJwt::issuedTo verify { it shouldBe dto.login },
+            IssuedJwt::issuedTo verify { it shouldBe login },
             IssuedJwt::tag verify { it shouldBe null },
             IssuedJwt::isRevoked verify { it shouldBe false },
             IssuedJwt::revokeDate verify { it shouldBe null },
@@ -186,4 +209,47 @@ abstract class BaseTreeRestTest: BaseRestSpec() {
             *refreshJwtValidators,
         )
     }
+
+    protected suspend fun assertRevokedJwts(
+        login: String,
+        request: RefreshTokensDto
+    ) {
+
+        // access token
+        val accessJwtValidators: Array<PropertyValidator<IssuedJwt, *>> = arrayOf(
+            IssuedJwt::jwtId verify { it shouldNotBe null;  it?.apply {  this shouldBeGreaterThan 0L } },
+            IssuedJwt::issueDate verify { it shouldNotBe null },
+            IssuedJwt::validUntil verify { it shouldNotBe null; it shouldBeGreaterThan issueDate},
+            IssuedJwt::jwt verify { it shouldBe request.accessToken },
+            IssuedJwt::issuedTo verify { it shouldBe login },
+            IssuedJwt::tag verify { it shouldBe null },
+            IssuedJwt::isRevoked verify { it shouldBe true },
+            IssuedJwt::revokeDate verify { it shouldNotBe null },
+        )
+
+        val accessJwt = verifyModifiedEntity(
+            accessJwtRepo.findByJwt(request.accessToken),
+            verifyAllFields = true,
+            *accessJwtValidators,
+        )
+
+        // refresh token
+        val refreshJwtValidators: Array<PropertyValidator<RefreshJwt, *>> = arrayOf(
+            RefreshJwt::jwtId verify { it shouldNotBe null
+                it?.apply {  this shouldBeGreaterThan (accessJwt.jwtId ?: error("accessJwt is null")) }},
+            RefreshJwt::parentJwtId verify { it shouldBe accessJwt.jwtId },
+            RefreshJwt::issueDate verify { it shouldNotBe null },
+            RefreshJwt::validUntil verify { it shouldNotBe null; it shouldBeGreaterThan issueDate},
+            RefreshJwt::jwt verify { it shouldBe request.refreshToken },
+            RefreshJwt::isRevoked verify { it shouldBe true },
+            RefreshJwt::revokeDate verify { it shouldNotBe null },
+        )
+
+        verifyModifiedEntity(
+            refreshJwtRepo.findByJwt(request.refreshToken),
+            verifyAllFields = true,
+            *refreshJwtValidators,
+        )
+    }
+
 }

@@ -4,7 +4,7 @@ import io.jsonwebtoken.Claims
 import org.dbs.spring.core.api.PublicApplicationBean
 import javax.crypto.SecretKey
 
-interface JwtSecurityServiceApi: PublicApplicationBean {
+interface JwtSecurityServiceApi : PublicApplicationBean {
     fun buildKey(secretKey: String): SecretKey
     fun getServiceJwt(): String
     fun getBearerServiceJwt(): String
@@ -14,4 +14,8 @@ interface JwtSecurityServiceApi: PublicApplicationBean {
 
     fun getClaim(jwt: String, claimName: String): String?
     fun getClaimExpired(jwt: String, claimName: String): String?
+
+    fun getClaimAbs(jwt: String, claimName: String): String? =
+        getClaim(jwt, claimName) ?: getClaimExpired(jwt, claimName)
+
 }

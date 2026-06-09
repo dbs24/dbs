@@ -25,8 +25,6 @@ class CreateUserValidationStrategy(
     private val userService: UserService,
 ) : ValidationStrategy<DTO> {
 
-    override val supportedClass = DTO::class
-
     override val rules: Collection<FieldValidationRule<DTO>> = listOf(
         DTO::oldLogin matches (LOGIN_PATTERN to SSS_USER_OLD_LOGIN),
         DTO::login matches (LOGIN_PATTERN to SSS_USER_LOGIN),

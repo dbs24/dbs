@@ -24,9 +24,10 @@ enum class Error(private val value: String, private val code: Int) : RefEnum {
     H1H2_ILLEGAL_CALL("h1h2.illegal.call", 1001),
     ILLEGAL_STATE("illegal.state", 1010),
     INVALID_QUERY_PARAM("invalid.query.param", 100000),
-    INVALID_JWT("invalid.jwt", 100002),
-    INVALID_ENTITY_ATTR("entity.attrs.invalid", 100001),
-    INVALID_DTO_ATTR("entity.dto.invalid", 100003),
+    INVALID_JWT("invalid.jwt", 100001),
+    CLAIM_NOT_FOUND("invalid.jwt.claim", 100002),
+    INVALID_ENTITY_ATTR("entity.attrs.invalid", 100003),
+    INVALID_DTO_ATTR("entity.dto.invalid", 100004),
     INVALID_ATTR_PATTERN_MISMATCH("invalid attribute value ", 100101),
     QUERY_PARAM_NOT_FOUND("query param not exists - ", 100102),
     FIELD_NOT_FOUND("mandatory field is not defined - ", 100103),
@@ -38,7 +39,7 @@ enum class Error(private val value: String, private val code: Int) : RefEnum {
     USER_LOGINS_MISMATCH("user logins mismatch ", 200110),
     USER_PASSWORDS_MISMATCH("user passwords mismatch ", 200120),
     USER_ACCESS_DENIED("user access denied ", 200130),
-    USER_INVALID_ACCESSTOKEN("invalid access token", 200140),
+    USER_INVALID_ACCESS_TOKEN("invalid access token", 200140),
     USER_HAS_NO_ROLE("user has no role", 200150),
 
     //==========================================================================

@@ -24,8 +24,6 @@ class CreateProjectValidationStrategy(
     private val projectService: ProjectService,
 ) : ValidationStrategy<DTO> {
 
-    override val supportedClass = DTO::class
-
     override val rules: Collection<FieldValidationRule<DTO>> = listOf(
         DTO::oldProjectShortName matches (LOGIN_PATTERN to SSS_USER_OLD_LOGIN),
         DTO::projectShortName matches (LOGIN_PATTERN to SSS_USER_LOGIN),

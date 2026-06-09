@@ -1,6 +1,11 @@
 ---
 debug: false
 trace: off
+application:
+  jwt:
+    secret-key: ${JWT_SECRET_KEY}
+    access-token-expiration: ${JWT_ACCESS_TOKEN_LIVE}
+    refresh-token-expiration: ${JWT_REFRESH_TOKEN_LIVE}
 server:
   port: 8443
   ssl:
@@ -154,8 +159,7 @@ config:
   liveness:
     hosts: { #'media-dev.k11dev.tech':9000,
       #                'admin.k11dev.tech':443,
-      'google.com': 443,
-      'uonmap.com': 443 }
+      'google.com': 443 }
   restful:
     return-error-2-response: true
     profile:
@@ -191,9 +195,6 @@ config:
     profile:
       name: advanced
       advanced-white-uri-list: /info,/health
-    jwt:
-      name: standard
-      secret-key: ${JWT_SECRET_KEY}
     bucket4j:
       enabled: false
       trusted-ips: localhost
@@ -225,34 +226,6 @@ grpc:
 config:
   references:
     auto-synchronize: true
-  grpc:
-    reflection:
-      enabled: true
----
-spring:
-  config:
-    activate:
-      on-profile: ilona-test
-  data:
-    redis:
-      host: localhost
-      port: 6379
-      password: ${REDIS_PASSWORD}
-  r2dbc:
-    username: ${R2DBC_USERNAME}
-    password: ${R2DBC_PASSWORD}
-    url: ${R2DBC_URL}
-springdoc:
-  api-docs:
-    enabled: true
-  swagger-ui:
-    enabled: true
-grpc:
-  server:
-    port: 18443
-config:
-  references:
-    auto-synchronize: false
   grpc:
     reflection:
       enabled: true

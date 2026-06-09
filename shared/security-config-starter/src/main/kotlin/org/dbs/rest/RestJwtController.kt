@@ -3,6 +3,7 @@ package org.dbs.rest
 import org.dbs.component.JwtSecurityService
 import org.dbs.dto.jwt.LoginUserDto
 import org.dbs.dto.jwt.LoginUserResponseDto
+import org.dbs.dto.jwt.RefreshTokensDto
 import org.dbs.mapper.JwtMappers.toCommand
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -16,4 +17,8 @@ class RestJwtController(private val jwtSecurityService: JwtSecurityService) {
     @PostMapping("/login")
     suspend fun login(@RequestBody dto: LoginUserDto): LoginUserResponseDto =
         jwtSecurityService.loginUser(dto.toCommand())
+
+    @PostMapping("/refresh")
+    suspend fun refresh(@RequestBody dto: RefreshTokensDto): LoginUserResponseDto =
+        jwtSecurityService.refresh(dto.toCommand())
 }

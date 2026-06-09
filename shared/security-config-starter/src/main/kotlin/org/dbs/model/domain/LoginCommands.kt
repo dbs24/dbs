@@ -1,6 +1,9 @@
 package org.dbs.model.domain
 
 import org.dbs.consts.Password
+import org.dbs.ext.lateInitProperty
+import org.dbs.model.IssuedJwt
+import org.dbs.model.RefreshJwt
 import org.dbs.rest.api.nio.DomainCommand
 
 data class LoginUserCommand(
@@ -8,4 +11,13 @@ data class LoginUserCommand(
     val password: Password
 ) : DomainCommand {
     override fun toString() = "{login: $login, password: **** }"
+}
+
+data class RefreshTokensCommand(
+    val accessToken: String,
+    val refreshToken: String
+) : DomainCommand {
+    var login: String by lateInitProperty()
+    var issuedJwt: IssuedJwt by lateInitProperty()
+    var refreshJwt: RefreshJwt by lateInitProperty()
 }

@@ -5,6 +5,6 @@ import org.dbs.validator.ErrorInfo
 
 interface LoginService {
 
-    suspend fun login(user: String, password: String): Collection<ErrorInfo>
+    suspend fun login(user: String, password: String? = null): Collection<ErrorInfo>
 
 }
