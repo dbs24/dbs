@@ -40,6 +40,7 @@ import org.springframework.context.annotation.Import
 @Import(TreeConfig::class)
 @Suppress("unused")
 @Isolate
+@Deprecated("use contract test")
 class UsersGrpcTests : BaseTreeGrpcTest() {
 
     private val newUserLogin: String  get() = "validgrpcuser$testNum"

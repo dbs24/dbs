@@ -3,7 +3,9 @@ package org.dbs.test.ko
 import api.TestConst.SQL_TEST_DB_NAME
 import api.TestConst.SQL_TEST_DB_USER
 import io.kotest.assertions.withClue
+import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.core.test.TestCaseOrder
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.shouldBe
 import org.apache.logging.log4j.kotlin.Logging
@@ -64,6 +66,11 @@ import kotlin.reflect.full.memberProperties
     ]
 )
 abstract class BaseSpec : StringSpec(), Logging {
+
+    init {
+        isolationMode = IsolationMode.InstancePerTest
+        testCaseOrder = TestCaseOrder.Random
+    }
 
     @Autowired
     lateinit var databaseClient: DatabaseClient
@@ -148,7 +155,7 @@ abstract class BaseSpec : StringSpec(), Logging {
         private val atomicTestNum = AtomicInteger(0)
 
         @JvmStatic
-        protected val testNum: Int get() = atomicTestNum.incrementAndGet()
+        val testNum: Int get() = atomicTestNum.incrementAndGet()
 
         val postgresR2dbcContainer = PostgresR2dbcContainer(SQL_TEST_DB_NAME, SQL_TEST_DB_USER)
         private val kafkaTestContainer = KafkaTestContainer()

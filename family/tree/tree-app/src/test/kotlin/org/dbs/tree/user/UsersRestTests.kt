@@ -19,6 +19,7 @@ import org.springframework.context.annotation.Import
 @Import(TreeConfig::class)
 @Suppress("unused")
 @Isolate
+@Deprecated("use contract test")
 class UsersRestTests : BaseTreeRestTest() {
 
     override val requestMapping = "/users"
