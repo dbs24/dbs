@@ -1,8 +1,6 @@
 package org.dbs.ref.serv.enums
 
-import org.dbs.application.core.service.funcs.TestFuncs
 import org.dbs.application.core.service.funcs.TestFuncs.selectFrom
-import org.dbs.exception.UnknownEnumException
 
 enum class GenderEnum(
     private val code: String

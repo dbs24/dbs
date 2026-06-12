@@ -1,20 +1,8 @@
 package dsl
 
-import dsl.Dependencies.Core.EMPTY_STRING
-import dsl.Dependencies.ProtoBuffSettings.GRPC
-import dsl.Dependencies.ProtoBuffSettings.GRPC_JAVA_LIB
-import dsl.Dependencies.ProtoBuffSettings.GRPC_JAVA_LIB_VAR
-import dsl.Dependencies.ProtoBuffSettings.GRPC_KT
-import dsl.Dependencies.ProtoBuffSettings.GRPC_KT_LIB
-import dsl.Dependencies.ProtoBuffSettings.GRPC_KT_LIB_VAR
-import dsl.Dependencies.ProtoBuffSettings.JDK8_JAR
-import dsl.Dependencies.ProtoBuffSettings.PROTOC_LIB
-import dsl.Dependencies.ProtoBuffSettings.PROTOC_LIB_VAR
 import org.gradle.api.Project
-import org.gradle.api.artifacts.ExternalModuleDependencyBundle
-import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.artifacts.VersionCatalog
-import org.gradle.kotlin.dsl.configure
+import org.gradle.api.artifacts.VersionCatalogsExtension
 
 
 object ProjectFuncs {

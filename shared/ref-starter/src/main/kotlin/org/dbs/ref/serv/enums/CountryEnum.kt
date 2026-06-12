@@ -1,6 +1,5 @@
 package org.dbs.ref.serv.enums
 
-import org.dbs.application.core.service.funcs.TestFuncs
 import org.dbs.application.core.service.funcs.TestFuncs.selectFrom
 import org.dbs.consts.CountryIsoCode
 import org.dbs.exception.UnknownEnumException

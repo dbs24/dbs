@@ -12,15 +12,21 @@ import org.dbs.application.core.service.funcs.ServiceFuncs.createCollection
 import org.dbs.consts.GenericArg2Unit
 import org.dbs.consts.GrpcConsts.MetadataKeys.GRPC_BEARER_AUTHORIZATION
 import org.dbs.consts.RestHttpConsts.BEARER
+import org.dbs.consts.SpringCoreConst.PropertiesNames.BUCKET_4J_ENABLED
+import org.dbs.consts.SpringCoreConst.PropertiesNames.GRPC_ENABLED_REFLECTION
+import org.dbs.consts.SpringCoreConst.PropertiesNames.GRPC_MAX_EXEC_TIME
+import org.dbs.consts.SpringCoreConst.PropertiesNames.GRPC_MAX_EXEC_TIME_VALUE
+import org.dbs.consts.SpringCoreConst.PropertiesNames.GRPC_SERVER_SECURITY
+import org.dbs.consts.SysConst.STRING_FALSE
 import org.dbs.consts.SysConst.TIMEOUT_10000_MILLIS_LONG
 import org.dbs.consts.SysConst.UNCHECKED_CAST
 import org.dbs.ext.LoggerFuncs.logRequest
 import org.dbs.protobuf.core.ResponseCode
 import org.dbs.protobuf.core.ResponseCode.RC_OK
 import org.dbs.spring.core.api.AbstractApplicationService
-import org.dbs.spring.core.api.ApplicationBean.Companion.findCanonicalService
 import org.dbs.spring.core.api.ServiceLocator.findService
 import org.dbs.spring.security.api.JwtSecurityServiceApi
+import org.springframework.beans.factory.annotation.Value
 import java.io.Closeable
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit.MILLISECONDS
@@ -42,8 +48,19 @@ abstract class AbstractGrpcClientService<T : AbstractCoroutineStub<T>>(
     private val useClientSsl: Boolean = true,
 ) : AbstractApplicationService(), Closeable {
 
-    private val ymlConfig by lazy { findCanonicalService(GrpcYmlConfig::class) }
-    private val clientSsl by lazy { ymlConfig.useSsl.takeIf { useClientSsl } ?: useClientSsl }
+    @Value("\${$GRPC_MAX_EXEC_TIME:$GRPC_MAX_EXEC_TIME_VALUE}")
+    private val maxTimeExec = GRPC_MAX_EXEC_TIME_VALUE
+
+    @Value("\${$GRPC_ENABLED_REFLECTION:$STRING_FALSE}")
+    private val enableGrpcReflection = false
+
+    @Value("\${$BUCKET_4J_ENABLED:$STRING_FALSE}")
+    private val bucket4jEnabled = false
+
+    @Value("\${$GRPC_SERVER_SECURITY:$STRING_FALSE}")
+    private val useSsl = false
+
+    private val clientSsl by lazy { useSsl.takeIf { useClientSsl } ?: false }
     private val streamJobs by lazy { createCollection<Thread>() }
     private val blockingJob: GenericArg2Unit<StreamJob> = { runBlocking(Dispatchers.IO) { it() } }
     fun addGrpcStreamJob(sj: StreamJob) {
@@ -90,7 +107,7 @@ abstract class AbstractGrpcClientService<T : AbstractCoroutineStub<T>>(
         val tryCall: Call<V> = {
             val response: V
             measureTimeMillis { response = invoke(client) }.also {
-                logger.logRequest(it, ymlConfig.maxTimeExec)
+                logger.logRequest(it, maxTimeExec)
                 { "grpc call ($grpcUrl:$grpcPort), ${client.javaClass.simpleName}" }
             }
             response
@@ -114,7 +131,7 @@ abstract class AbstractGrpcClientService<T : AbstractCoroutineStub<T>>(
         val tryCall: FlowCall<V> = {
             val response: V
             measureTimeMillis { response = invoke(client) }.also {
-                logger.logRequest(it, ymlConfig.maxTimeExec)
+                logger.logRequest(it, maxTimeExec)
                 { "grpc flow call ($grpcUrl:$grpcPort), ${client.javaClass.simpleName}" }
             }
             response

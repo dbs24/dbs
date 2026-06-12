@@ -8,7 +8,7 @@ import org.springframework.core.env.ConfigurableEnvironment
 import org.springframework.core.env.PropertiesPropertySource
 import org.springframework.core.io.ClassPathResource
 import java.io.File
-import java.util.Properties
+import java.util.*
 
 class EnvFileEnvironmentPostProcessor : EnvironmentPostProcessor, Ordered {
 

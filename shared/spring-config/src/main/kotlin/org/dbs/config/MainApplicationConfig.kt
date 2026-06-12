@@ -23,7 +23,6 @@ abstract class MainApplicationConfig : AbstractApplicationConfiguration() {
 
         return JsonMapper.builder()
             .addModule(KotlinModule.Builder().build())
-            // ✅ FIX: Drop the third parameter. Jackson 3 defaults to JsonTypeInfo.As.PROPERTY automatically.
             .activateDefaultTyping(typeValidator, DefaultTyping.NON_FINAL)
             .build()
     }

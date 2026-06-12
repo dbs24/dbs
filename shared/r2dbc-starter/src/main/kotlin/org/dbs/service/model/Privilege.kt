@@ -1,7 +1,7 @@
 package org.dbs.service.model
 
-import org.dbs.spring.ref.AbstractRefEntity
 import org.dbs.entity.security.enums.PrivilegeGroupEnum
+import org.dbs.spring.ref.AbstractRefEntity
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table

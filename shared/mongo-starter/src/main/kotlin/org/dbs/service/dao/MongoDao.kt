@@ -1,8 +1,8 @@
 package org.dbs.service.dao
 
 import com.mongodb.reactivestreams.client.MongoClient
-import org.dbs.spring.core.api.DaoAbstractApplicationService
 import org.dbs.consts.SysConst.EMPTY_STRING
+import org.dbs.spring.core.api.DaoAbstractApplicationService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.stereotype.Service

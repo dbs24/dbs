@@ -1,7 +1,7 @@
 package org.dbs.security
 
-import org.dbs.spring.core.api.AbstractApplicationService
 import org.dbs.security.jwt.Jwt
+import org.dbs.spring.core.api.AbstractApplicationService
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Primary
 import org.springframework.stereotype.Service

@@ -3,11 +3,11 @@ package org.dbs.service
 import com.mongodb.reactivestreams.client.MongoClient
 import com.mongodb.reactivestreams.client.MongoClients
 import org.dbs.consts.SpringCoreConst.Beans.DEFAULT_PROXY_BEANS_VAL
-import org.dbs.spring.core.api.PublicApplicationBean
 import org.dbs.consts.SysConst.ALL_PACKAGES
 import org.dbs.consts.SysConst.EMPTY_STRING
 import org.dbs.consts.SysConst.SLASH
 import org.dbs.service.consts.MongoConsts.MONGO_URI
+import org.dbs.spring.core.api.PublicApplicationBean
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

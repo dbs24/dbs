@@ -1,21 +1,14 @@
 package org.dbs.test.container
 
-import org.dbs.consts.SpringCoreConst
 import org.dbs.consts.SpringCoreConst.PropertiesNames.KAFKA_BOOSTRAP_SERVERS
 import org.dbs.consts.SpringCoreConst.PropertiesNames.SERVER_SSL_DISABLED
 import org.dbs.consts.SpringCoreConst.PropertiesNames.SERVER_SSL_ENABLED
-import org.dbs.consts.SysConst
-import org.dbs.consts.SysConst.TIMEOUT_60_SEC
 import org.dbs.consts.SysConst.UNCHECKED_CAST
-import org.dbs.consts.SysEnvConst
 import org.dbs.consts.SysEnvConst.SysProperties.USER_DIR
 import org.dbs.test.core.AbstractTestContainer2
-import org.springframework.http.HttpStatus
-import org.springframework.http.HttpStatus.OK
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.Network
-import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.images.builder.ImageFromDockerfile
 import org.testcontainers.utility.DockerImageName
 import java.lang.System.getProperty
