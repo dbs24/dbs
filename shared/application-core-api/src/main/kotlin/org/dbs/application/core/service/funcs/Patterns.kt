@@ -35,9 +35,7 @@ object Patterns {
             + "\\u3000") // IDEOGRAPHIC SPACE
 
 
-    private const val ARABIC_CHARS = "\\p{IsArabic}"
     private const val CYRILLIC_CHARS = "\\p{IsCyrillic}"
-    private const val TURKISH_CHARS = "a-zA-ZğüşöçİĞÜŞÖÇ"
     private const val LATIN_CHARS = "\\p{IsLatin}"
 
     private const val NOTE_GENERIC_PATTER = "0-9\\'\\-,.:;\\s!?()\\{\\}\\[\\]\\u0009\\u0020\\n\\u000D\\u000A"

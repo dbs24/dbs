@@ -31,6 +31,7 @@ dependencies {
     implementation(libs.grpc.kotlin.stub)
     implementation(libs.grpc.server.spring.boot)
     implementation(libs.kotest.blockhound)
+    implementation(libs.webtestclient)
     testApi(libs.blockhound.junit.platform)
 
     implementation(libs.kotest.assertions.core)

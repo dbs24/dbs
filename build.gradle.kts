@@ -335,7 +335,7 @@ dependencies {
 
     // grpc
     implementation(enforcedPlatform(libs.grpc.bom))
-    implementation(libs.grpc.server.autoconfigure)
+    implementation(libs.grpc.server.spring.boot)
     implementation(libs.grpc.api)
     implementation(libs.grpc.gateway)
 
@@ -362,9 +362,6 @@ dependencies {
     implementation(libs.detekt.formatting)
     implementation(libs.detekt.rules.libraries)
     implementation(libs.detekt.rules.ruleauthors)
-
-    // log4j2
-    implementation(libs.log4j.slf4j)
 
     // bucket4j
     implementation(libs.bucket4j.core)

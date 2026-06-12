@@ -1,6 +1,5 @@
 package org.dbs.config
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.dbs.consts.SpringCoreConst.Beans.DEFAULT_PROXY_BEANS_VAL
 import org.dbs.consts.SpringCoreConst.PropertiesNames.JUNIT_MODE
 import org.dbs.consts.SpringCoreConst.PropertiesNames.SPRING_REDIS_HOST
@@ -11,7 +10,6 @@ import org.dbs.consts.SysConst.RSOCKET_PACKAGE
 import org.dbs.consts.SysConst.SERVICE_PACKAGE
 import org.dbs.consts.SysConst.UNKNOWN
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
@@ -21,12 +19,13 @@ import org.springframework.core.annotation.Order
 import org.springframework.data.redis.cache.RedisCacheConfiguration
 import org.springframework.data.redis.cache.RedisCacheManager
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory
+import org.springframework.data.redis.connection.RedisConnectionFactory
 import org.springframework.data.redis.connection.RedisPassword
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
 import org.springframework.data.redis.core.RedisTemplate
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer
+import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer
 import org.springframework.data.redis.serializer.GenericToStringSerializer
 import org.springframework.data.redis.serializer.RedisSerializationContext
 import org.springframework.data.redis.serializer.StringRedisSerializer
@@ -34,6 +33,7 @@ import org.springframework.session.ReactiveMapSessionRepository
 import org.springframework.session.ReactiveSessionRepository
 import org.springframework.session.config.annotation.web.server.EnableSpringWebSession
 import org.springframework.session.data.redis.config.annotation.web.server.EnableRedisWebSession
+import tools.jackson.databind.json.JsonMapper
 import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
 
@@ -73,36 +73,52 @@ class JedisConfig(
     private fun lettuceCfg() = LettuceClientConfiguration.builder().build()
 
     @Bean
-    fun redisCacheManager(factory: LettuceConnectionFactory, objectMapper: ObjectMapper): RedisCacheManager =
-        RedisCacheManager.builder(factory)
-            .cacheDefaults(
-                RedisCacheConfiguration
-                    .defaultCacheConfig()
-                    .entryTtl(Duration.ofHours(4))
-                    .disableCachingNullValues()
-                    .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(StringRedisSerializer()))
-                    .serializeValuesWith(
-                        RedisSerializationContext.SerializationPair.fromSerializer(
-                            GenericJackson2JsonRedisSerializer(objectMapper)
-                        )
-                    )
-                    .entryTtl(Duration.ofHours(4))
-                    .also {
-                        it.usePrefix()
-                    }
+    fun redisCacheManager(
+        factory: LettuceConnectionFactory,
+        jsonMapper: JsonMapper
+    ): RedisCacheManager {
 
+        val jacksonSerializer = GenericJacksonJsonRedisSerializer.create { configurer ->
+            configurer.typePropertyName("@class")
+            configurer.enableUnsafeDefaultTyping()
+        }
+
+        // ✅ FIX: Maintain a continuous builder chain returning RedisCacheConfiguration
+        val cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
+            .entryTtl(Duration.ofHours(4))
+            .disableCachingNullValues()
+            .serializeKeysWith(
+                RedisSerializationContext.SerializationPair.fromSerializer<String>(StringRedisSerializer())
             )
+            .serializeValuesWith(
+                RedisSerializationContext.SerializationPair.fromSerializer<Any>(jacksonSerializer)
+            )
+        // Optional: Use this ONLY if you want to prepend a custom string before the cache name
+        // .prefixCacheNameWith("my-app:")
+
+        return RedisCacheManager.builder(factory)
+            .cacheDefaults(cacheConfig) // ✅ Type safely infers RedisCacheConfiguration now
             .build()
+    }
 
     @Bean
-    @ConditionalOnMissingBean(name = ["redisTemplate"])
-    fun redisTemplate(lcf: LettuceConnectionFactory, objectMapper: ObjectMapper): RedisTemplate<String, Any> = RedisTemplate<String, Any>().apply {
-        logger.debug("create default redis template ($redisHost:$redisPort)")
+    @Primary
+    fun redisTemplate(
+        lcf: RedisConnectionFactory,
+        jsonMapper: JsonMapper // Autowired Jackson 3 singleton
+    ): RedisTemplate<String, Any> = RedisTemplate<String, Any>().apply {
         connectionFactory = lcf
         keySerializer = StringRedisSerializer()
         hashKeySerializer = GenericToStringSerializer(Any::class.java)
-        hashValueSerializer = GenericJackson2JsonRedisSerializer(objectMapper)
-        valueSerializer = GenericJackson2JsonRedisSerializer(objectMapper)
+
+        // ✅ FIX: Use the non-deprecated Jackson 3 serializer creation pattern
+        val jacksonSerializer = GenericJacksonJsonRedisSerializer.create { configurer ->
+            configurer.typePropertyName("@class") // Keeps type hints for polymorphic data classes like User
+            configurer.enableUnsafeDefaultTyping()
+        }
+
+        valueSerializer = jacksonSerializer
+        hashValueSerializer = jacksonSerializer
     }
 
     override fun initialize() =

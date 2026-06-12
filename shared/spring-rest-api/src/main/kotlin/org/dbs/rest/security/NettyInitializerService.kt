@@ -9,12 +9,12 @@ import org.dbs.consts.SysConst.INTEGER_ZERO
 import org.dbs.consts.SysConst.STRING_ZERO
 import org.dbs.spring.core.api.AbstractApplicationService
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.web.codec.CodecCustomizer
-import org.springframework.boot.web.embedded.netty.NettyReactiveWebServerFactory
+import org.springframework.boot.http.codec.CodecCustomizer
+import org.springframework.boot.reactor.netty.NettyReactiveWebServerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.DependsOn
+import org.springframework.http.client.ReactorResourceFactory
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
-import org.springframework.http.client.reactive.ReactorResourceFactory
 import org.springframework.stereotype.Service
 import reactor.netty.http.client.HttpClient
 import reactor.netty.resources.LoopResources
@@ -33,7 +33,7 @@ class NettyInitializerService : AbstractApplicationService() {
 
     @Bean
     fun reactorClientHttpConnector(r: ReactorResourceFactory): ReactorClientHttpConnector =
-        ReactorClientHttpConnector(r) { m: HttpClient? -> m }
+        ReactorClientHttpConnector(r) { m: HttpClient -> m }
 
     @Bean
     fun nettyResourceFactory(eventLoopGroup: NioEventLoopGroup): ReactorResourceFactory =

@@ -6,13 +6,12 @@ import org.apache.logging.log4j.kotlin.Logging
 import org.dbs.consts.NoArg2Unit
 import org.dbs.consts.SpringCoreConst.PropertiesNames.GRPC_SERVER_PORT
 import org.dbs.consts.SpringCoreConst.WebClientConsts.UNLIMITED_BUFFER
-import org.dbs.consts.SuspendNoArg2Mono
 import org.dbs.entity.core.v2.model.EntityCore
 import org.dbs.rest.api.nio.RequestDto
 import org.dbs.spring.core.api.ApplicationBean.Companion.findCanonicalService
 import org.dbs.spring.core.api.EntityInfo
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.testcontainers.junit.jupiter.Testcontainers
@@ -56,13 +55,6 @@ abstract class AbstractKoTestBehaviorSpec : BehaviorSpec(), Logging {
     }
 
     //==========================================================================
-    suspend fun <T> runTestWithResult(testRunner: SuspendNoArg2Mono<T>): Mono<T> = run {
-        logger.info { "execute test ${testRunner.javaClass.simpleName}" }
-        testRunner()
-    }
-
-    open suspend fun <T> runTest(testRunner: SuspendNoArg2Mono<T>): Mono<T> = runTestWithResult(testRunner)
-
     fun <E : EntityInfo, A : EntityCore> matchDto2Entity(dto: E, entity: A, matcher: NoArg2Unit): Mono<A> = run {
         logger.info { "matching dto & entity [$dto => $entity]  " }
         matcher()

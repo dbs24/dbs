@@ -30,6 +30,7 @@ class RefreshTokens(
         CMD::refreshToken matches (Patterns.JWT_PATTERN to Field.FLD_REFRESH_JWT),
     )
 
+    @Suppress("CyclomaticComplexMethod")
     override fun validate(request: CMD) {
         validateInternal(request) { errors ->
 

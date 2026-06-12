@@ -1,12 +1,12 @@
 [versions]
 # Spring Boot
-springBoot = "3.5.14"
-springBootSession = "3.5.5"
-springBootData = "3.5.10"
-springCloud = "3.1.4"
+springBoot = "4.1.0"
+springBootSession = "4.1.0"
+springBootData = "4.1.0"
 springSecurity = "1.1.1.RELEASE"
-springKafka = "3.3.14"
-springdoc = "2.8.16"
+springKafka = "4.1.0"
+springdoc = "3.0.3"
+springGrpc = "1.0.3"
 
 # Data / Persistence
 redisClients = "7.5.2"
@@ -33,9 +33,6 @@ blockhoundJunitPlatform = "1.0.17.RELEASE"
 grpc = "1.82.0"
 grpcKotlinStub = "1.5.0"
 grpcGateway = "2.93.0"
-grpcServerSpringBoot = "3.1.0.RELEASE"
-grpcServerSpringBootAutoconfigure = "2.15.0.RELEASE"
-grpcSpringBoot = "4.5.10"
 googleProtobuf = "4.35.0"
 
 # Jakarta
@@ -43,9 +40,7 @@ jakartaAnnotation = "3.0.0"
 jakartaValidation = "4.0.0-M1"
 
 # Jackson
-fasterXmlJacksonDataformat = "2.22.0"
-fasterXmlJacksonDataType = "2.22.0"
-fasterXmlJacksonModule = "2.22.0"
+jackson3 = "3.2.0"
 
 # Testing
 kotest = "6.1.11"
@@ -140,7 +135,10 @@ spring-thymeleaf                  = { module = "org.springframework.boot:spring-
 spring-log4j2                     = { module = "org.springframework.boot:spring-boot-starter-log4j2",                    version.ref = "springBoot" }
 spring-starter-test               = { module = "org.springframework.boot:spring-boot-starter-test",                     version.ref = "springBoot" }
 spring-starter-test-autoconfigure = { module = "org.springframework.boot:spring-boot-test-autoconfigure",               version.ref = "springBoot" }
-spring-aop                          = { module = "org.springframework.boot:spring-boot-starter-aop",                    version.ref = "springBoot" }
+spring-aop                        = { module = "org.springframework.boot:spring-boot-starter-aspectj",              version.ref = "springBoot" }
+spring-flyway                     = { module = "org.springframework.boot:spring-boot-starter-flyway",              version.ref = "springBoot" }
+spring-kafka                      = { module = "org.springframework.boot:spring-boot-starter-kafka", version.ref = "springBoot" }
+webtestclient                     = { module = "org.springframework.boot:spring-boot-webtestclient", version.ref = "springBoot" }
 
 # Spring Session
 spring-redis-session = { module = "org.springframework.session:spring-session-data-redis", version.ref = "springBootSession" }
@@ -150,9 +148,6 @@ spring-data-commons = { module = "org.springframework.data:spring-data-commons",
 
 # Spring Security
 spring-security-jwt = { module = "org.springframework.security:spring-security-jwt", version.ref = "springSecurity" }
-
-# Spring Kafka
-spring-kafka = { module = "org.springframework.kafka:spring-kafka", version.ref = "springKafka" }
 
 # Springdoc / OpenAPI
 springdoc-openapi-webflux-ui = { module = "org.springdoc:springdoc-openapi-starter-webflux-ui",      version.ref = "springdoc" }
@@ -174,10 +169,10 @@ jmh-core        = { module = "org.openjdk.jmh:jmh-core",                 version
 jmh-annotations = { module = "org.openjdk.jmh:jmh-generator-annprocess", version.ref = "openJdkJmh" }
 
 # Jackson
-jackson-dataformat-xml  = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-xml", version.ref = "fasterXmlJacksonDataformat" }
-jackson-databind        = { module = "com.fasterxml.jackson.core:jackson-databind",              version.ref = "fasterXmlJacksonDataformat" }
-jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310",  version.ref = "fasterXmlJacksonDataType" }
-jackson-module-kotlin   = { module = "com.fasterxml.jackson.module:jackson-module-kotlin",       version.ref = "fasterXmlJacksonModule" }
+jackson-dataformat-xml  = { module = "tools.jackson.dataformat:jackson-dataformat-xml", version.ref = "jackson3" }
+jackson-module-kotlin = { module = "tools.jackson.module:jackson-module-kotlin", version.ref = "jackson3" }
+jackson-databind      = { module = "tools.jackson.core:jackson-databind", version.ref = "jackson3" }
+
 
 # Reflections
 reflection = { module = "org.reflections:reflections", version.ref = "reflections" }
@@ -195,7 +190,6 @@ jboss-marshalling = { module = "org.jboss.marshalling:jboss-marshalling", versio
 
 # Database
 postgresql               = { module = "org.postgresql:postgresql",                  version.ref = "postgres" }
-flyway-core              = { module = "org.flywaydb:flyway-core",                   version.ref = "flyway" }
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql",  version.ref = "flyway" }
 querydsl-mongodb         = { module = "com.querydsl:querydsl-mongodb",              version.ref = "queryDsl" }
 querydsl-apt             = { module = "com.querydsl:querydsl-apt",                  version.ref = "queryDsl" }
@@ -263,12 +257,6 @@ mockito-junit-jupiter = { module = "org.mockito:mockito-junit-jupiter",  version
 mockito-inline        = { module = "org.mockito:mockito-inline",         version.ref = "mockitoInline" }
 
 # Log4j2
-log4j-bom         = { module = "org.apache.logging.log4j:log4j-bom",          version.ref = "log4jApi" }
-log4j-api         = { module = "org.apache.logging.log4j:log4j-api",          version.ref = "log4jApi" }
-log4j-core        = { module = "org.apache.logging.log4j:log4j-core",         version.ref = "log4jApi" }
-log4j-jcl         = { module = "org.apache.logging.log4j:log4j-jcl",          version.ref = "log4jApi" }
-log4j-slf4j       = { module = "org.apache.logging.log4j:log4j-slf4j-impl",   version.ref = "log4jApi" }
-log4j-spring-boot = { module = "org.apache.logging.log4j:log4j-spring-boot",  version.ref = "log4jApi" }
 log4j-jakarta-smtp = { module = "org.apache.logging.log4j:log4j-jakarta-smtp", version.ref = "log4jApi" }
 log4j-api-kotlin  = { module = "org.apache.logging.log4j:log4j-api-kotlin",   version.ref = "log4jApiKotlin" }
 
@@ -286,9 +274,7 @@ grpc-testing        = { module = "io.grpc:grpc-testing",          version.ref = 
 grpc-kotlin-stub    = { module = "io.grpc:grpc-kotlin-stub",      version.ref = "grpcKotlinStub" }
 grpc-protoc-kotlin  = { module = "io.grpc:protoc-gen-grpc-kotlin", version.ref = "grpcKotlinStub" }
 grpc-gateway        = { module = "com.google.api.grpc:grpc-google-cloud-api-gateway-v1", version.ref = "grpcGateway" }
-grpc-server-spring-boot     = { module = "net.devh:grpc-server-spring-boot-starter",        version.ref = "grpcServerSpringBoot" }
-grpc-server-autoconfigure   = { module = "net.devh:grpc-server-spring-boot-autoconfigure",  version.ref = "grpcServerSpringBootAutoconfigure" }
-grpc-spring-boot            = { module = "io.github.lognet:grpc-spring-boot-starter",       version.ref = "grpcSpringBoot" }
+grpc-server-spring-boot  = { module = "org.springframework.grpc:spring-grpc-spring-boot-starter", version.ref = "springGrpc" }
 
 # Protobuf
 protobuf-bom          = { module = "com.google.protobuf:protobuf-bom",         version.ref = "googleProtobuf" }

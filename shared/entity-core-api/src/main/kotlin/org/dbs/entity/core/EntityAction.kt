@@ -45,7 +45,7 @@ data class EntityAction(
 
     @Column("notes")
     val notes: StringNote,
-) : AbstractRefEntity<ActionId?>() {
+) : AbstractRefEntity<ActionId>() {
 
     override fun getId() = actionId
 }

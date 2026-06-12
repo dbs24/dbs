@@ -16,7 +16,7 @@ dependencies {
     implementation(libs.spring.data.commons)
     implementation(libs.reactor.kotlin.extensions)
     implementation(libs.log4j.api.kotlin)
-    implementation(libs.log4j.core)
+    implementation(libs.spring.log4j2)
     implementation(libs.coroutines.core.jvm)
 }
 

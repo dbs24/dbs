@@ -32,8 +32,8 @@ import org.springframework.boot.SpringApplication
 import org.springframework.boot.context.metrics.buffering.BufferingApplicationStartup
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.boot.info.BuildProperties
-import org.springframework.boot.web.reactive.context.ReactiveWebServerApplicationContext
 import org.springframework.context.ApplicationContext
+import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.support.GenericApplicationContext
 import reactor.tools.agent.ReactorDebugAgent
@@ -47,10 +47,7 @@ import kotlin.system.exitProcess
 @ConfigurationPropertiesScan(basePackages = [ALL_PACKAGES])
 abstract class AbstractSpringBootApplication : Logging {
 
-    @Value("\${config.security.secured-params:password,username}")
-    private val securedParams: String = "password,username"
-
-    private fun run(args: Array<String>) {
+    private fun run(@Suppress("UnusedParameter") args: Array<String>) {
         val applicationName = this.javaClass.canonicalName
         logger.info { "Application is validated '${applicationName.clearName()}'" }
     }
@@ -71,7 +68,10 @@ abstract class AbstractSpringBootApplication : Logging {
             ReactorDebugAgent.init()
         }
 
-        logger.info { "### ${buildProperties.name}: application build time is ${buildProperties.time.toString2()}" }
+        logger.info {
+            "### ${buildProperties.name ?: "unknown"}: " +
+                "application build time is ${buildProperties.time?.toString2() ?: "unknown"}"
+        }
 
         runCatching {
             ManagementFactory.getPlatformMXBean(HotSpotDiagnosticMXBean::class.java).apply {
@@ -79,8 +79,8 @@ abstract class AbstractSpringBootApplication : Logging {
             }
         }
 
-        appCreateTime = buildProperties.time
-        userApplicationName = buildProperties.name
+        appCreateTime = buildProperties.time ?: java.time.Instant.now()
+        userApplicationName = buildProperties.name ?: "unknown"
     }
 
     @Bean
@@ -125,6 +125,7 @@ abstract class AbstractSpringBootApplication : Logging {
             // Храним сообщение для вывода при завершении работы приложения
             @Volatile private var shutdownMessage: String = UNKNOWN
 
+            @Suppress("TooGenericExceptionCaught")
             fun start(clazz: KClass<T>) {
                 logger.debug { "Initializing Spring Boot application ${clazz.simpleName}" }
                 BannerBuilder(bi.initialize()).build(clazz)
@@ -141,9 +142,8 @@ abstract class AbstractSpringBootApplication : Logging {
                     val context = app.run(*args)
                     sbi.initialize()
 
-                    if (context is ReactiveWebServerApplicationContext) {
-                        serverPort = context.webServer.port
-                    }
+                    serverPort = (context as? ConfigurableApplicationContext)
+                        ?.environment?.getProperty("local.server.port")?.toIntOrNull() ?: 0
 
                     logger.debug { "${GetNetworkAddress.allAddresses}, port $serverPort" }
                     isRunning = true
@@ -157,7 +157,8 @@ abstract class AbstractSpringBootApplication : Logging {
                     logger.info { "finally initialization '${userApplicationName}' ($applicationName)" }
 
                 } catch (t: Throwable) {
-                    val devToolsExceptionClass = "org.springframework.boot.devtools.restart.SilentExitExceptionHandler\$SilentExitException"
+                    val devToolsExceptionClass =
+                        "org.springframework.boot.devtools.restart.SilentExitExceptionHandler\$SilentExitException"
 
                     val isSilentExit = t.javaClass.name == devToolsExceptionClass
                             || t.cause?.javaClass?.name == devToolsExceptionClass

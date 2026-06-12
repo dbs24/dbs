@@ -12,7 +12,7 @@ import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.core.ProducerFactory
 import org.springframework.kafka.support.ProducerListener
 import org.springframework.kafka.support.converter.BatchMessagingMessageConverter
-import org.springframework.kafka.support.converter.ByteArrayJsonMessageConverter
+import org.springframework.kafka.support.converter.ByteArrayJacksonJsonMessageConverter
 import org.springframework.kafka.support.converter.RecordMessageConverter
 
 @Configuration(proxyBeanMethods = DEFAULT_PROXY_BEANS_VAL)
@@ -27,13 +27,13 @@ class KafkaConfig {
     ): KafkaTemplate<Any, Any> = KafkaTemplate(kafkaProducerFactory).apply {
         messageConverter.ifUnique { setMessageConverter(it) }
         setProducerListener(kafkaProducerListener)
-        defaultTopic = TP_FAKED
+        setDefaultTopic(TP_FAKED)
     }
 
     @Bean
     fun batchConverter(rmc: RecordMessageConverter) = BatchMessagingMessageConverter(rmc)
 
     @Bean
-    fun converter(): RecordMessageConverter = ByteArrayJsonMessageConverter()
+    fun converter(): RecordMessageConverter = ByteArrayJacksonJsonMessageConverter()
 
 }

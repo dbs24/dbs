@@ -101,7 +101,8 @@ interface ValidationStrategy<T : DomainCommand> : Logging, SmartInitializingSing
                             create(
                                 INVALID_ATTR_PATTERN_MISMATCH, rule.field,
                                 "${rule.property.name}: " +
-                                        "${findI18nMessage(I18NEnum.VALUE_DOES_NOT_MATCH_FORMAT)}: '$rawValue' (minSize: $minSize)"
+                                    "${findI18nMessage(I18NEnum.VALUE_DOES_NOT_MATCH_FORMAT)}: " +
+                                    "'$rawValue' (minSize: $minSize)"
                             )
                         )
                     }
@@ -112,7 +113,8 @@ interface ValidationStrategy<T : DomainCommand> : Logging, SmartInitializingSing
                             create(
                                 INVALID_ATTR_PATTERN_MISMATCH, rule.field,
                                 "${rule.property.name}: " +
-                                        "${findI18nMessage(I18NEnum.VALUE_DOES_NOT_MATCH_FORMAT)}: '$rawValue'  (maxSize: $maxSize)"
+                                    "${findI18nMessage(I18NEnum.VALUE_DOES_NOT_MATCH_FORMAT)}: " +
+                                    "'$rawValue' (maxSize: $maxSize)"
                             )
                         )
                     }
@@ -133,7 +135,10 @@ interface ValidationStrategy<T : DomainCommand> : Logging, SmartInitializingSing
             }
 
             if (isNotEmpty()) {
-                logger.error { "Validation failure for ${supportedClass.simpleName}: $size error${if (size > 1) "s" else ""} found" }
+                logger.error {
+                    "Validation failure for ${supportedClass.simpleName}: " +
+                        "$size error${if (size > 1) "s" else ""} found"
+                }
                 throw ValidationException(this)
             }
         }
@@ -145,7 +150,10 @@ interface ValidationStrategy<T : DomainCommand> : Logging, SmartInitializingSing
         validateInternal(request) { errors ->
             errors.apply {
                 if (isNotEmpty()) {
-                    logger.error { "Validation failure for ${supportedClass.simpleName}: $size error${if (size > 1) "s" else ""} found" }
+                    logger.error {
+                    "Validation failure for ${supportedClass.simpleName}: " +
+                        "$size error${if (size > 1) "s" else ""} found"
+                }
                 }
             }
         }
@@ -199,6 +207,7 @@ data class FieldValidationRule<T : DomainCommand>(
         else -> obj.toString()
     }
 
+    @Suppress("CyclomaticComplexMethod", "ReturnCount")
     fun extractRange(p: String): Pair<Int, Int> {
         var depth = 0
         var start = -1
@@ -239,6 +248,7 @@ data class FieldValidationRule<T : DomainCommand>(
         return if (found) min to max else 0 to 255
     }
 
+    @Suppress("ReturnCount")
     private fun parseTrimmedInt(s: String, start: Int, end: Int): Int? {
         var left = start
         var right = end - 1

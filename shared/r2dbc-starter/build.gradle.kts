@@ -8,7 +8,6 @@ import dsl.Dependencies.Projects.REF_STARTER
 import dsl.Dependencies.Projects.SECURITY_MANAGER_API
 import dsl.Dependencies.Projects.SPRING_CONFIG
 import dsl.Dependencies.Projects.SPRING_CORE_API
-import org.gradle.kotlin.dsl.project
 
 plugins {
     idea
@@ -27,7 +26,7 @@ dependencies {
 
     implementation(libs.spring.data.r2dbc)
     implementation(libs.spring.data.redis)
-    implementation(libs.flyway.core)
+    implementation(libs.spring.flyway)
     implementation(libs.flyway.database.postgresql)
     implementation(libs.log4j.api.kotlin)
     implementation(libs.r2dbc.postgresql)

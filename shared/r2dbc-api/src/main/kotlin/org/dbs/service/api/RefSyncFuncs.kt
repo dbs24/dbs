@@ -73,14 +73,6 @@ object RefSyncFuncs : Logging {
                 }
 
                 // Логирование (опционально, раскомментируйте если есть logger)
-                /*
-                if (saveList.isNotEmpty()) {
-                    logger.debug {
-                        "$entityName: references items update (${saveList.size} items), " +
-                        "created: $createdCount, updated: $updatedCount"
-                    }
-                }
-                */
 
                 // 6. Batch Save: сохраняем все одним пакетом
                 if (saveList.isNotEmpty()) {

@@ -8,7 +8,7 @@ import java.io.Serializable
 import java.util.concurrent.atomic.AtomicBoolean
 
 @Suppress(UNCHECKED_CAST)
-abstract class AbstractRefEntity<T> : Persistable<T>, Serializable {
+abstract class AbstractRefEntity<T : Any> : Persistable<T>, Serializable {
 
     @Transient
     @JsonIgnore

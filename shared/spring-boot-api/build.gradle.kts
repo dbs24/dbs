@@ -14,7 +14,6 @@ dependencies {
     implementation(libs.spring.security.jwt)
     implementation(libs.reactor.kotlin.extensions)
     implementation(libs.log4j.api.kotlin)
-    implementation(libs.log4j.core)
     runtimeOnly(libs.log4j.jakarta.smtp)
 
     testApi(libs.spring.starter.test)

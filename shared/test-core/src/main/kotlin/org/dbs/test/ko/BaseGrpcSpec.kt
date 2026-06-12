@@ -7,10 +7,10 @@ import io.grpc.Status
 import io.grpc.StatusException
 import io.grpc.StatusRuntimeException
 import io.kotest.assertions.throwables.shouldThrowAny
-import net.devh.boot.grpc.server.config.GrpcServerProperties
 import org.apache.logging.log4j.kotlin.Logging
 import org.dbs.ext.SpringFuncs.fromErrString
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.grpc.server.autoconfigure.GrpcServerProperties
 import java.util.concurrent.TimeUnit
 
 

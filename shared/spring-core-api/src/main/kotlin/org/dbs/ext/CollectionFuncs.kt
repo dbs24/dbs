@@ -39,7 +39,8 @@ object CollectionFuncs: Logging {
             require(duplicates.isEmpty()) {
                 val details = duplicates.entries.joinToString(separator = "\n") { (duplicateValue, items) ->
                     val classNames = items.map { it::class.simpleName }.distinct()
-                    "Attribute '$referenceName' has duplicate value '$duplicateValue' found ${items.size} times in class '$classNames'"
+                    "Attribute '$referenceName' has duplicate value '$duplicateValue' " +
+                        "found ${items.size} times in class '$classNames'"
                 }
                 "Duplicate validation failed:\n$details"
             }

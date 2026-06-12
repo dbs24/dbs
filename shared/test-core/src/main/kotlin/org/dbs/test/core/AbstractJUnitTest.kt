@@ -1,6 +1,5 @@
 package org.dbs.test.core
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.logging.log4j.kotlin.Logging
 import org.dbs.consts.NoArg2Generic
 import org.dbs.consts.NoArg2Unit
@@ -9,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.env.Environment
 import org.testcontainers.junit.jupiter.Testcontainers
+import tools.jackson.databind.ObjectMapper
 import kotlin.system.measureTimeMillis
 
 

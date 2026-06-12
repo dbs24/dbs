@@ -18,6 +18,7 @@ dependencies {
     implementation(libs.spring.cache)
     implementation(libs.jedis)
     implementation(libs.log4j.api.kotlin)
+    implementation(libs.jackson.databind)
 
     compileOnly(libs.jackson.module.kotlin)
 

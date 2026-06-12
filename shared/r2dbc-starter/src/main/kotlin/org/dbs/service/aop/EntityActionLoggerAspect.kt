@@ -29,7 +29,6 @@ import org.springframework.util.ClassUtils
 import reactor.core.publisher.Mono
 import java.lang.reflect.Method
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.collections.getOrPut
 import kotlin.coroutines.Continuation
 
 @Aspect
@@ -134,6 +133,7 @@ class EntityActionLoggerAspect(
     }
 
     @EventListener(ApplicationReadyEvent::class)
+    @Suppress("LoopWithTooManyJumpStatements")
     fun validateAnnotations() {
         val beanNames = applicationContext.beanDefinitionNames
         val errors = mutableListOf<String>()

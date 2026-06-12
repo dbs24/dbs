@@ -6,7 +6,6 @@ import io.grpc.ServerCall
 import io.grpc.ServerCallHandler
 import io.grpc.ServerInterceptor
 import io.grpc.Status
-import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor
 import org.apache.logging.log4j.kotlin.Logging
 import org.dbs.consts.IpAddress
 import org.dbs.consts.MKB
@@ -18,8 +17,11 @@ import org.dbs.ext.IncidentSource
 import org.dbs.ext.SpringFuncs.registryIncidentEvent
 import org.dbs.validator.exception.ValidationException
 import org.springframework.context.ApplicationEventPublisher
+import org.springframework.grpc.server.GlobalServerInterceptor
+import org.springframework.stereotype.Component
 
-@GrpcGlobalServerInterceptor
+@GlobalServerInterceptor
+@Component
 class GrpcExceptionInterceptor(
     private val applicationEventPublisher: ApplicationEventPublisher
 ) : ServerInterceptor, Logging {

@@ -1,6 +1,5 @@
 package org.dbs.tree.grpc
 
-import net.devh.boot.grpc.server.service.GrpcService
 import org.dbs.tree.client.CreateOrUpdateUserRequest
 import org.dbs.tree.client.CreateOrUpdateUserResponse
 import org.dbs.tree.client.UpdateUserPasswordRequest
@@ -16,6 +15,7 @@ import org.dbs.tree.mapper.UserMappers.toUserPasswordProto
 import org.dbs.tree.mapper.UserMappers.toUserProto
 import org.dbs.tree.mapper.UserMappers.toUserStatusProto
 import org.dbs.tree.service.UserService
+import org.springframework.grpc.server.service.GrpcService
 
 @GrpcService
 class GrpcUserController(val userService: UserService) : UserServiceGrpcKt.UserServiceCoroutineImplBase() {

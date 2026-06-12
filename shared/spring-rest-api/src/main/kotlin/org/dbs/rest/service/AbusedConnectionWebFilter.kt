@@ -94,17 +94,17 @@ class AbusedConnectionWebFilter(val headerService: HeaderService) : AbstractAppl
             // White headers
             if (delegate.isInitialized() && headerService.whiteHeaders != MASK_ALL) {
                 logger.measureExecTime("headers white list filter") {
-                    request.headers.asSequence().all { header ->
-                        headerService.whiteHeadersLists.contains(header.key.lowercase()).also {
+                    request.headers.headerNames().all { headerName ->
+                        headerService.whiteHeadersLists.contains(headerName.lowercase()).also {
                             if (!it)
                                 if (headerService.breakIllegalHeader) {
                                     abusedConnection = AbusedConnection(
                                             AR_ILLEGAL_HEADER,
-                                            "$currentHostName: Illegal header: ${header.key}): $header)"
+                                            "$currentHostName: Illegal header: $headerName): $headerName)"
                                         )
                                 } else
                                     logger.warn {
-                                        "illegal header in request (${header.key}): $header)" +
+                                        "illegal header in request ($headerName): $headerName)" +
                                                 ", all headers: [${request.headers}]"
                                     }
                         }

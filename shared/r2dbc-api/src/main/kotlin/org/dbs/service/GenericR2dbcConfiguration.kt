@@ -7,8 +7,6 @@ import org.dbs.consts.SpringCoreConst.PropertiesNames.SPRING_R2DBC_URL
 import org.dbs.consts.SysConst.EMPTY_STRING
 import org.dbs.spring.core.api.PublicApplicationBean
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.LazyInitializationExcludeFilter
-import org.springframework.boot.autoconfigure.flyway.FlywayMigrationInitializer
 import org.springframework.context.annotation.Bean
 import org.springframework.data.r2dbc.config.AbstractR2dbcConfiguration
 import org.springframework.r2dbc.connection.R2dbcTransactionManager
@@ -25,12 +23,6 @@ sealed class GenericR2dbcConfiguration : PublicApplicationBean, AbstractR2dbcCon
 //    fun auditorAware(): ReactiveAuditorAware<String> {
 //        return ReactiveAuditorAware { Mono.just(javaClass.canonicalName) }
 //    }
-    @Bean
-    fun flywayLazyInitExcludeFilter(): LazyInitializationExcludeFilter =
-        LazyInitializationExcludeFilter.forBeanTypes(FlywayMigrationInitializer::class.java).also {
-            logger.debug { "initialize flywayLazyInitExcludeFilter" }
-        }
-
     @Bean
     fun r2dbcTransactionManager(connectionFactory: ConnectionFactory) =
         R2dbcTransactionManager(connectionFactory.also {

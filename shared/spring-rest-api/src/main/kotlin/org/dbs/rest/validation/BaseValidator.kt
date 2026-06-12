@@ -22,7 +22,6 @@ import org.springframework.stereotype.Component
 import org.springframework.util.ClassUtils
 import java.lang.reflect.Method
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.collections.getOrPut
 import kotlin.reflect.KClass
 
 @Target(AnnotationTarget.FUNCTION)
@@ -92,6 +91,7 @@ class UniversalValidator(
     }
 
     @EventListener(ApplicationReadyEvent::class)
+    @Suppress("CyclomaticComplexMethod", "LoopWithTooManyJumpStatements")
     fun validateAnnotations() {
         val beanNames = applicationContext.beanDefinitionNames
         val errors = mutableListOf<String>()
@@ -109,7 +109,7 @@ class UniversalValidator(
 
             for (method in targetClass.declaredMethods) {
                 // Быстрая проверка аннотации без создания тяжелых объектов MergedAnnotations
-                val annotation = method.getAnnotation(ValidateDto::class.java) ?: continue
+                method.getAnnotation(ValidateDto::class.java) ?: continue
 
                 // Ищем параметр-команду
                 var commandParamType: Class<*>? = null

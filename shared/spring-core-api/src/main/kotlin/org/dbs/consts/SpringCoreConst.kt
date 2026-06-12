@@ -60,25 +60,12 @@ import org.dbs.consts.SysConst.EMPTY_STRING
 import org.dbs.consts.SysConst.MASK_ALL
 import org.dbs.consts.SysConst.STRING_FALSE
 import org.springframework.http.HttpHeaders
-import org.springframework.http.codec.multipart.Part
-import org.springframework.util.LinkedMultiValueMap
-import org.springframework.util.MultiValueMap
 import org.springframework.web.util.UriBuilder
-import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.util.function.Consumer
 
 typealias NoArg2Mono<T> = () -> Mono<T>
-typealias String2Mono = (String) -> Mono<*>
-typealias SuspendNoArg2Mono<T> = suspend () -> Mono<T>
-typealias NoArg2Flux<T> = () -> Flux<T>
-typealias Arg2Mono<K, V> = (K) -> Mono<V>
-typealias SuspendArg2Mono<K, V> = suspend (K) -> Mono<V>
-typealias Args2Mono<K1, K2, V> = (K1, K2) -> Mono<V>
-typealias Mono2Mono<K, V> = (Mono<K>) -> Mono<V>
-typealias RequestVersion = String
 typealias WebClientUriBuilder = Arg2Generic<UriBuilder, UriBuilder>
-typealias MultipartMap = MultiValueMap<String, Part>
 
 object SpringCoreConst {
 
@@ -603,7 +590,7 @@ object SpringCoreConst {
         val EMPTY_STATUS_PROCESSOR: WebClientOnStatusProcessor = {}
     }
 
-    val EMPTY_HTTP_HEADERS: Consumer<HttpHeaders> = Consumer { it.addAll(LinkedMultiValueMap(0)) }
+    val EMPTY_HTTP_HEADERS: Consumer<HttpHeaders> = Consumer { }
 
     val WEB_SET = mapOf(
         "Server port" to CONFIG_SERVER_PORT,

@@ -17,9 +17,9 @@ dependencies {
     implementation(libs.kotlin.stdlib.jdk8)
     implementation(libs.log4j.api.kotlin)
     implementation(libs.spring.security)
+    implementation(libs.grpc.server.spring.boot)
     implementation(project(PROTOBUF_API_SRC))
 
-    compileOnly(libs.grpc.server.autoconfigure)
     compileOnly(libs.jjwt.api)
     compileOnly(libs.reactor.kotlin.extensions)
     compileOnly(libs.spring.data.r2dbc)

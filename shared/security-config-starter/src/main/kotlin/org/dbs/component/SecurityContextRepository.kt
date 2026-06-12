@@ -39,7 +39,7 @@ class SecurityContextRepository(
     @Bean
     fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder(PASSWORD_ENCODER_STRENGTH_DEF)
 
-    override fun save(serverWebExchange: ServerWebExchange, sc: SecurityContext): Mono<Void> =
+    override fun save(serverWebExchange: ServerWebExchange, sc: SecurityContext?): Mono<Void> =
         error(UnsupportedOperationException("Not supported yet."))
 
     override fun load(serverWebExchange: ServerWebExchange): Mono<SecurityContext> =

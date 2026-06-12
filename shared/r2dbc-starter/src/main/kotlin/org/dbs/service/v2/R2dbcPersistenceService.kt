@@ -37,6 +37,7 @@ class R2dbcPersistenceService(
     private val cacheService: EntityCacheService<out EntityCore>,
 ) : AbstractApplicationService(), PersistenceService {
 
+    @Suppress("UnusedPrivateProperty")
     @Value("\${$CONFIG_REF_AUTO_SYNCHRONIZE:$STRING_TRUE}")
     private val autoSynchronize = false
 
