@@ -4,6 +4,7 @@ import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import org.dbs.consts.FieldError
 import org.dbs.entity.core.EntityStatusEnum
 import org.dbs.test.ko.BaseSpec.PropertyValidator
 import org.dbs.tree.BaseTreeGrpcTest
@@ -15,7 +16,6 @@ import org.dbs.user.FamilyTreeCore.UserActionEnum.EA_CREATE_OR_UPDATE_USER
 import org.dbs.user.FamilyTreeCore.UserActionEnum.EA_UPDATE_USER_PASSWORD
 import org.dbs.user.FamilyTreeCore.UserActionEnum.EA_UPDATE_USER_STATUS
 import org.dbs.user.FamilyTreeCore.isClosedUser
-import org.dbs.validator.Error
 import org.dbs.validator.Field
 import org.dbs.tree.client.CreateOrUpdateUserRequest as USER
 import org.dbs.tree.client.UpdateUserPasswordRequest as PASSWORD
@@ -128,7 +128,7 @@ object UserGrpcFuncs {
         }
 
     // --- Тестовые шаги: Обработка ошибок ---
-    suspend fun BaseTreeGrpcTest.createOrUpdateUserWithValidationError(req: USER, vararg errs: Pair<Error, Field>) =
+    suspend fun BaseTreeGrpcTest.createOrUpdateUserWithValidationError(req: USER, vararg errs: FieldError) =
         runCall { userStub.createOrUpdateUser(req) }.shouldFailWithValidation().shouldContainErrors(*errs)
 
     suspend fun BaseTreeGrpcTest.createOrUpdateUserWithInternalError(req: USER) =
@@ -143,6 +143,6 @@ object UserGrpcFuncs {
     suspend fun BaseTreeGrpcTest.updateUserStatusWithFail(req: STATUS, vararg errs: Pair<org.dbs.validator.Error, Field>) =
         runCall { userStub.updateUserStatus(req) }.shouldFailWithValidation().shouldContainErrors(*errs)
 
-    suspend fun BaseTreeGrpcTest.updateUserPasswordWithFail(req: PASSWORD, vararg errs: Pair<Error, Field>) =
+    suspend fun BaseTreeGrpcTest.updateUserPasswordWithFail(req: PASSWORD, vararg errs: FieldError) =
         runCall { userStub.updateUserPassword(req) }.shouldFailWithValidation().shouldContainErrors(*errs)
 }

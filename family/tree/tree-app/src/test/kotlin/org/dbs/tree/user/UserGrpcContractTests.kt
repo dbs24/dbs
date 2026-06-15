@@ -1,5 +1,6 @@
 package org.dbs.tree.user
 
+import org.dbs.consts.FieldError
 import org.dbs.tree.BaseTreeGrpcTest
 import org.dbs.tree.user.UserGrpcFuncs.buildUserCredentialsRequest
 import org.dbs.tree.user.UserGrpcFuncs.buildUserPasswordRequest
@@ -13,10 +14,8 @@ import org.dbs.tree.user.UserGrpcFuncs.updateUserPasswordSuccess
 import org.dbs.tree.user.UserGrpcFuncs.updateUserPasswordWithFail
 import org.dbs.tree.user.UserGrpcFuncs.updateUserStatusSuccess
 import org.dbs.tree.user.UserGrpcFuncs.updateUserStatusWithFail
-import org.dbs.validator.Error
 import org.dbs.validator.Error.ALREADY_EXISTS
 import org.dbs.validator.Error.MANDATORY_FIELD_MISSING
-import org.dbs.validator.Field
 import org.dbs.validator.Field.SSS_USER_LOGIN
 
 @Suppress("unused")
@@ -50,16 +49,16 @@ class UserGrpcContractTests : BaseTreeGrpcTest(), UserTestContract {
         )
     }
 
-    override suspend fun createUserWithInvalidLogin(login: String, email: String, password: String, vararg errs: Pair<Error, Field>) {
+    override suspend fun createUserWithInvalidLogin(login: String, email: String, password: String, vararg errs: FieldError) {
         createOrUpdateUserWithValidationError(buildUserRequest(login = login, email = email, password = password), *errs)
     }
 
-    override suspend fun createUserWithInvalidEmail(login: String, email: String, password: String, vararg errs: Pair<Error, Field>) {
+    override suspend fun createUserWithInvalidEmail(login: String, email: String, password: String, vararg errs: FieldError) {
         createOrUpdateUserWithValidationError(buildUserRequest(login = login, email = email, password = password), *errs)
     }
 
     override suspend fun createUserExpectingValidationError(
-        vararg errs: Pair<Error, Field>,
+        vararg errs: FieldError,
         login: String, email: String, password: String?,
         phone: String?, firstName: String?, lastName: String?,
         middleName: String?, oldLogin: String?, oldEmail: String?,
@@ -87,19 +86,19 @@ class UserGrpcContractTests : BaseTreeGrpcTest(), UserTestContract {
         getUserCredentials(buildUserCredentialsRequest(login))
     }
 
-    override suspend fun fetchUserCredentialsExpectingNotFound(login: String, vararg errs: Pair<Error, Field>) {
+    override suspend fun fetchUserCredentialsExpectingNotFound(login: String, vararg errs: FieldError) {
         getUserCredentialsWithFails(buildUserCredentialsRequest(login), *errs)
     }
 
-    override suspend fun fetchUserCredentialsWithInvalidLogin(login: String, vararg errs: Pair<Error, Field>) {
+    override suspend fun fetchUserCredentialsWithInvalidLogin(login: String, vararg errs: FieldError) {
         getUserCredentialsWithFails(buildUserCredentialsRequest(login), *errs)
     }
 
-    override suspend fun closeUserWithUnknownStatus(login: String, status: String, vararg errs: Pair<Error, Field>) {
+    override suspend fun closeUserWithUnknownStatus(login: String, status: String, vararg errs: FieldError) {
         updateUserStatusWithFail(buildUserStatusRequest(login, status), *errs)
     }
 
-    override suspend fun closeUserExpectingInvalidStatus(login: String, status: String, vararg errs: Pair<Error, Field>) {
+    override suspend fun closeUserExpectingInvalidStatus(login: String, status: String, vararg errs: FieldError) {
         updateUserStatusWithFail(buildUserStatusRequest(login, status), *errs)
     }
 
@@ -107,15 +106,15 @@ class UserGrpcContractTests : BaseTreeGrpcTest(), UserTestContract {
         updateUserPasswordSuccess(buildUserPasswordRequest(login, oldPass, newPass))
     }
 
-    override suspend fun updateUserPasswordWithWrongOldPass(login: String, oldPass: String, newPass: String, vararg errs: Pair<Error, Field>) {
+    override suspend fun updateUserPasswordWithWrongOldPass(login: String, oldPass: String, newPass: String, vararg errs: FieldError) {
         updateUserPasswordWithFail(buildUserPasswordRequest(login, oldPass, newPass), *errs)
     }
 
-    override suspend fun updateUserPasswordWithSamePass(login: String, pass: String, vararg errs: Pair<Error, Field>) {
+    override suspend fun updateUserPasswordWithSamePass(login: String, pass: String, vararg errs: FieldError) {
         updateUserPasswordWithFail(buildUserPasswordRequest(login, pass, pass), *errs)
     }
 
-    override suspend fun updateUserPasswordWithInvalidStatus(login: String, pass: String, vararg errs: Pair<Error, Field>) {
+    override suspend fun updateUserPasswordWithInvalidStatus(login: String, pass: String, vararg errs: FieldError) {
         updateUserPasswordWithFail(buildUserPasswordRequest(login, pass, pass), *errs)
     }
 

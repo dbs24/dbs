@@ -9,6 +9,7 @@ import io.kotest.core.test.TestCaseOrder
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.shouldBe
 import org.apache.logging.log4j.kotlin.Logging
+import org.dbs.consts.FieldError
 import org.dbs.consts.SpringCoreConst.PropertiesNames.BUCKET_4J_ENABLED
 import org.dbs.consts.SpringCoreConst.PropertiesNames.DEFAULT_SYS_CURRENCY
 import org.dbs.consts.SpringCoreConst.PropertiesNames.DEFAULT_SYS_CURRENCY_VALUE
@@ -33,9 +34,7 @@ import org.dbs.test.container.PostgresR2dbcContainer
 import org.dbs.test.container.RedisTestContainer
 import org.dbs.test.core.SysTestConsts.Grpc.GRPC_RANDOM_SERVER_PORT
 import org.dbs.test.core.SysTestConsts.Postgres.TEST_PG_R2DBC_IMAGE_TAG
-import org.dbs.validator.Error
 import org.dbs.validator.ErrorInfo
-import org.dbs.validator.Field
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
@@ -175,7 +174,7 @@ abstract class BaseSpec : StringSpec(), Logging {
 
 @JvmInline
 value class ErrorBox(val errors: Collection<ErrorInfo>) {
-    fun shouldContainErrors(vararg expected: Pair<Error, Field>): ErrorBox = apply {
+    fun shouldContainErrors(vararg expected: FieldError): ErrorBox = apply {
         expected.forEach { (error, field) ->
             withClue("Expected error ($error, $field) not found. Present errors: $errors") {
                 var found = false

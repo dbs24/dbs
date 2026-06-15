@@ -1,5 +1,6 @@
 package org.dbs.tree.user
 
+import org.dbs.consts.FieldError
 import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_ACTUAL
 import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_CLOSED
 import org.dbs.user.dto.user.CreateOrUpdateUserDto
@@ -35,18 +36,18 @@ class UserRestContractTests : BaseTreeRestTest(), UserTestContract {
         postQueryShouldFailWithValidationError("/createOrUpdate", createUserDto(login = "", email = "", password = "Strong12Password"))
     }
 
-    override suspend fun createUserWithInvalidLogin(login: String, email: String, password: String, vararg errs: Pair<Error, Field>) {
+    override suspend fun createUserWithInvalidLogin(login: String, email: String, password: String, vararg errs: FieldError) {
         postQueryShouldFailWithValidationError("/createOrUpdate", createUserDto(login = login, email = email, password = password))
             .shouldContainErrors(*errs)
     }
 
-    override suspend fun createUserWithInvalidEmail(login: String, email: String, password: String, vararg errs: Pair<Error, Field>) {
+    override suspend fun createUserWithInvalidEmail(login: String, email: String, password: String, vararg errs: FieldError) {
         postQueryShouldFailWithValidationError("/createOrUpdate", createUserDto(login = login, email = email, password = password))
             .shouldContainErrors(*errs)
     }
 
     override suspend fun createUserExpectingValidationError(
-        vararg errs: Pair<Error, Field>,
+        vararg errs: FieldError,
         login: String, email: String, password: String?,
         phone: String?, firstName: String?, lastName: String?,
         middleName: String?, oldLogin: String?, oldEmail: String?,
@@ -71,27 +72,27 @@ class UserRestContractTests : BaseTreeRestTest(), UserTestContract {
 
     override suspend fun fetchUserCredentials(login: String) {}
 
-    override suspend fun fetchUserCredentialsExpectingNotFound(login: String, vararg errs: Pair<Error, Field>) {}
+    override suspend fun fetchUserCredentialsExpectingNotFound(login: String, vararg errs: FieldError) {}
 
-    override suspend fun fetchUserCredentialsWithInvalidLogin(login: String, vararg errs: Pair<Error, Field>) {}
+    override suspend fun fetchUserCredentialsWithInvalidLogin(login: String, vararg errs: FieldError) {}
 
-    override suspend fun closeUserWithUnknownStatus(login: String, status: String, vararg errs: Pair<Error, Field>) {
+    override suspend fun closeUserWithUnknownStatus(login: String, status: String, vararg errs: FieldError) {
         postQueryShouldFailWithValidationError("/updateStatus", UpdateUserStatusDto(login, status))
             .shouldContainErrors(*errs)
     }
 
-    override suspend fun closeUserExpectingInvalidStatus(login: String, status: String, vararg errs: Pair<Error, Field>) {
+    override suspend fun closeUserExpectingInvalidStatus(login: String, status: String, vararg errs: FieldError) {
         postQueryShouldFailWithValidationError("/updateStatus", UpdateUserStatusDto(login, status))
             .shouldContainErrors(*errs)
     }
 
     override suspend fun updateUserPassword(login: String, oldPass: String, newPass: String) {}
 
-    override suspend fun updateUserPasswordWithWrongOldPass(login: String, oldPass: String, newPass: String, vararg errs: Pair<Error, Field>) {}
+    override suspend fun updateUserPasswordWithWrongOldPass(login: String, oldPass: String, newPass: String, vararg errs: FieldError) {}
 
-    override suspend fun updateUserPasswordWithSamePass(login: String, pass: String, vararg errs: Pair<Error, Field>) {}
+    override suspend fun updateUserPasswordWithSamePass(login: String, pass: String, vararg errs: FieldError) {}
 
-    override suspend fun updateUserPasswordWithInvalidStatus(login: String, pass: String, vararg errs: Pair<Error, Field>) {}
+    override suspend fun updateUserPasswordWithInvalidStatus(login: String, pass: String, vararg errs: FieldError) {}
 
     init {
         include(userTestsFactory(this))

@@ -23,7 +23,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.primaryConstructor
 
-interface ValidationStrategy<T : DomainCommand> : Logging, SmartInitializingSingleton {
+interface ValidationStrategy<T : DomainCommand> : Logging, ValidationPattern<T>, SmartInitializingSingleton {
 
     @Suppress("UNCHECKED_CAST")
     val supportedClass: KClass<T>
@@ -34,9 +34,6 @@ interface ValidationStrategy<T : DomainCommand> : Logging, SmartInitializingSing
                 ?.firstOrNull() as? Class<T>)?.kotlin
                 ?: error("Cannot dynamically resolve generic type T for ${this::class.simpleName}")
         } as KClass<T>
-
-    val rules: Collection<FieldValidationRule<T>>
-    val requireAllFieldsValidated: Boolean get() = true
 
     override fun afterSingletonsInstantiated() {
         verifyRulesCompleteness()
@@ -158,15 +155,6 @@ interface ValidationStrategy<T : DomainCommand> : Logging, SmartInitializingSing
             }
         }
     }
-
-    infix fun <T : DomainCommand> KProperty1<T, *>.matches(fld: Pair<Pattern, Field>) =
-        FieldValidationRule(
-            property = this,
-            pattern = fld.first,
-            isOptional = this.returnType.isMarkedNullable,
-            field = fld.second,
-            getter = { this.get(it) }
-        )
 
     companion object {
         private val classCache = ConcurrentHashMap<KClass<*>, KClass<*>>()

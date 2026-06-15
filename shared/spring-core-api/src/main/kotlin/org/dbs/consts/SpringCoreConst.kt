@@ -59,6 +59,8 @@ import org.dbs.consts.SpringCoreConst.PropertiesNames.WEB_CLIENT_TEST_CONNECTION
 import org.dbs.consts.SysConst.EMPTY_STRING
 import org.dbs.consts.SysConst.MASK_ALL
 import org.dbs.consts.SysConst.STRING_FALSE
+import org.dbs.validator.Error
+import org.dbs.validator.Field
 import org.springframework.http.HttpHeaders
 import org.springframework.web.util.UriBuilder
 import reactor.core.publisher.Mono
@@ -66,6 +68,7 @@ import java.util.function.Consumer
 
 typealias NoArg2Mono<T> = () -> Mono<T>
 typealias WebClientUriBuilder = Arg2Generic<UriBuilder, UriBuilder>
+typealias FieldError = Pair<Error, Field>
 
 object SpringCoreConst {
 
