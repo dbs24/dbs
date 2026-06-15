@@ -45,6 +45,23 @@ class UserRestContractTests : BaseTreeRestTest(), UserTestContract {
             .shouldContainErrors(*errs)
     }
 
+    override suspend fun createUserExpectingValidationError(
+        vararg errs: Pair<Error, Field>,
+        login: String, email: String, password: String?,
+        phone: String?, firstName: String?, lastName: String?,
+        middleName: String?, oldLogin: String?, oldEmail: String?,
+    ) {
+        postQueryShouldFailWithValidationError("/createOrUpdate",
+            CreateOrUpdateUserDto(
+                oldLogin = oldLogin, login = login,
+                oldEmail = oldEmail, email = email,
+                phone = phone, firstName = firstName,
+                lastName = lastName, middleName = middleName,
+                password = password
+            )
+        ).shouldContainErrors(*errs)
+    }
+
     override suspend fun updateUser(login: String, email: String) {
         executePost<CreateOrUpdateUserDto, CreatedUserDto>(
             uri = "/createOrUpdate",

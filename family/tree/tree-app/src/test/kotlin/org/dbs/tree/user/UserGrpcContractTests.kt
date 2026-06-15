@@ -58,6 +58,22 @@ class UserGrpcContractTests : BaseTreeGrpcTest(), UserTestContract {
         createOrUpdateUserWithValidationError(buildUserRequest(login = login, email = email, password = password), *errs)
     }
 
+    override suspend fun createUserExpectingValidationError(
+        vararg errs: Pair<Error, Field>,
+        login: String, email: String, password: String?,
+        phone: String?, firstName: String?, lastName: String?,
+        middleName: String?, oldLogin: String?, oldEmail: String?,
+    ) {
+        createOrUpdateUserWithValidationError(
+            buildUserRequest(
+                login = login, email = email, password = password ?: "",
+                phone = phone ?: "", firstName = firstName ?: "",
+                lastName = lastName ?: "", middleName = middleName ?: "",
+                oldLogin = oldLogin ?: "", oldEmail = oldEmail ?: ""
+            ), *errs
+        )
+    }
+
     override suspend fun updateUser(login: String, email: String) {
         createOrUpdateUserSuccess(
             buildUserRequest(

@@ -28,8 +28,8 @@ object UserMappers {
             oldEmail = oldEmail.grpcGetOrNull(),
             email = email,
             password = password,
-            firstName =  firstName.grpcGetOrNull(),
-            middleName = firstName.grpcGetOrNull(),
+            firstName = firstName.grpcGetOrNull(),
+            middleName = middleName.grpcGetOrNull(),
             lastName = lastName.grpcGetOrNull(),
             phone = phone.grpcGetOrNull()
         )
@@ -54,8 +54,8 @@ object UserMappers {
             oldEmail = oldEmail,
             email = email,
             password = password,
-            firstName =  firstName,
-            middleName = firstName,
+            firstName = firstName,
+            middleName = middleName,
             lastName = lastName,
             phone = phone
         )

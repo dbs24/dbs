@@ -27,6 +27,19 @@ interface UserTestContract {
     suspend fun createUserWithInvalidLogin(login: String, email: String, password: String, vararg errs: Pair<Error, Field>)
     suspend fun createUserWithInvalidEmail(login: String, email: String, password: String, vararg errs: Pair<Error, Field>)
 
+    suspend fun createUserExpectingValidationError(
+        vararg errs: Pair<Error, Field>,
+        login: String = "validuser",
+        email: String = "valid@test.com",
+        password: String? = "Strong12Password",
+        phone: String? = null,
+        firstName: String? = null,
+        lastName: String? = null,
+        middleName: String? = null,
+        oldLogin: String? = null,
+        oldEmail: String? = null,
+    )
+
     suspend fun updateUser(login: String, email: String)
 
     suspend fun fetchUserCredentials(login: String)
@@ -174,5 +187,98 @@ fun userTestsFactory(contract: UserTestContract) = stringSpec {
             login, pass,
             Error.INVALID_ENTITY_STATUS to Field.SSS_USER_STATUS
         )
+    }
+
+    // --- Field validation tests ---
+    val patErr = Error.INVALID_ATTR_PATTERN_MISMATCH
+
+    "Create user with login above max via $src" {
+        contract.createUserExpectingValidationError(patErr to Field.SSS_USER_LOGIN,
+            login = "a".repeat(20))
+    }
+
+    "Create user with login pattern mismatch via $src" {
+        contract.createUserExpectingValidationError(patErr to Field.SSS_USER_LOGIN,
+            login = "ValidUser")
+    }
+
+    "Create user with password too short via $src" {
+        contract.createUserExpectingValidationError(patErr to Field.SSS_USER_PASSWORD,
+            password = "Str1P")
+    }
+
+    "Create user with password without uppercase via $src" {
+        contract.createUserExpectingValidationError(patErr to Field.SSS_USER_PASSWORD,
+            password = "password123")
+    }
+
+    "Create user with password without lowercase via $src" {
+        contract.createUserExpectingValidationError(patErr to Field.SSS_USER_PASSWORD,
+            password = "PASSWORD123")
+    }
+
+    "Create user with phone below min via $src" {
+        contract.createUserExpectingValidationError(patErr to Field.SSS_USER_PHONE,
+            phone = "+1234")
+    }
+
+    "Create user with phone above max via $src" {
+        contract.createUserExpectingValidationError(patErr to Field.SSS_USER_PHONE,
+            phone = "+" + "1".repeat(21))
+    }
+
+    "Create user with phone pattern mismatch via $src" {
+        contract.createUserExpectingValidationError(patErr to Field.SSS_USER_PHONE,
+            phone = "+abcdef")
+    }
+
+    "Create user with first name above max via $src" {
+        contract.createUserExpectingValidationError(patErr to Field.SSS_USER_FIRST_NAME,
+            firstName = "A".repeat(80))
+    }
+
+    "Create user with first name pattern mismatch via $src" {
+        contract.createUserExpectingValidationError(patErr to Field.SSS_USER_FIRST_NAME,
+            firstName = "First1Name")
+    }
+
+    "Create user with last name above max via $src" {
+        contract.createUserExpectingValidationError(patErr to Field.SSS_USER_LAST_NAME,
+            lastName = "A".repeat(80))
+    }
+
+    "Create user with last name pattern mismatch via $src" {
+        contract.createUserExpectingValidationError(patErr to Field.SSS_USER_LAST_NAME,
+            lastName = "Last1Name")
+    }
+
+    "Create user with middle name above max via $src" {
+        contract.createUserExpectingValidationError(patErr to Field.SSS_USER_MIDDLE_NAME,
+            middleName = "A".repeat(80))
+    }
+
+    "Create user with middle name pattern mismatch via $src" {
+        contract.createUserExpectingValidationError(patErr to Field.SSS_USER_MIDDLE_NAME,
+            middleName = "Middle1Name")
+    }
+
+    "Update user with old login below min via $src" {
+        contract.createUserExpectingValidationError(patErr to Field.SSS_USER_OLD_LOGIN,
+            oldLogin = "abc")
+    }
+
+    "Update user with old login above max via $src" {
+        contract.createUserExpectingValidationError(patErr to Field.SSS_USER_OLD_LOGIN,
+            oldLogin = "a".repeat(20))
+    }
+
+    "Update user with old login pattern mismatch via $src" {
+        contract.createUserExpectingValidationError(patErr to Field.SSS_USER_OLD_LOGIN,
+            oldLogin = "ValidOld")
+    }
+
+    "Update user with old email pattern mismatch via $src" {
+        contract.createUserExpectingValidationError(patErr to Field.SSS_USER_EMAIL,
+            oldEmail = "invalidemail")
     }
 }
