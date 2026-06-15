@@ -272,9 +272,6 @@ dependencies {
     // yaml
     implementation(libs.snakeyaml)
 
-    // spring security
-    implementation(libs.spring.security.jwt)
-
     //r2dbc
     implementation(libs.r2dbc.pool)
     //implementation(libs.r2dbc.postgres)

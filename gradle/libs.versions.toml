@@ -3,7 +3,6 @@
 springBoot = "4.1.0"
 springBootSession = "4.1.0"
 springBootData = "4.1.0"
-springSecurity = "1.1.1.RELEASE"
 springKafka = "4.1.0"
 springdoc = "3.0.3"
 springGrpc = "1.0.3"
@@ -33,19 +32,17 @@ blockhoundJunitPlatform = "1.0.17.RELEASE"
 grpc = "1.82.0"
 grpcKotlinStub = "1.5.0"
 grpcGateway = "2.93.0"
-googleProtobuf = "4.35.0"
+googleProtobuf = "4.35.1"
 
 # Jakarta
 jakartaAnnotation = "3.0.0"
 jakartaValidation = "4.0.0-M1"
 
 # Jackson
-jackson3 = "3.2.0"
+jackson = "3.2.0"
 
 # Testing
 kotest = "6.1.11"
-kotestAssertionJvm = "4.0.7"
-kotestCoreJvm = "4.1.3"
 kotestSpringExtension = "1.3.0"
 kotestTestContainersExtension = "2.0.2"
 mockito = "5.23.0"
@@ -70,8 +67,8 @@ openJdkJmh = "1.37"
 # Other libraries
 yaml = "2.6"
 reflections = "0.10.2"
-swaggerCoreV3 = "2.2.50"
-minio = "9.0.2"
+swaggerCoreV3 = "2.2.51"
+minio = "9.0.3"
 bucket4j = "8.10.1"
 jsoup = "1.22.2"
 detektPlugin = "1.23.8"
@@ -97,13 +94,13 @@ reflectoringSpringBootDevtools = "0.0.3"
 springDependencyManagement = "1.1.7"
 springJavadocAggregate = "0.0.1"
 springRelease = "0.20.1"
-swaggerGradlePlugin = "2.2.50"
+swaggerGradlePlugin = "2.2.51"
 johnRengelman = "7.1.2"
 cryptoChecksum = "1.4.0"
 javaGradlePlugin = "1.6.9"
 gradleTestRetryPlugin = "1.6.5"
 diffPlugSpotless = "8.6.0"
-checkstylePlugin="13.5.0"
+checkstylePlugin="13.5.6"
 jacocoPlugin="0.8.15"
 
 [libraries]
@@ -146,9 +143,6 @@ spring-redis-session = { module = "org.springframework.session:spring-session-da
 # Spring Data
 spring-data-commons = { module = "org.springframework.data:spring-data-commons", version.ref = "springBootData" }
 
-# Spring Security
-spring-security-jwt = { module = "org.springframework.security:spring-security-jwt", version.ref = "springSecurity" }
-
 # Springdoc / OpenAPI
 springdoc-openapi-webflux-ui = { module = "org.springdoc:springdoc-openapi-starter-webflux-ui",      version.ref = "springdoc" }
 springdoc-openapi-kotlin     = { module = "org.springdoc:springdoc-openapi-kotlin-starter-common",   version.ref = "springdoc" }
@@ -169,9 +163,9 @@ jmh-core        = { module = "org.openjdk.jmh:jmh-core",                 version
 jmh-annotations = { module = "org.openjdk.jmh:jmh-generator-annprocess", version.ref = "openJdkJmh" }
 
 # Jackson
-jackson-dataformat-xml  = { module = "tools.jackson.dataformat:jackson-dataformat-xml", version.ref = "jackson3" }
-jackson-module-kotlin = { module = "tools.jackson.module:jackson-module-kotlin", version.ref = "jackson3" }
-jackson-databind      = { module = "tools.jackson.core:jackson-databind", version.ref = "jackson3" }
+jackson-dataformat-xml  = { module = "tools.jackson.dataformat:jackson-dataformat-xml", version.ref = "jackson" }
+jackson-module-kotlin = { module = "tools.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
+jackson-databind      = { module = "tools.jackson.core:jackson-databind", version.ref = "jackson" }
 
 
 # Reflections
@@ -246,8 +240,6 @@ kotest-common-jvm             = { module = "io.kotest:kotest-common-jvm",       
 kotest-engine                 = { module = "io.kotest:kotest-framework-engine-jvm",       version.ref = "kotest" }
 kotest-spring                 = { module = "io.kotest:kotest-extensions-spring",           version.ref = "kotest" }
 kotest-blockhound             = { module = "io.kotest:kotest-extensions-blockhound",       version.ref = "kotest" }
-kotest-assertions-jvm         = { module = "io.kotest:kotest-assertions-jvm",             version.ref = "kotestAssertionJvm" }
-kotest-core-jvm               = { module = "io.kotest:kotest-core-jvm",                   version.ref = "kotestCoreJvm" }
 kotest-extensions-spring      = { module = "io.kotest.extensions:kotest-extensions-spring",        version.ref = "kotestSpringExtension" }
 kotest-testcontainers         = { module = "io.kotest.extensions:kotest-extensions-testcontainers", version.ref = "kotestTestContainersExtension" }
 

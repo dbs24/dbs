@@ -11,7 +11,6 @@ dependencies {
     implementation(libs.spring.webflux)
     implementation(libs.reactor.tools)
     implementation(libs.spring.security)
-    implementation(libs.spring.security.jwt)
     implementation(libs.reactor.kotlin.extensions)
     implementation(libs.log4j.api.kotlin)
     runtimeOnly(libs.log4j.jakarta.smtp)
