@@ -156,6 +156,7 @@ abstract class BaseSpec : StringSpec(), Logging {
 
         @JvmStatic
         val testNum: Int get() = atomicTestNum.incrementAndGet()
+        const val TEST_MAIL_DOMAIN = "@dbs.com"
 
         val postgresR2dbcContainer = PostgresR2dbcContainer(SQL_TEST_DB_NAME, SQL_TEST_DB_USER)
         private val kafkaTestContainer = KafkaTestContainer()

@@ -35,7 +35,7 @@ class ProjectsGrpcTests : BaseTreeGrpcTest() {
         "Create project$viaSource" {
 
             val hotUserLogin = newUserLogin
-            val user = createOrUpdateUserSuccess(buildUserRequest(hotUserLogin, "$hotUserLogin@test.com", "Strong12Password"))
+            val user = createOrUpdateUserSuccess(buildUserRequest(hotUserLogin, "$hotUserLogin$TEST_MAIL_DOMAIN", "Strong12Password"))
 
             val hotProjectLogin = newProjectShortName
 
@@ -45,17 +45,17 @@ class ProjectsGrpcTests : BaseTreeGrpcTest() {
 //        "Create another project$viaSource" {
 //
 //            val hotProjectLogin = newProjectShortName
-//            createOrUpdateSuccess(buildProjectRequest(hotProjectLogin, "$hotProjectLogin@test.com", "Strong12Password"))
+//            createOrUpdateSuccess(buildProjectRequest(hotProjectLogin, "$hotProjectLogin$TEST_MAIL_DOMAIN", "Strong12Password"))
 //        }
 //
 //        "Try to create invalid exists project$viaSource" {
 //
 //            val hotProjectLogin = newProjectShortName
 //
-//            createOrUpdateSuccess(buildProjectRequest(hotProjectLogin, "$hotProjectLogin@test.com", "Strong12Password"))
+//            createOrUpdateSuccess(buildProjectRequest(hotProjectLogin, "$hotProjectLogin$TEST_MAIL_DOMAIN", "Strong12Password"))
 //
 //            createOrUpdateProjectWithValidationError(
-//                buildProjectRequest(login = hotProjectLogin, email = "$hotProjectLogin@test.com", password = "Strong12Password"),
+//                buildProjectRequest(login = hotProjectLogin, email = "$hotProjectLogin$TEST_MAIL_DOMAIN", password = "Strong12Password"),
 //                ALREADY_EXISTS to SSS_USER_LOGIN
 //            )
 //        }
@@ -69,7 +69,7 @@ class ProjectsGrpcTests : BaseTreeGrpcTest() {
 //
 //        "Try to create invalid project with invalid login$viaSource" {
 //            createOrUpdateProjectWithValidationError(
-//                buildProjectRequest(login = "vali", email = "valid_project2@test.com", password = "Strong12Password"),
+//                buildProjectRequest(login = "vali", email = "valid_project2$TEST_MAIL_DOMAIN", password = "Strong12Password"),
 //                INVALID_ATTR_PATTERN_MISMATCH to SSS_USER_LOGIN
 //            )
 //        }
@@ -77,16 +77,16 @@ class ProjectsGrpcTests : BaseTreeGrpcTest() {
 //        "Update project $viaSource" {
 //
 //            val hotProjectLogin = newProjectShortName
-//            createOrUpdateSuccess(buildProjectRequest(hotProjectLogin, "$hotProjectLogin@test.com", "Strong12Password"))
+//            createOrUpdateSuccess(buildProjectRequest(hotProjectLogin, "$hotProjectLogin$TEST_MAIL_DOMAIN", "Strong12Password"))
 //
 //            createOrUpdateSuccess(buildProjectRequest(login = hotProjectLogin, oldLogin = hotProjectLogin,
-//                email = "$hotProjectLogin@test.com", password = "Strong12Password", firstName = "firstName"))
+//                email = "$hotProjectLogin$TEST_MAIL_DOMAIN", password = "Strong12Password", firstName = "firstName"))
 //
 //        }
 //
 //        "Get project1 credentials$viaSource" {
 //            val hotProjectLogin = newProjectShortName
-//            createOrUpdateSuccess(buildProjectRequest(hotProjectLogin, "$hotProjectLogin@test.com", "Strong12Password"))
+//            createOrUpdateSuccess(buildProjectRequest(hotProjectLogin, "$hotProjectLogin$TEST_MAIL_DOMAIN", "Strong12Password"))
 //            updateProjectStatusSuccess(buildProjectStatusRequest(login = hotProjectLogin, newStatus = "ACTUAL"))
 //            getProjectCredentials(buildProjectCredentialsRequest(hotProjectLogin))
 //        }
@@ -107,14 +107,14 @@ class ProjectsGrpcTests : BaseTreeGrpcTest() {
 //
 //        "Get project2 credentials$viaSource" {
 //            val hotProjectLogin = newProjectShortName
-//            createOrUpdateSuccess(buildProjectRequest(hotProjectLogin, "$hotProjectLogin@test.com", "Strong12Password"))
+//            createOrUpdateSuccess(buildProjectRequest(hotProjectLogin, "$hotProjectLogin$TEST_MAIL_DOMAIN", "Strong12Password"))
 //            updateProjectStatusSuccess(buildProjectStatusRequest(login = hotProjectLogin, newStatus = "ACTUAL"))
 //            getProjectCredentials(buildProjectCredentialsRequest(hotProjectLogin))
 //        }
 //
 //        "Try to close project with unknown status$viaSource" {
 //            val hotProjectLogin = newProjectShortName
-//            createOrUpdateSuccess(buildProjectRequest(hotProjectLogin, "$hotProjectLogin@test.com", "Strong12Password"))
+//            createOrUpdateSuccess(buildProjectRequest(hotProjectLogin, "$hotProjectLogin$TEST_MAIL_DOMAIN", "Strong12Password"))
 //
 //            updateProjectStatusWithFail(
 //                buildProjectStatusRequest(login = hotProjectLogin, newStatus = "FAKED_STATUS"),
@@ -124,19 +124,19 @@ class ProjectsGrpcTests : BaseTreeGrpcTest() {
 //
 //        "Close project$viaSource" {
 //            val hotProjectLogin = newProjectShortName
-//            createOrUpdateSuccess(buildProjectRequest(hotProjectLogin, "$hotProjectLogin@test.com", "Strong12Password"))
+//            createOrUpdateSuccess(buildProjectRequest(hotProjectLogin, "$hotProjectLogin$TEST_MAIL_DOMAIN", "Strong12Password"))
 //            updateProjectStatusSuccess(buildProjectStatusRequest(login = hotProjectLogin, newStatus = "CLOSED"))
 //        }
 //
 //        "Close project2$viaSource" {
 //            val hotProjectLogin = newProjectShortName
-//            createOrUpdateSuccess(buildProjectRequest(hotProjectLogin, "$hotProjectLogin@test.com", "Strong12Password"))
+//            createOrUpdateSuccess(buildProjectRequest(hotProjectLogin, "$hotProjectLogin$TEST_MAIL_DOMAIN", "Strong12Password"))
 //            updateProjectStatusSuccess(buildProjectStatusRequest(login = hotProjectLogin, newStatus = "CLOSED"))
 //        }
 //
 //        "Try to close project with invalid status$viaSource" {
 //            val hotProjectLogin = newProjectShortName
-//            createOrUpdateSuccess(buildProjectRequest(hotProjectLogin, "$hotProjectLogin@test.com", "Strong12Password"))
+//            createOrUpdateSuccess(buildProjectRequest(hotProjectLogin, "$hotProjectLogin$TEST_MAIL_DOMAIN", "Strong12Password"))
 //            updateProjectStatusSuccess(buildProjectStatusRequest(login = hotProjectLogin, newStatus = "CLOSED"))
 //            updateProjectStatusWithFail(
 //                buildProjectStatusRequest(login = hotProjectLogin, newStatus = "CLOSED"),
@@ -146,7 +146,7 @@ class ProjectsGrpcTests : BaseTreeGrpcTest() {
 //
 //        "Reopen project$viaSource" {
 //            val hotProjectLogin = newProjectShortName
-//            createOrUpdateSuccess(buildProjectRequest(hotProjectLogin, "$hotProjectLogin@test.com", "Strong12Password"))
+//            createOrUpdateSuccess(buildProjectRequest(hotProjectLogin, "$hotProjectLogin$TEST_MAIL_DOMAIN", "Strong12Password"))
 //            updateProjectStatusSuccess(buildProjectStatusRequest(login = hotProjectLogin, newStatus = "CLOSED"))
 //
 //            updateProjectStatusSuccess(buildProjectStatusRequest(login = hotProjectLogin, newStatus = "ACTUAL"))
@@ -155,7 +155,7 @@ class ProjectsGrpcTests : BaseTreeGrpcTest() {
 //        "Update project password$viaSource" {
 //            val hotProjectLogin = newProjectShortName
 //            val password = "Strong12Password"
-//            createOrUpdateSuccess(buildProjectRequest(hotProjectLogin, "$hotProjectLogin@test.com", password))
+//            createOrUpdateSuccess(buildProjectRequest(hotProjectLogin, "$hotProjectLogin$TEST_MAIL_DOMAIN", password))
 //            updateProjectStatusSuccess(buildProjectStatusRequest(login = hotProjectLogin, newStatus = "ACTUAL"))
 //
 //            updateProjectPasswordSuccess(
@@ -167,7 +167,7 @@ class ProjectsGrpcTests : BaseTreeGrpcTest() {
 //
 //            val hotProjectLogin = newProjectShortName
 //            val password = "Strong12Password"
-//            createOrUpdateSuccess(buildProjectRequest(hotProjectLogin, "$hotProjectLogin@test.com", password))
+//            createOrUpdateSuccess(buildProjectRequest(hotProjectLogin, "$hotProjectLogin$TEST_MAIL_DOMAIN", password))
 //
 //            updateProjectPasswordWithFail(
 //                buildProjectPasswordRequest(login = hotProjectLogin, oldP = password+"1", newP = "Strong2Password"),
@@ -179,7 +179,7 @@ class ProjectsGrpcTests : BaseTreeGrpcTest() {
 //
 //            val hotProjectLogin = newProjectShortName
 //            val password = "Strong13Password"
-//            createOrUpdateSuccess(buildProjectRequest(hotProjectLogin, "$hotProjectLogin@test.com", password))
+//            createOrUpdateSuccess(buildProjectRequest(hotProjectLogin, "$hotProjectLogin$TEST_MAIL_DOMAIN", password))
 //
 //            updateProjectStatusSuccess(buildProjectStatusRequest(login = hotProjectLogin, newStatus = "CLOSED"))
 //
@@ -193,7 +193,7 @@ class ProjectsGrpcTests : BaseTreeGrpcTest() {
 //
 //            val hotProjectLogin = newProjectShortName
 //            val password = "Strong13Password"
-//            createOrUpdateSuccess(buildProjectRequest(hotProjectLogin, "$hotProjectLogin@test.com", password))
+//            createOrUpdateSuccess(buildProjectRequest(hotProjectLogin, "$hotProjectLogin$TEST_MAIL_DOMAIN", password))
 //
 //            updateProjectPasswordWithFail(
 //                buildProjectPasswordRequest(login = hotProjectLogin, oldP = password, newP = password),

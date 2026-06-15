@@ -37,7 +37,7 @@ class SecurityRestTests : BaseTreeRestTest() {
             val hotUserPassword = "rest_Strong1Password$hotUserLogin"
 
             // create user
-            val dto = createUserDto(hotUserLogin, "$hotUserLogin@test.com", hotUserPassword)
+            val dto = createUserDto(hotUserLogin, "$hotUserLogin$TEST_MAIL_DOMAIN", hotUserPassword)
             createUser( dto)
 
             // update status
@@ -56,7 +56,7 @@ class SecurityRestTests : BaseTreeRestTest() {
             val hotUserPassword = "rest_Strong1Password$hotUserLogin"
 
             // create user
-            val dto = createUserDto(hotUserLogin, "$hotUserLogin@test.com", hotUserPassword)
+            val dto = createUserDto(hotUserLogin, "$hotUserLogin$TEST_MAIL_DOMAIN", hotUserPassword)
             createUser( dto)
 
             // update status
@@ -79,7 +79,7 @@ class SecurityRestTests : BaseTreeRestTest() {
             val hotUserPassword = "rest_Strong1Password$hotUserLogin"
 
             // create user
-            val dto = createUserDto(hotUserLogin, "$hotUserLogin@test.com", hotUserPassword)
+            val dto = createUserDto(hotUserLogin, "$hotUserLogin$TEST_MAIL_DOMAIN", hotUserPassword)
             createUser( dto)
 
             // login with fail
@@ -95,7 +95,7 @@ class SecurityRestTests : BaseTreeRestTest() {
             val hotUserPassword = "rest_Strong1Password$hotUserLogin"
 
             // create user
-            val dto = createUserDto(hotUserLogin, "$hotUserLogin@test.com", hotUserPassword)
+            val dto = createUserDto(hotUserLogin, "$hotUserLogin$TEST_MAIL_DOMAIN", hotUserPassword)
             createUser( dto)
 
             // update status

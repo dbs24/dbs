@@ -128,7 +128,7 @@ object UserGrpcFuncs {
         }
 
     // --- Тестовые шаги: Обработка ошибок ---
-    suspend fun BaseTreeGrpcTest.createOrUpdateUserWithValidationError(req: USER, vararg errs: Pair<org.dbs.validator.Error, Field>) =
+    suspend fun BaseTreeGrpcTest.createOrUpdateUserWithValidationError(req: USER, vararg errs: Pair<Error, Field>) =
         runCall { userStub.createOrUpdateUser(req) }.shouldFailWithValidation().shouldContainErrors(*errs)
 
     suspend fun BaseTreeGrpcTest.createOrUpdateUserWithInternalError(req: USER) =
