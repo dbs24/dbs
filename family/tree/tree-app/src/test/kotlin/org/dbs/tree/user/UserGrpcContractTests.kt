@@ -1,5 +1,6 @@
 package org.dbs.tree.user
 
+import io.kotest.common.KotestInternal
 import org.dbs.consts.FieldError
 import org.dbs.tree.BaseTreeGrpcTest
 import org.dbs.tree.user.UserGrpcFuncs.buildUserCredentialsRequest
@@ -14,10 +15,14 @@ import org.dbs.tree.user.UserGrpcFuncs.updateUserPasswordSuccess
 import org.dbs.tree.user.UserGrpcFuncs.updateUserPasswordWithFail
 import org.dbs.tree.user.UserGrpcFuncs.updateUserStatusSuccess
 import org.dbs.tree.user.UserGrpcFuncs.updateUserStatusWithFail
+import org.dbs.user.FamilyTreeCore.EntityStatus
+import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_ACTUAL
+import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_CLOSED
 import org.dbs.validator.Error.ALREADY_EXISTS
 import org.dbs.validator.Error.MANDATORY_FIELD_MISSING
 import org.dbs.validator.Field.SSS_USER_LOGIN
 
+@OptIn(KotestInternal::class)
 @Suppress("unused")
 class UserGrpcContractTests : BaseTreeGrpcTest(), UserTestContract {
 
@@ -35,11 +40,11 @@ class UserGrpcContractTests : BaseTreeGrpcTest(), UserTestContract {
     }
 
     override suspend fun closeUser(login: String) {
-        updateUserStatusSuccess(buildUserStatusRequest(login, "CLOSED"))
+        updateUserStatusSuccess(buildUserStatusRequest(login, ES_USER_CLOSED))
     }
 
     override suspend fun reopenUser(login: String) {
-        updateUserStatusSuccess(buildUserStatusRequest(login, "ACTUAL"))
+        updateUserStatusSuccess(buildUserStatusRequest(login, ES_USER_ACTUAL))
     }
 
     override suspend fun createUserWithEmptyFields() {
@@ -94,11 +99,11 @@ class UserGrpcContractTests : BaseTreeGrpcTest(), UserTestContract {
         getUserCredentialsWithFails(buildUserCredentialsRequest(login), *errs)
     }
 
-    override suspend fun closeUserWithUnknownStatus(login: String, status: String, vararg errs: FieldError) {
-        updateUserStatusWithFail(buildUserStatusRequest(login, status), *errs)
+    override suspend fun closeUserWithUnknownStatus(login: String, vararg errs: FieldError) {
+        updateUserStatusWithFail(buildUserStatusRequest(login), *errs)
     }
 
-    override suspend fun closeUserExpectingInvalidStatus(login: String, status: String, vararg errs: FieldError) {
+    override suspend fun closeUserExpectingInvalidStatus(login: String, status: EntityStatus, vararg errs: FieldError) {
         updateUserStatusWithFail(buildUserStatusRequest(login, status), *errs)
     }
 

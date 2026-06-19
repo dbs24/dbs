@@ -1,8 +1,8 @@
 package org.dbs.tree.user
 
+import io.kotest.common.KotestInternal
 import io.kotest.core.annotation.Isolate
 import io.kotest.core.spec.style.stringSpec
-import org.apache.logging.log4j.kotlin.Logging
 import org.dbs.consts.FieldError
 import org.dbs.test.ext.generateDefValidationTestsWithFail
 import org.dbs.test.ko.BaseSpec.Companion.TEST_MAIL_DOMAIN
@@ -10,6 +10,8 @@ import org.dbs.test.ko.BaseSpec.Companion.testNum
 import org.dbs.tree.TreeApplication
 import org.dbs.tree.config.TreeConfig
 import org.dbs.tree.validator.strategy.UserValidationPattern
+import org.dbs.user.FamilyTreeCore.EntityStatus
+import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_CLOSED
 import org.dbs.validator.Error
 import org.dbs.validator.Field
 import org.springframework.boot.test.context.SpringBootTest
@@ -51,8 +53,8 @@ interface UserTestContract: UserValidationPattern {
     suspend fun fetchUserCredentialsWithInvalidLogin(login: String, vararg errs: FieldError)
 
     suspend fun closeUser(login: String)
-    suspend fun closeUserWithUnknownStatus(login: String, status: String, vararg errs: FieldError)
-    suspend fun closeUserExpectingInvalidStatus(login: String, status: String, vararg errs: FieldError)
+    suspend fun closeUserWithUnknownStatus(login: String, vararg errs: FieldError)
+    suspend fun closeUserExpectingInvalidStatus(login: String, status: EntityStatus, vararg errs: FieldError)
     suspend fun reopenUser(login: String)
 
     suspend fun updateUserPassword(login: String, oldPass: String, newPass: String)
@@ -63,6 +65,7 @@ interface UserTestContract: UserValidationPattern {
     fun buildUserLogin() = "$userPrefix${testNum}"
 }
 
+@OptIn(KotestInternal::class)
 fun userTestsFactory(contract: UserTestContract) = stringSpec {
 
     val src = contract.source
@@ -140,14 +143,14 @@ fun userTestsFactory(contract: UserTestContract) = stringSpec {
     "Try to close user with unknown status via $src" {
         val login = contract.buildUserLogin()
         contract.createUser(login, "$login$TEST_MAIL_DOMAIN", "Strong12Password")
-        contract.closeUserWithUnknownStatus(login, "FAKED_STATUS", Error.UNKNOWN_ENTITY_STATUS to Field.SSS_USER_STATUS)
+        contract.closeUserWithUnknownStatus(login, Error.UNKNOWN_ENTITY_STATUS to Field.SSS_USER_STATUS)
     }
 
     "Try to close user with invalid status via $src" {
         val login = contract.buildUserLogin()
         contract.createUser(login, "$login$TEST_MAIL_DOMAIN", "Strong12Password")
         contract.closeUser(login)
-        contract.closeUserExpectingInvalidStatus(login, "CLOSED", Error.INVALID_ENTITY_STATUS to Field.SSS_USER_STATUS)
+        contract.closeUserExpectingInvalidStatus(login, ES_USER_CLOSED, Error.INVALID_ENTITY_STATUS to Field.SSS_USER_STATUS)
     }
 
     "Reopen user via $src" {

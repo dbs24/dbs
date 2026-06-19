@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono
 
 @Component
 @Order(HIGHEST_PRECEDENCE)
-class RestIpFilter : WebFilter, Logging {
+class RestIpFilter : WebFilter {
 
     override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> {
         val ip = exchange.request.headers.getFirst("X-Forwarded-For")

@@ -10,7 +10,7 @@ springGrpc = "1.0.3"
 # Data / Persistence
 redisClients = "7.5.2"
 postgres = "42.7.11"
-flyway = "12.8.1"
+flyway = "12.9.0"
 r2dbcPool = "1.0.2.RELEASE"
 r2dbcPostgres = "1.1.1.RELEASE"
 queryDsl = "5.1.0"
@@ -42,7 +42,7 @@ jakartaValidation = "4.0.0-M1"
 jackson = "3.2.0"
 
 # Testing
-kotest = "6.2.0"
+kotest = "6.2.1"
 kotestSpringExtension = "1.3.0"
 kotestTestContainersExtension = "2.0.2"
 mockito = "5.23.0"

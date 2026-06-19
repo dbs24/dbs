@@ -57,7 +57,7 @@ object GrpcFuncs {
 
     fun <ReqT, RespT> ServerCall<ReqT, RespT>.getUserAgent(grpcProcedure: String, headers: Metadata): IpAddress =
         headers[GRPC_USER_AGENT]?.also {
-            require(it.length > 0)
+            require(it.isNotEmpty())
         } ?: error("$grpcProcedure: ${findI18nMessage(I18NEnum.GRPC_USER_AGENT_IS_NOT_ASSIGNED)} ")
     //} ?: "fakedUserAgent"
 

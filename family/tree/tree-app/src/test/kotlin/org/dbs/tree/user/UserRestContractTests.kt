@@ -1,6 +1,8 @@
 package org.dbs.tree.user
 
+import io.kotest.common.KotestInternal
 import org.dbs.consts.FieldError
+import org.dbs.user.FamilyTreeCore.EntityStatus
 import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_ACTUAL
 import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_CLOSED
 import org.dbs.user.dto.user.CreateOrUpdateUserDto
@@ -9,6 +11,7 @@ import org.dbs.user.dto.user.UpdateUserStatusDto
 import org.dbs.validator.Error
 import org.dbs.validator.Field
 
+@OptIn(KotestInternal::class)
 @Suppress("unused")
 class UserRestContractTests : BaseTreeRestTest(), UserTestContract {
 
@@ -76,13 +79,13 @@ class UserRestContractTests : BaseTreeRestTest(), UserTestContract {
 
     override suspend fun fetchUserCredentialsWithInvalidLogin(login: String, vararg errs: FieldError) {}
 
-    override suspend fun closeUserWithUnknownStatus(login: String, status: String, vararg errs: FieldError) {
-        postQueryShouldFailWithValidationError("/updateStatus", UpdateUserStatusDto(login, status))
+    override suspend fun closeUserWithUnknownStatus(login: String, vararg errs: FieldError) {
+        postQueryShouldFailWithValidationError("/updateStatus", UpdateUserStatusDto(login, "FAKED_STATUS"))
             .shouldContainErrors(*errs)
     }
 
-    override suspend fun closeUserExpectingInvalidStatus(login: String, status: String, vararg errs: FieldError) {
-        postQueryShouldFailWithValidationError("/updateStatus", UpdateUserStatusDto(login, status))
+    override suspend fun closeUserExpectingInvalidStatus(login: String, status: EntityStatus, vararg errs: FieldError) {
+        postQueryShouldFailWithValidationError("/updateStatus", UpdateUserStatusDto(login, status.entityStatusName))
             .shouldContainErrors(*errs)
     }
 

@@ -43,8 +43,11 @@ object UserGrpcFuncs {
     fun BaseTreeGrpcTest.buildUserCredentialsRequest(login: String): CREDS =
         CREDS.newBuilder().build { setUserLogin(login) }
 
-    fun BaseTreeGrpcTest.buildUserStatusRequest(login: String, newStatus: String): STATUS =
-        STATUS.newBuilder().build { setModifiedLogin(login); setStatus(newStatus) }
+    fun BaseTreeGrpcTest.buildUserStatusRequest(login: String, newStatus: EntityStatus): STATUS =
+        STATUS.newBuilder().build { setModifiedLogin(login); setStatus(newStatus.entityStatusName) }
+
+    fun BaseTreeGrpcTest.buildUserStatusRequest(login: String): STATUS =
+        STATUS.newBuilder().build { setModifiedLogin(login); setStatus("FAKED_STATUS") }
 
     fun BaseTreeGrpcTest.buildUserPasswordRequest(login: String, oldP: String, newP: String): PASSWORD =
         PASSWORD.newBuilder().build { setModifiedLogin(login); setOldPassword(oldP); setNewPassword(newP) }
