@@ -9,9 +9,10 @@ import org.dbs.tree.service.ProjectService
 import org.springframework.grpc.server.service.GrpcService
 
 @GrpcService
-class GrpcProjectController(val projectService: ProjectService) : ProjectServiceGrpcKt.ProjectServiceCoroutineImplBase() {
+class GrpcProjectController(val projectService: ProjectService) :
+    ProjectServiceGrpcKt.ProjectServiceCoroutineImplBase() {
 
-        override suspend fun createOrUpdateProject(request: CreateOrUpdateProjectRequest): CreateOrUpdateProjectResponse =
-                projectService.createOrUpdateProject(request.toCommand()).toProjectProto()
+    override suspend fun createOrUpdateProject(request: CreateOrUpdateProjectRequest): CreateOrUpdateProjectResponse =
+        projectService.createOrUpdateProject(request.toCommand()).toProjectProto()
 
 }

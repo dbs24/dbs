@@ -14,6 +14,7 @@ import org.dbs.consts.ClaimsGet
 import org.dbs.consts.RestHttpConsts.BEARER
 import org.dbs.consts.RestHttpConsts.URI_IP
 import org.dbs.consts.RestHttpConsts.isLocalAddress
+import org.dbs.consts.SQL_CREATE_ACCESS_TOKEN_TABLES
 import org.dbs.consts.SecurityConsts.Claims.CL_ACCESS_TOKEN
 import org.dbs.consts.SecurityConsts.Claims.CL_INTERNAL_SERVICE
 import org.dbs.consts.SecurityConsts.Claims.CL_IP
@@ -40,8 +41,10 @@ import org.dbs.rest.validation.ValidateDto
 import org.dbs.security.jwt.Jwt
 import org.dbs.spring.core.api.AbstractApplicationService
 import org.dbs.spring.security.api.JwtSecurityServiceApi
+import org.springframework.beans.factory.SmartInitializingSingleton
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.http.HttpHeaders.AUTHORIZATION
+import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.server.ServerWebExchange
@@ -63,14 +66,15 @@ data class JwtProperties(
 class JwtSecurityService(
     private val accessJwtRepo: AccessJwtRepo,
     private val refreshJwtRepo: RefreshJwtRepo,
-    private val jwtProperties: JwtProperties
-) : AbstractApplicationService(), JwtSecurityServiceApi {
+    private val jwtProperties: JwtProperties,
+    private val databaseClient: DatabaseClient
+) : AbstractApplicationService(), JwtSecurityServiceApi, SmartInitializingSingleton {
 
     private val key by lazy { buildKey(jwtProperties.secretKey) }
     private val internalServiceJwt by lazy { buildInternalServiceJwt() }
 
     init {
-        with (jwtProperties) {
+        with(jwtProperties) {
             require(secretKey.isNotEmpty()) { "Access token expiration not defined" }
             require(accessTokenExpiration > 0) { "Access token expiration not defined" }
             require(refreshTokenExpiration > 0) { "Refresh token expiration not defined" }
@@ -120,13 +124,15 @@ class JwtSecurityService(
             )
         )
 
-        refreshJwtRepo.save(RefreshJwt(
-            issueDate = now,
-            jwt = refreshToken,
-            parentJwtId = issuedJwt.jwtId ?: error("parent jwt is null"),
-            validUntil = refreshUntil,
-            isRevoked = false
-        ))
+        refreshJwtRepo.save(
+            RefreshJwt(
+                issueDate = now,
+                jwt = refreshToken,
+                parentJwtId = issuedJwt.jwtId ?: error("parent jwt is null"),
+                validUntil = refreshUntil,
+                isRevoked = false
+            )
+        )
 
         return LoginUserResponseDto(accessToken, accessUntil.toLong(), refreshToken, refreshUntil.toLong())
 
@@ -148,7 +154,7 @@ class JwtSecurityService(
         refreshJwtRepo.save(request.refreshJwt.copy(revokeDate = now, isRevoked = true))
 
         val diffInSeconds: Long = ChronoUnit.SECONDS.between(request.issuedJwt.issueDate, now)
-        val diffSecs: Long = if (diffInSeconds<1)  1 else 0
+        val diffSecs: Long = if (diffInSeconds < 1) 1 else 0
         return createAccessTokens(request.login, now.plusSeconds(diffSecs))
     }
 
@@ -189,19 +195,26 @@ class JwtSecurityService(
         }
     }
 
-    private fun buildJwt(subject: String, claims: StringMap, now: LocalDateTime, expirationTime: Long, key: SecretKey) = run {
-        val createdDate: Date = Date.from(now.atZone(ZoneId.systemDefault()).toInstant())
-        val expirationDate = Date(createdDate.time + expirationTime * MILLIS_1000)
-        Jwts.builder()
-            .claims(claims)
-            .subject(subject)
-            .issuedAt(createdDate)
-            .expiration(expirationDate)
-            .signWith(key)
-            .compact()
-    }
+    private fun buildJwt(subject: String, claims: StringMap, now: LocalDateTime, expirationTime: Long, key: SecretKey) =
+        run {
+            val createdDate: Date = Date.from(now.atZone(ZoneId.systemDefault()).toInstant())
+            val expirationDate = Date(createdDate.time + expirationTime * MILLIS_1000)
+            Jwts.builder()
+                .claims(claims)
+                .subject(subject)
+                .issuedAt(createdDate)
+                .expiration(expirationDate)
+                .signWith(key)
+                .compact()
+        }
 
-    fun generateJwt(subject: String, claims: StringMap, now: LocalDateTime, expirationTime: Long, key: SecretKey): String =
+    fun generateJwt(
+        subject: String,
+        claims: StringMap,
+        now: LocalDateTime,
+        expirationTime: Long,
+        key: SecretKey
+    ): String =
         buildJwt(subject, claims, now, expirationTime, key)
 
     fun generateJwt(subject: String, claims: StringMap, now: LocalDateTime, expirationTime: Long): String =
@@ -250,8 +263,9 @@ class JwtSecurityService(
     fun extractJwt(serverWebExchange: ServerWebExchange): Jwt? =
         serverWebExchange.request.headers.getFirst(AUTHORIZATION)?.let {
             val jwtToken = it.getJwtFromBearer()
-            val actualIp = serverWebExchange.request.headers.getFirst(X_REAL_IP)?.replace(allowedIpV4Regex, EMPTY_STRING)
-                ?: serverWebExchange.request.remoteAddress?.address?.hostAddress ?: UNKNOWN
+            val actualIp =
+                serverWebExchange.request.headers.getFirst(X_REAL_IP)?.replace(allowedIpV4Regex, EMPTY_STRING)
+                    ?: serverWebExchange.request.remoteAddress?.address?.hostAddress ?: UNKNOWN
             val userAgent = "fff"
 
             require(jwtToken.length > JWT_MIN_SIZE_DEF)
@@ -277,4 +291,11 @@ class JwtSecurityService(
         require(it.length > JWT_MIN_SIZE_DEF) { "$claimName: invalid jwt - '$jwt'" }
         getAllClaimsFromExpiredToken(it)[claimName] as String?
     }
+
+    override fun afterSingletonsInstantiated() {
+        databaseClient.sql(SQL_CREATE_ACCESS_TOKEN_TABLES)
+            .then()
+            .subscribe()
+    }
+
 }

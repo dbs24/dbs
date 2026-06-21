@@ -27,6 +27,7 @@ import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_BANNED
 import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_CLOSED
 import org.dbs.user.FamilyTreeCore.EntityTypes.ET_PROJECT
 import org.dbs.user.FamilyTreeCore.EntityTypes.ET_USER
+import org.dbs.user.UsersConsts.Names.GROUP
 import org.dbs.user.UsersConsts.Names.PROJECT
 import org.dbs.user.UsersConsts.Names.USER
 
@@ -42,6 +43,11 @@ object FamilyTreeCore : EntityCoreInitializer {
         ET_PROJECT {
             override val entityTypeId = 100200
             override val entityTypeName = PROJECT
+            override val module = FAMILY_TREE
+        },
+        ET_GROUP {
+            override val entityTypeId = 100300
+            override val entityTypeName = GROUP
             override val module = FAMILY_TREE
         },
     }

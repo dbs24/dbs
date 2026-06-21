@@ -1,7 +1,7 @@
 package org.dbs.service.v2
 
 import com.sun.management.UnixOperatingSystemMXBean
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.runBlocking
 import org.apache.logging.log4j.kotlin.Logging
 import org.dbs.consts.SysConst.STRING_NULL
@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service
 import java.lang.management.ManagementFactory
 import java.time.LocalDateTime.now
 import java.time.LocalTime.MIN
+import java.util.concurrent.Executors.newFixedThreadPool
 
 @Service
 class EntityActionEventService(
@@ -24,9 +25,15 @@ class EntityActionEventService(
     private val incidentRepo: IncidentRepo,
 ) : Logging {
 
+    private val actionDispatcher by lazy {
+        newFixedThreadPool(
+            Runtime.getRuntime().availableProcessors()
+        ).asCoroutineDispatcher()
+    }
+
     @EventListener
     @Async
-    fun onActionEvent(event: EntityActionEvent): Unit = runBlocking(Dispatchers.IO) {
+    fun onActionEvent(event: EntityActionEvent): Unit = runBlocking(actionDispatcher) {
         with(event) {
             actionRepo.save(
                 EntityAction(
@@ -48,7 +55,7 @@ class EntityActionEventService(
 
     @EventListener
     @Async
-    fun onIncidentEvent(event: IncidentEvent): Unit = runBlocking(Dispatchers.IO) {
+    fun onIncidentEvent(event: IncidentEvent): Unit = runBlocking(actionDispatcher) {
         with(event) {
 
             val osBean = ManagementFactory.getOperatingSystemMXBean() as? UnixOperatingSystemMXBean
