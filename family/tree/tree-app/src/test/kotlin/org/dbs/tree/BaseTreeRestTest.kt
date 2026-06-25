@@ -1,4 +1,4 @@
-package org.dbs.tree.user
+package org.dbs.tree
 
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.longs.shouldBeGreaterThan
@@ -18,11 +18,7 @@ import org.dbs.test.ko.BaseRestSpec
 import org.dbs.test.ko.ErrorBox
 import org.dbs.tree.model.user.User
 import org.dbs.tree.repo.UserRepo
-import org.dbs.user.FamilyTreeCore.EntityStatus
-import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_ANONYMOUS
-import org.dbs.user.FamilyTreeCore.EntityTypes.ET_USER
-import org.dbs.user.FamilyTreeCore.UserActionEnum.EA_CREATE_OR_UPDATE_USER
-import org.dbs.user.FamilyTreeCore.UserActionEnum.EA_UPDATE_USER_STATUS
+import org.dbs.user.FamilyTreeCore
 import org.dbs.user.dto.user.CreateOrUpdateUserDto
 import org.dbs.user.dto.user.CreatedUserDto
 import org.dbs.user.dto.user.UpdateUserStatusDto
@@ -32,10 +28,14 @@ import org.springframework.security.crypto.password.PasswordEncoder
 
 abstract class BaseTreeRestTest: BaseRestSpec() {
 
-    @Autowired lateinit var userRepo: UserRepo
-    @Autowired lateinit var passwordEncoder: PasswordEncoder
-    @Autowired lateinit var accessJwtRepo: AccessJwtRepo
-    @Autowired lateinit var refreshJwtRepo: RefreshJwtRepo
+    @Autowired
+    lateinit var userRepo: UserRepo
+    @Autowired
+    lateinit var passwordEncoder: PasswordEncoder
+    @Autowired
+    lateinit var accessJwtRepo: AccessJwtRepo
+    @Autowired
+    lateinit var refreshJwtRepo: RefreshJwtRepo
 
     protected fun createUserDto(
         login: String,
@@ -58,12 +58,12 @@ abstract class BaseTreeRestTest: BaseRestSpec() {
         response: CreatedUserDto
     ) {
         // Проверка HTTP Response
-        response.status shouldBe ES_USER_ANONYMOUS.entityStatusName
+        response.status shouldBe FamilyTreeCore.EntityStatus.ES_USER_ANONYMOUS.entityStatusName
         response.email shouldBe dto.email
         response.modifiedLogin shouldBe dto.login
 
         val userValidators: Array<PropertyValidator<User, *>> = arrayOf(
-            User::entityStatus verify { it shouldBe ES_USER_ANONYMOUS },
+            User::entityStatus verify { it shouldBe FamilyTreeCore.EntityStatus.ES_USER_ANONYMOUS },
             User::userId verify { it shouldBe entityId },
             User::entityId verify { it shouldBe userId },
             User::birthDate verify { it shouldBe null },
@@ -82,7 +82,7 @@ abstract class BaseTreeRestTest: BaseRestSpec() {
         // Проверка всех полей Entity в БД
         verifyModifiedEntity(
             userRepo.findByLogin(dto.login),
-            EA_CREATE_OR_UPDATE_USER,
+            FamilyTreeCore.UserActionEnum.EA_CREATE_OR_UPDATE_USER,
             verifyAllFields = true,
             *userValidators,
         )
@@ -105,7 +105,9 @@ abstract class BaseTreeRestTest: BaseRestSpec() {
         response.modifiedLogin shouldBe dto.login
 
         val userValidators: Array<PropertyValidator<User, *>> = arrayOf(
-            User::entityStatus verify { it shouldBe EntityStatusEnum.findStatus<EntityStatus>(dto.status, ET_USER) },
+            User::entityStatus verify { it shouldBe EntityStatusEnum.findStatus<FamilyTreeCore.EntityStatus>(dto.status,
+                FamilyTreeCore.EntityTypes.ET_USER
+            ) },
             User::userId verify { it shouldBe entityId },
             User::entityId verify { it shouldBe userId },
             User::modifyDate verify { it shouldBeGreaterThan createDate },
@@ -113,7 +115,7 @@ abstract class BaseTreeRestTest: BaseRestSpec() {
 
         verifyModifiedEntity(
             userRepo.findByLogin(dto.login),
-            EA_UPDATE_USER_STATUS,
+            FamilyTreeCore.UserActionEnum.EA_UPDATE_USER_STATUS,
             verifyAllFields = false,
             *userValidators,
         )

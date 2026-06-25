@@ -37,7 +37,6 @@ class EntityActionEventService(
         with(event) {
             actionRepo.save(
                 EntityAction(
-                    actionId = null,
                     entityId = entityId,
                     entityTypeId = entityTypeId,
                     userId = userId,
@@ -47,7 +46,7 @@ class EntityActionEventService(
                     errMsg = STRING_NULL,
                     actionDuration = MIN,
                     notes = actionNote,
-                ).asNew()
+                )
             )
             logger.debug { "Action registered: entityId=$entityId, entityTypeId=$entityTypeId, actionCode=$actionCodeId" }
         }

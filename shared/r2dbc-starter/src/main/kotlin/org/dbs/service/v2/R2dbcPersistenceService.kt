@@ -6,11 +6,8 @@ import org.dbs.consts.SpringCoreConst.PropertiesNames.CONFIG_REF_AUTO_SYNCHRONIZ
 import org.dbs.consts.SpringCoreConst.PropertiesNames.SPRING_R2DBC_URL
 import org.dbs.consts.SysConst.EMPTY_STRING
 import org.dbs.consts.SysConst.STRING_TRUE
-import org.dbs.entity.core.EntityCacheKeyEnum
 import org.dbs.entity.core.v2.model.EntityCore
 import org.dbs.service.EntityCoreFuncs.validateEntityCore
-import org.dbs.service.cache.v2.EntityCacheService
-import org.dbs.service.dao.EntityDao
 import org.dbs.spring.core.api.AbstractApplicationService
 import org.reactivestreams.Publisher
 import org.springframework.beans.factory.annotation.Value
@@ -32,9 +29,7 @@ import reactor.core.publisher.Mono
 @EnableTransactionManagement
 @DependsOn("flywayInitializer")
 class R2dbcPersistenceService(
-    private val entityDao: EntityDao,
     private val reactiveTransactionManager: ReactiveTransactionManager,
-    private val cacheService: EntityCacheService<out EntityCore>,
 ) : AbstractApplicationService(), PersistenceService {
 
     @Suppress("UnusedPrivateProperty")
@@ -76,24 +71,7 @@ class R2dbcPersistenceService(
     override val transactionalOperator: TransactionalOperator
         get() = TransactionalOperator.create(reactiveTransactionManager)
 
-    fun <T : EntityCore> saveEntity(abstractEntity: T): Mono<T> =
-        entityDao.saveEntity(abstractEntity)
-            .doOnSuccess {
-                logger.debug(
-                    "${if (abstractEntity.entityId == null) "insert new" else "update"} " +
-                            "entity: ${abstractEntity.entityId} [${abstractEntity.javaClass.canonicalName}]"
-                )
-            }
 
-    fun <T : EntityCore> saveEntityHist(abstractEntity: T): Mono<T> = entityDao.saveEntityHist(abstractEntity)
-
-    suspend fun <T : EntityCore> saveEntityHistCo(abstractEntity: T): T = entityDao.saveEntityHistCo(abstractEntity)
-
-    fun invalidateCaches(code: String, vararg entityCache: EntityCacheKeyEnum) {
-        cacheService.invalidateCaches(code, *entityCache)
-    }
-
-    fun doOnError(throwable: Throwable) = log(throwable) { "Persistence exception ($throwable)" }
 }
 
 // actual in dev-test mode

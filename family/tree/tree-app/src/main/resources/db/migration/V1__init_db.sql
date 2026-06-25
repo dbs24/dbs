@@ -7,7 +7,7 @@ END IF;
 END
 $$;
 
-create sequence seq_action_id;
+create sequence seq_action_id CACHE 20;
 
 alter sequence seq_action_id owner to dev_family_admin;
 

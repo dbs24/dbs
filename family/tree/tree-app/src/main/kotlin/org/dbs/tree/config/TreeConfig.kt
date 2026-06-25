@@ -18,6 +18,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.autoconfigure.aop.AopAutoConfiguration
 import org.springframework.boot.autoconfigure.context.ConfigurationPropertiesAutoConfiguration
 import org.springframework.boot.autoconfigure.context.LifecycleAutoConfiguration
+import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.EnableAspectJAutoProxy
 
@@ -40,5 +41,6 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy
     AuditEventsEndpointAutoConfiguration::class,
 ])
 @Configuration(proxyBeanMethods = DEFAULT_PROXY_BEANS_VAL)
+@EnableCaching
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 class TreeConfig : AbstractWebSecurityConfig()

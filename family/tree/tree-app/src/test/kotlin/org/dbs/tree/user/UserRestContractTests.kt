@@ -2,6 +2,7 @@ package org.dbs.tree.user
 
 import io.kotest.common.KotestInternal
 import org.dbs.consts.FieldError
+import org.dbs.tree.BaseTreeRestTest
 import org.dbs.user.FamilyTreeCore.EntityStatus
 import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_ACTUAL
 import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_CLOSED

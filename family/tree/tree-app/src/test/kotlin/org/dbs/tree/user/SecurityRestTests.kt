@@ -3,6 +3,7 @@ package org.dbs.tree.user
 import io.kotest.core.annotation.Isolate
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.test.TestCaseOrder
+import org.dbs.tree.BaseTreeRestTest
 import org.dbs.tree.TreeApplication
 import org.dbs.tree.config.TreeConfig
 import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_ACTUAL
