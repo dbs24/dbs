@@ -5,12 +5,9 @@ import org.dbs.consts.EntityConsts.EntityStatuses.ANONYMOUS
 import org.dbs.consts.EntityConsts.EntityStatuses.BANNED
 import org.dbs.consts.EntityConsts.EntityStatuses.CLOSED
 import org.dbs.entity.core.EntityActionEnum
-import org.dbs.entity.core.EntityCacheKeyEnum
 import org.dbs.entity.core.EntityStatusEnum
 import org.dbs.entity.core.EntityTypeEnum
 import org.dbs.entity.core.v2.consts.ClosedEntity
-import org.dbs.entity.core.v2.consts.EntityV2Consts.CacheKeyId.CC_CODE
-import org.dbs.entity.core.v2.consts.EntityV2Consts.CacheKeyId.CC_ID
 import org.dbs.entity.core.v2.consts.EntityV2Consts.GenericAction.EGAS_CREATE_OR_UPDATE
 import org.dbs.entity.core.v2.consts.EntityV2Consts.GenericAction.EGAS_UPDATE
 import org.dbs.entity.core.v2.consts.EntityV2Consts.GenericAction.EGAS_UPDATE_PASSWORD
@@ -116,31 +113,6 @@ object FamilyTreeCore : EntityCoreInitializer {
             override val actionCode = EGAS_CREATE_OR_UPDATE
             override val entityType = ET_PROJECT
             override val actionName = "Create or update project"
-        },
-    }
-
-    //
-    // cache keys
-    enum class CacheKeyUserEnum : EntityCacheKeyEnum {
-        FT_USER_ID {
-            override val keyCode = CC_ID
-            override val entityType = ET_USER
-            override val cacheCode = "USER.ID"
-        },
-        FT_USER_LOGIN {
-            override val keyCode = CC_CODE
-            override val entityType = ET_USER
-            override val cacheCode = "USER.LOGIN"
-        },
-        FT_PROJECT_ID {
-            override val keyCode = CC_ID
-            override val entityType = ET_PROJECT
-            override val cacheCode = "PROJECT.ID"
-        },
-        FT_PROJECT_CODE {
-            override val keyCode = CC_CODE
-            override val entityType = ET_PROJECT
-            override val cacheCode = "PROJECT.CODE"
         },
     }
 

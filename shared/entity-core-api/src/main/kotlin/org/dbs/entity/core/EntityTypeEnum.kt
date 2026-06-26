@@ -47,12 +47,3 @@ interface EntityActionEnum {
     val actionName: ActionName
     val entityType: EntityTypeEnum
 }
-
-interface EntityCacheKeyEnum {
-
-    val keyCode: Int
-    val cacheKeyCodeId: Int
-        get() = entityType.entityTypeId * CC_RATE + keyCode
-    val cacheCode: ActionName
-    val entityType: EntityTypeEnum
-}
