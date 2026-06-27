@@ -75,7 +75,6 @@ class JedisConfig(
     @Bean
     fun redisCacheManager(
         factory: LettuceConnectionFactory,
-        jsonMapper: JsonMapper
     ): RedisCacheManager {
 
         val jacksonSerializer = GenericJacksonJsonRedisSerializer.create { configurer ->
@@ -86,15 +85,13 @@ class JedisConfig(
         // ✅ FIX: Maintain a continuous builder chain returning RedisCacheConfiguration
         val cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
             .entryTtl(Duration.ofHours(4))
-            .disableCachingNullValues()
+            //.disableCachingNullValues()
             .serializeKeysWith(
                 RedisSerializationContext.SerializationPair.fromSerializer<String>(StringRedisSerializer())
             )
             .serializeValuesWith(
                 RedisSerializationContext.SerializationPair.fromSerializer<Any>(jacksonSerializer)
             )
-        // Optional: Use this ONLY if you want to prepend a custom string before the cache name
-        // .prefixCacheNameWith("my-app:")
 
         return RedisCacheManager.builder(factory)
             .cacheDefaults(cacheConfig) // ✅ Type safely infers RedisCacheConfiguration now
@@ -105,7 +102,6 @@ class JedisConfig(
     @Primary
     fun redisTemplate(
         lcf: RedisConnectionFactory,
-        jsonMapper: JsonMapper // Autowired Jackson 3 singleton
     ): RedisTemplate<String, Any> = RedisTemplate<String, Any>().apply {
         connectionFactory = lcf
         keySerializer = StringRedisSerializer()

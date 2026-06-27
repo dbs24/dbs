@@ -16,7 +16,7 @@ class UserDao(
 
     @CacheEvict(value = ["users"], key = "#user.login")
     suspend fun saveUser(user: User) : User = userRepo.save(user)
-    @Cacheable(value = ["users"], key = "#login", unless = "#result == null")
+    @Cacheable(value = ["users"], key = "#login", sync = true)
     suspend fun findUserByLogin(login: Login): ENTITY? = userRepo.findByLogin(login)
 
 }

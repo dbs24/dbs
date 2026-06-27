@@ -15,7 +15,7 @@ class ProjectDao(
     @CacheEvict(value = ["projects"], key = "#project.shortName")
     suspend fun saveProject(project: ENTITY) : ENTITY = projectRepo.save(project)
 
-    @Cacheable(value = ["projects"], key = "#shortName", unless = "#result == null")
+    @Cacheable(value = ["projects"], key = "#shortName", sync = true)
     suspend fun findProjectByShortName(shortName: String): ENTITY? =
             projectRepo.findByShortName(shortName)
 
