@@ -8,14 +8,16 @@ import org.dbs.utils.lateInitProperty
 
 data class LoginUserCommand(
     val login: String,
-    val password: Password
+    val password: Password,
+    val userAgent: String
 ) : DomainCommand {
     override fun toString() = "{login: $login, password: **** }"
 }
 
 data class RefreshTokensCommand(
     val accessToken: String,
-    val refreshToken: String
+    val refreshToken: String,
+    val userAgent: String
 ) : DomainCommand {
     var login: String by lateInitProperty()
     var issuedJwt: IssuedJwt by lateInitProperty()

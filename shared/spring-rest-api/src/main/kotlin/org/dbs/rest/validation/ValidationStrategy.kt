@@ -53,7 +53,7 @@ interface ValidationStrategy<T : DomainCommand> : Logging, ValidationPattern<T>,
 
         require(missingProperties.isEmpty()) {
             "Validation strategy for ${supportedClass.simpleName} is incomplete. " +
-                    "Missing validation rules for fields: $missingProperties"
+                    "Missing validation rules for field(s): $missingProperties"
         }
 
         // Оптимизация: Поиск дубликатов сгруппирован в один проход, убраны лишние дублирующие проверки в конце

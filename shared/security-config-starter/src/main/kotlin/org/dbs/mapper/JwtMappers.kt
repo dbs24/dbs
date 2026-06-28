@@ -7,10 +7,10 @@ import org.dbs.model.domain.RefreshTokensCommand
 
 object JwtMappers {
 
-    fun LoginUserDto.toCommand(): LoginUserCommand =
-        LoginUserCommand(login, password)
+    fun LoginUserDto.toCommand(userAgent: String): LoginUserCommand =
+        LoginUserCommand(login, password, userAgent)
 
-    fun RefreshTokensDto.toCommand(): RefreshTokensCommand =
-        RefreshTokensCommand(accessToken, refreshToken)
+    fun RefreshTokensDto.toCommand(userAgent: String): RefreshTokensCommand =
+        RefreshTokensCommand(accessToken, refreshToken, userAgent)
 
 }

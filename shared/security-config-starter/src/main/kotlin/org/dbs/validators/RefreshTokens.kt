@@ -15,7 +15,7 @@ import org.dbs.validator.Error
 import org.dbs.validator.ErrorInfo.Companion.create
 import org.dbs.validator.Field
 import org.springframework.stereotype.Component
-import org.dbs.model.domain.RefreshTokensCommand as CMD
+import org.dbs.model.domain.RefreshTokensCommand as DTO
 
 @Component
 class RefreshTokens(
@@ -23,15 +23,16 @@ class RefreshTokens(
     private val accessJwtRepo: AccessJwtRepo,
     private val refreshJwtRepo: RefreshJwtRepo,
     private val jwtSecurityService: JwtSecurityServiceApi
-) : ValidationStrategy<CMD> {
+) : ValidationStrategy<DTO> {
 
-    override val rules: Collection<FieldValidationRule<CMD>> = listOf(
-        CMD::accessToken matches (Patterns.JWT_PATTERN to Field.FLD_ACCESS_JWT),
-        CMD::refreshToken matches (Patterns.JWT_PATTERN to Field.FLD_REFRESH_JWT),
+    override val rules: Collection<FieldValidationRule<DTO>> = listOf(
+        DTO::accessToken matches (Patterns.JWT_PATTERN to Field.FLD_ACCESS_JWT),
+        DTO::refreshToken matches (Patterns.JWT_PATTERN to Field.FLD_REFRESH_JWT),
+        DTO::userAgent matches (Patterns.USER_AGENT to Field.SSS_USER_AGENT),
     )
 
     @Suppress("CyclomaticComplexMethod")
-    override fun validate(request: CMD) {
+    override fun validate(request: DTO) {
         validateInternal(request) { errors ->
 
             // access token

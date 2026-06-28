@@ -5,8 +5,10 @@ import org.dbs.dto.jwt.LoginUserDto
 import org.dbs.dto.jwt.LoginUserResponseDto
 import org.dbs.dto.jwt.RefreshTokensDto
 import org.dbs.mapper.JwtMappers.toCommand
+import org.springframework.http.HttpHeaders
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -15,10 +17,12 @@ import org.springframework.web.bind.annotation.RestController
 class RestJwtController(private val jwtSecurityService: JwtSecurityService) {
 
     @PostMapping("/login")
-    suspend fun login(@RequestBody dto: LoginUserDto): LoginUserResponseDto =
-        jwtSecurityService.loginUser(dto.toCommand())
+    suspend fun login(@RequestBody dto: LoginUserDto,
+                      @RequestHeader(HttpHeaders.USER_AGENT) userAgent: String): LoginUserResponseDto =
+        jwtSecurityService.loginUser(dto.toCommand(userAgent))
 
     @PostMapping("/refresh")
-    suspend fun refresh(@RequestBody dto: RefreshTokensDto): LoginUserResponseDto =
-        jwtSecurityService.refresh(dto.toCommand())
+    suspend fun refresh(@RequestBody dto: RefreshTokensDto,
+                        @RequestHeader(HttpHeaders.USER_AGENT) userAgent: String): LoginUserResponseDto =
+        jwtSecurityService.refresh(dto.toCommand(userAgent))
 }

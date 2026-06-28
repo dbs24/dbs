@@ -133,6 +133,7 @@ object Patterns {
     //Store--------------------------------------------------------
     val LOGIN_COMMON_PATTERN by lazy { compile("[a-zA-Z0-9\\-\\_\\.\\@]{5,49}")  } // 6-20 symbols
     val LOGIN_PATTERN by lazy { compile("[a-z0-9]{5,19}") } // 6-20 symbols
+    val USER_AGENT by lazy { compile("^[a-zA-Z0-9\\s/\\.\\(\\)_\\-;,\\[\\]\\+=:]{5,300}\$") }
     val LOGINS_PATTERN by lazy { compile("[a-z0-9,]{5,1000}") } // 6-20 symbols
     val LOGIN_PATTERN_MASK by lazy { compile("[a-z0-9]{1,19}") } // 6-20 symbols
     val PASSWORD_PATTERN by lazy { compile("(?=^.{6,50}$)((?=.*\\d)|(?=.*W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*") }

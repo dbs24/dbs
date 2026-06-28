@@ -5,9 +5,11 @@ import org.dbs.consts.SpringCoreConst.WebClientConsts.UNLIMITED_BUFFER
 import org.dbs.rest.api.exception.ValidationErrorResponse
 import org.dbs.rest.api.nio.RequestDto
 import org.dbs.rest.api.nio.ResponseDto
+import org.dbs.test.core.SysTestConsts.TEST_REST_USER_AGENT
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient
+import org.springframework.http.HttpHeaders.USER_AGENT
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
@@ -58,11 +60,12 @@ abstract class BaseRestSpec : BaseSpec(), Logging {
     ): R = getExistsWebTestClient
             .post()
             .uri(defMapping + uri)
+            .header(USER_AGENT, TEST_REST_USER_AGENT)
             .contentType(APPLICATION_JSON)
             .accept(APPLICATION_JSON)
             .body(Mono.just(requestBody), T::class.java)
             .exchange()
-            .let(statusCheck) // Применяем проверку статуса (.isOk или .is4xxClientError)
+            .let(statusCheck)
             .expectBody<R>()
             .returnResult()
             .responseBody ?: error("Body is missing (${R::class.simpleName})")

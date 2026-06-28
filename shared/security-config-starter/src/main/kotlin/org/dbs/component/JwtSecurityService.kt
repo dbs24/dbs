@@ -81,12 +81,13 @@ class JwtSecurityService(
         }
     }
 
-    private suspend fun createAccessTokens(login: String, now: LocalDateTime = now()): LoginUserResponseDto {
+    private suspend fun createAccessTokens(login: String, userAgent: String, now: LocalDateTime = now()): LoginUserResponseDto {
         val accessExpTime = jwtProperties.accessTokenExpiration
         val refreshExpTime = jwtProperties.refreshTokenExpiration
 
         val accessToken = createMap<String, String>().run {
             this[CL_USER] = login
+            this[CL_USER_AGENT] = userAgent.hashCode().toString()
             generateJwt(
                 CL_ACCESS_TOKEN,
                 this,
@@ -100,6 +101,7 @@ class JwtSecurityService(
 
         val refreshToken = createMap<String, String>().run {
             this[CL_USER] = login
+            this[CL_USER_AGENT] = userAgent.hashCode().toString()
             generateJwt(
                 CL_REFRESH_TOKEN,
                 this,
@@ -141,7 +143,7 @@ class JwtSecurityService(
     @ValidateDto
     @Transactional
     suspend fun loginUser(request: LoginUserCommand): LoginUserResponseDto {
-        return createAccessTokens(request.login)
+        return createAccessTokens(request.login, request.userAgent)
     }
 
     @ValidateDto
@@ -155,7 +157,7 @@ class JwtSecurityService(
 
         val diffInSeconds: Long = ChronoUnit.SECONDS.between(request.issuedJwt.issueDate, now)
         val diffSecs: Long = if (diffInSeconds < 1) 1 else 0
-        return createAccessTokens(request.login, now.plusSeconds(diffSecs))
+        return createAccessTokens(request.login, request.userAgent, now.plusSeconds(diffSecs))
     }
 
     override fun buildKey(secretKey: String): SecretKey =
@@ -252,11 +254,9 @@ class JwtSecurityService(
     }
 
     fun checkUserAgent(jwt: Jwt): Jwt? = jwt.also {
-        if ((it.claims[CL_USER_AGENT] ?: it.userAgent) != it.userAgent) {
-            logger.warn {
-                "${jwt.token.last15()}: Unauthorized access detected from user agent '${it.userAgent} (${it.requestIp})' " +
-                        "(valid user agent is '${it.claims[CL_USER_AGENT]}')"
-            }
+        require (it.claims[CL_USER_AGENT].toString().toInt() == it.userAgent.hashCode()) {
+          "${jwt.token.last15()}: Unauthorized access detected, invalid user agent specified " +
+                  "(${it.userAgent.hashCode()}!=${it.claims[CL_USER_AGENT]}) (${it.requestIp}) "
         }
     }
 
