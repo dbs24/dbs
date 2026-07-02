@@ -9,8 +9,8 @@ springGrpc = "1.0.3"
 
 # Data / Persistence
 redisClients = "7.5.2"
-postgres = "42.7.11"
-flyway = "12.9.0"
+postgres = "42.7.12"
+flyway = "12.10.0"
 r2dbcPool = "1.0.2.RELEASE"
 r2dbcPostgres = "1.1.2.RELEASE"
 queryDsl = "5.1.0"
@@ -99,8 +99,8 @@ johnRengelman = "7.1.2"
 cryptoChecksum = "1.4.0"
 javaGradlePlugin = "1.6.9"
 gradleTestRetryPlugin = "1.6.5"
-diffPlugSpotless = "8.7.0"
-checkstylePlugin="13.6.6"
+diffPlugSpotless = "8.8.0"
+checkstylePlugin="13.7.0"
 jacocoPlugin="0.8.15"
 
 [libraries]

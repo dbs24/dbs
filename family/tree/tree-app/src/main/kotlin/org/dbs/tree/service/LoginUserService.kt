@@ -4,6 +4,7 @@ import org.dbs.enums.I18NEnum
 import org.dbs.security.LoginService
 import org.dbs.service.I18NService.Companion.findI18nMessage
 import org.dbs.spring.core.api.ServiceLocator.findService
+import org.dbs.spring.core.api.TrackExecutionTime
 import org.dbs.user.FamilyTreeCore.EntityStatus.ES_USER_ACTUAL
 import org.dbs.validator.Error
 import org.dbs.validator.ErrorInfo
@@ -20,6 +21,7 @@ class LoginUserService(
 
     private val userService by lazy { findService(UserService::class) }
 
+    @TrackExecutionTime
     override suspend fun login(user: String, password: String?): Collection<ErrorInfo> =
         mutableListOf<ErrorInfo>().also { errors ->
 

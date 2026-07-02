@@ -7,6 +7,7 @@ import org.dbs.entity.core.EntityStatusEnum
 import org.dbs.entity.core.v2.model.LogEntityAction
 import org.dbs.rest.validation.ValidateDto
 import org.dbs.spring.core.api.AbstractApplicationService
+import org.dbs.spring.core.api.TrackExecutionTime
 import org.dbs.tree.model.domain.CreateOrUpdateUserCommand
 import org.dbs.tree.model.domain.GetUserCredentialsCommand
 import org.dbs.tree.model.domain.UpdateUserPasswordCommand
@@ -43,6 +44,7 @@ class UserService(
         }
     }
 
+    @TrackExecutionTime
     @ValidateDto
     @LogEntityAction("EA_CREATE_OR_UPDATE_USER")
     @Transactional
@@ -68,6 +70,7 @@ class UserService(
         return request.updatedUser
     }
 
+    @TrackExecutionTime
     @ValidateDto
     @LogEntityAction("EA_UPDATE_USER_STATUS")
     @Transactional
@@ -88,6 +91,7 @@ class UserService(
         )
     }
 
+    @TrackExecutionTime
     @ValidateDto
     @LogEntityAction("EA_UPDATE_USER_PASSWORD")
     @Transactional

@@ -3,6 +3,7 @@ package org.dbs.tree.service
 import org.dbs.entity.core.v2.model.LogEntityAction
 import org.dbs.rest.validation.ValidateDto
 import org.dbs.spring.core.api.AbstractApplicationService
+import org.dbs.spring.core.api.TrackExecutionTime
 import org.dbs.tree.model.domain.CreateOrUpdateProjectCommand
 import org.dbs.user.FamilyTreeCore.EntityStatus.ES_PROJECT_ACTUAL
 import org.springframework.stereotype.Service
@@ -17,6 +18,7 @@ class ProjectService(
     val project: ProjectFactory,
 ) : AbstractApplicationService() {
 
+    @TrackExecutionTime
     @ValidateDto
     @LogEntityAction("EA_CREATE_OR_UPDATE_PROJECT")
     @Transactional

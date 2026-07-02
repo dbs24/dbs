@@ -18,6 +18,8 @@ dependencies {
     implementation(libs.log4j.api.kotlin)
     implementation(libs.spring.log4j2)
     implementation(libs.coroutines.core.jvm)
+    implementation(libs.spring.aop)
+
 }
 
 description = "spring-core-api"
