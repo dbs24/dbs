@@ -18,7 +18,6 @@ class ProjectService(
     val project: ProjectFactory,
 ) : AbstractApplicationService() {
 
-    @TrackExecutionTime
     @ValidateDto
     @LogEntityAction("EA_CREATE_OR_UPDATE_PROJECT")
     @Transactional

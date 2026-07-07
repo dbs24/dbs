@@ -21,7 +21,6 @@ class LoginUserService(
 
     private val userService by lazy { findService(UserService::class) }
 
-    @TrackExecutionTime
     override suspend fun login(user: String, password: String?): Collection<ErrorInfo> =
         mutableListOf<ErrorInfo>().also { errors ->
 

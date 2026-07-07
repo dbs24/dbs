@@ -86,13 +86,13 @@ class EntityActionLoggerAspect(
             is Mono<*> -> {
                 Mono.defer {
                     val reactiveStart = System.currentTimeMillis()
-                    result.doOnNext { entity ->
+                    result.doOnSuccess { entity ->
                         if (entity is EntityCore) {
                             validateAction(action, entity.type)
                             val duration = System.currentTimeMillis() - reactiveStart
                             registryActionEvent(entity, action.actionCodeId, method, duration, ip)
                         } else {
-                            error("Unsupported Mono<type>: ${entity::class.java.canonicalName}")
+                            error("Unsupported Mono<type>: ${entity?.javaClass?.canonicalName}")
                         }
                     }
                 }

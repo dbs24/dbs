@@ -7,7 +7,7 @@ application:
     access-token-expiration: ${JWT_ACCESS_TOKEN_LIVE}
     refresh-token-expiration: ${JWT_REFRESH_TOKEN_LIVE}
   profiling:
-    enabled: false
+    enabled: true
 server:
   port: 8443
   ssl:
