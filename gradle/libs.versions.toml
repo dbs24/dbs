@@ -9,7 +9,7 @@ springGrpc = "1.0.3"
 
 # Data / Persistence
 redisClients = "7.5.2"
-postgres = "42.7.12"
+postgres = "42.7.13"
 flyway = "12.10.0"
 r2dbcPool = "1.0.2.RELEASE"
 r2dbcPostgres = "1.1.2.RELEASE"
@@ -31,7 +31,7 @@ blockhoundJunitPlatform = "1.0.17.RELEASE"
 # gRPC / Protobuf
 grpc = "1.82.1"
 grpcKotlinStub = "1.5.0"
-grpcGateway = "2.93.0"
+grpcGateway = "2.94.0"
 googleProtobuf = "4.35.1"
 
 # Jakarta
@@ -42,7 +42,7 @@ jakartaValidation = "4.0.0-M1"
 jackson = "3.2.0"
 
 # Testing
-kotest = "6.2.1"
+kotest = "6.2.2"
 kotestSpringExtension = "1.3.0"
 kotestTestContainersExtension = "2.0.2"
 mockito = "5.23.0"

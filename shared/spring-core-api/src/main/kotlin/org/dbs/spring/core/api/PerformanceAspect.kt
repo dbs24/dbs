@@ -44,15 +44,20 @@ class PerformanceAspect : Logging {
         return Mono.defer {
 
             val startExec = System.currentTimeMillis()
+            val duration: () -> Long = { System.currentTimeMillis() - startExec }
 
             (joinPoint.proceed() as Mono<*>).doOnSuccess { entity ->
-                val duration = System.currentTimeMillis() - startExec
                 val resultClass = entity?.javaClass?.simpleName ?: "Void/Null"
-                logger.info { "# $duration ms, $methodName, result: $resultClass" }
+                val duration = duration()
+                val msg = { "# $duration ms, $methodName, result: $resultClass" }
+                if (duration > 1000)
+                    logger.warn { msg() }
+                else
+                    logger.info { msg() }
             }
                 .doOnError { error ->
-                    val duration = System.currentTimeMillis() - startExec
-                    logger.error { "# $duration ms [FAILED]: ${error.message}, $methodName" }
+                    val errMsg = error.message ?: error.toString()
+                    logger.error { "# ${duration()} ms [FAILED]: $errMsg }, $methodName" }
                 }
         }
     }
