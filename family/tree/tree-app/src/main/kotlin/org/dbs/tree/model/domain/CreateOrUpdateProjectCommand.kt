@@ -18,18 +18,3 @@ data class CreateOrUpdateProjectCommand(
     val isNewProject: Boolean = oldProjectShortName == null
     val isUpdateProject: Boolean = !isNewProject && (oldProjectShortName != projectShortName)
 }
-
-//data class GetProjectCredentialsCommand(
-//    val login: String,
-//) : DomainCommand
-//
-//data class UpdateProjectStatusCommand(
-//    val login: String,
-//    val status: String,
-//) : DomainCommand
-//
-//data class UpdateProjectPasswordCommand(
-//    val login: String,
-//    val oldPassword: String,
-//    val newPassword: String,
-//) : DomainCommand

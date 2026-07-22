@@ -2,9 +2,12 @@
 clear
 TASK_START=$(date +%s.%N)
 
+REGEX_SEARCH_EXPR="(( -> ))"
 REGEX_TEMPLATE_IGNORE_VERSIONS="((rc-|-rc|rc.|-M|alpha|beta|Beta)[0-9]\])|((-rc)\])"
 REGEX_TEMPLATE_SKIP_LIBRARIES="(javax.servlet-api|javax.ws.rs-api|spring-boot-devtools|commons-lang3)"
-REGEX_TEMPLATE_IGNORE_DEFECTIVE_UPDATES="((1.5.0 -> 6f774052d1d6923f8af2e0023886d69949b695ee)|(2.8.16 -> 3.0.3)|(1.21.4 -> 2.0.4)|(1.21.4 -> 2.0.5))"
+#REGEX_TEMPLATE_IGNORE_DEFECTIVE_UPDATES="((1.5.0 -> 6f774052d1d6923f8af2e0023886d69949b695ee)|(2.8.16 -> 3.0.3)|(1.21.4 -> 2.0.4)|(1.21.4 -> 2.0.5))"
+REGEX_TEMPLATE_IGNORE_DEFECTIVE_UPDATES="((1.5.0 -> 6f774052d1d6923f8af2e0023886d69949b695ee))"
+
 LINE="#######################################################"
 S1="\x1B[32m"
 S2="\x1B[0m"
@@ -31,7 +34,7 @@ indicator_pid=$!
 
 # Здесь запускается ваш длительный процесс
 RESULT=$(./gradlew dependencyUpdates --no-parallel | \
-  grep ' -> '  | \
+  grep -E -i "$REGEX_SEARCH_EXPR" | \
   grep -E -i -v "$REGEX_TEMPLATE_IGNORE_VERSIONS|$REGEX_TEMPLATE_SKIP_LIBRARIES|$REGEX_TEMPLATE_IGNORE_DEFECTIVE_UPDATES" | \
   sort -u)
 

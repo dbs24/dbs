@@ -21,7 +21,7 @@ import org.springframework.data.redis.core.RedisTemplate
 )
 @Import(TreeConfig::class)
 @Suppress("unused")
-@Isolate // Заменяем устаревший/внутренний @Isolate на стандартный Spring @Isolated
+@Isolate
 abstract class BaseCacheSpec(val cacheName: String) : BaseSpec(), Logging {
 
     @Autowired lateinit var cacheManager: CacheManager
