@@ -1,5 +1,6 @@
 
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+import com.github.benmanes.gradle.versions.reporter.PlainTextReporter
 import dsl.Dependencies.ApplicationAttributes.MAIN_CLASS
 import dsl.Dependencies.Core.JVM_VERSION
 import dsl.Dependencies.Core.KOTLIN_LANG_VERSION
@@ -124,7 +125,7 @@ allprojects {
     apply(plugin = "com.autonomousapps.plugin-best-practices-plugin")
     apply(plugin = "io.reflectoring.spring-boot-devtools")
     //apply(plugin = "license'
-    apply(plugin = "com.github.ben-manes.versions")
+    apply(plugin = "io.github.ben-manes.versions")
     // gradle
     apply(plugin = "org.gradle.wrapper-upgrade")
     apply(plugin = "org.gradle.test-retry")
@@ -201,11 +202,10 @@ allprojects {
 
     tasks.named<DependencyUpdatesTask>("dependencyUpdates").configure {
 
-        // optional parameters
-        checkForGradleUpdate = true
-        outputFormatter = "json"
-        outputDir = "build/dependencyUpdates"
-        reportfileName = "report"
+        outputFormatter {
+            PlainTextReporter(project.path, revision, gradleReleaseChannel).write(System.out, this)
+        }
+
     }
 
     repositories {

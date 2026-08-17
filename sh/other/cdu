@@ -5,7 +5,6 @@ TASK_START=$(date +%s.%N)
 REGEX_SEARCH_EXPR="(( -> ))"
 REGEX_TEMPLATE_IGNORE_VERSIONS="((rc-|-rc|rc.|-M|alpha|beta|Beta)[0-9]\])|((-rc)\])"
 REGEX_TEMPLATE_SKIP_LIBRARIES="(javax.servlet-api|javax.ws.rs-api|spring-boot-devtools|commons-lang3)"
-#REGEX_TEMPLATE_IGNORE_DEFECTIVE_UPDATES="((1.5.0 -> 6f774052d1d6923f8af2e0023886d69949b695ee)|(2.8.16 -> 3.0.3)|(1.21.4 -> 2.0.4)|(1.21.4 -> 2.0.5))"
 REGEX_TEMPLATE_IGNORE_DEFECTIVE_UPDATES="((1.5.0 -> 6f774052d1d6923f8af2e0023886d69949b695ee))"
 
 LINE="#######################################################"
@@ -28,20 +27,18 @@ progress_indicator() {
 
 # Запуск индикатора прогресса в фоновом режиме
 progress_indicator &
-
-# Сохранение PID индикатора
 indicator_pid=$!
 
 # Здесь запускается ваш длительный процесс
-RESULT=$(./gradlew dependencyUpdates --no-parallel | \
+# ИСПРАВЛЕНО: убран устаревший флаг --no-parallel для Gradle 9+
+RESULT=$(./gradlew dependencyUpdates --no-parallel --refresh-dependencies | \
   grep -E -i "$REGEX_SEARCH_EXPR" | \
   grep -E -i -v "$REGEX_TEMPLATE_IGNORE_VERSIONS|$REGEX_TEMPLATE_SKIP_LIBRARIES|$REGEX_TEMPLATE_IGNORE_DEFECTIVE_UPDATES" | \
   sort -u)
 
 # После завершения длительного процесса убираем индикатор прогресса
 kill $indicator_pid
-
-wait $indicator_pid 2>/dev/null  # Ждем завершения процесса индикатора
+wait $indicator_pid 2>/dev/null
 
 TASK_EXEC_TIME=$(echo "$(date +%s.%N) - $TASK_START" | bc -l)
 clear
